@@ -10,7 +10,14 @@ test('throws when no arguments are passed', function (assert) {
 test('validates algo if provided', function(assert){
   assert.plan(1);
   assert.throws(function(){
-    hash({foo: 'bar'}, 'baz');
+    hash({foo: 'bar'}, {algorithm: 'shalala'});
+  });
+});
+
+test('validates encoding if provided', function(assert){
+  assert.plan(1);
+  assert.throws(function(){
+    hash({foo: 'bar'}, {encoding: 'base16'});
   });
 });
 

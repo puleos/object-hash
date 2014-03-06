@@ -2,35 +2,44 @@
 
 var crypto = require('crypto');
 
-module.exports = function(object,  hashAlgorithm){
-  hashAlgorithm = hashAlgorithm || 'sha1';
-  hashAlgorithm.toLowerCase();
+module.exports = function(object, options){
+	options = options || {};
+  var algo = options.algorithm || 'sha1';
+  var encoding = options.encoding || 'hex';
+  algo.toLowerCase();
+  encoding = encoding.toLowerCase();
 
-  validate(object, hashAlgorithm);
+  validate(object, algo, encoding);
 
-  return hash(object, hashAlgorithm);
+  return hash(object, algo, encoding);
 }
 
-var validate = function(object, algo){
+var validate = function(object, algo, encoding){
 	var supported = crypto.getHashes();
-	
+	var encodings = ['buffer', 'hex', 'binary', 'base64'];
+
 	if(typeof object === 'undefined') { 
-    throw new Error('object argument required.');
+    throw new Error('Object argument required.');
   }
 
 	if(supported.indexOf(algo) === -1){
-		throw new Error('Hash Algorithm "' + algo + '"  not supported. ' + 
-			'Supported values: ' + supported.join(', '));
+		throw new Error('Algorithm "' + algo + '"  not supported. ' + 
+			'supported values: ' + supported.join(', '));
+	}
+
+	if(encodings.indexOf(encoding) === -1){
+		throw new Error('Encoding "' + encoding + '"  not supported. ' + 
+			'supported values: ' + encodings.join(', '));
 	}
 };
 
-var hash = function(object, algo){
+var hash = function(object, algo, encoding){
 	var hashFn = crypto.createHash(algo);
 	var type = typeof value;
 
 	typeHasher(hashFn).dispatch(object);
 
-  return hashFn.digest('hex');
+  return (encoding === 'buffer') ? hashFn.digest() : hashFn.digest(encoding);
 };
 
 function typeHasher(hashFn){
