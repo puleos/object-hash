@@ -1,3 +1,5 @@
+![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)
+
 # Object-Hash
 
 Generate hashes from objects and values in node and the browser.  Uses node.js crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os).
@@ -15,7 +17,7 @@ node:
 npm install object-hash
 ```
 
-browser: (/dist/object_hash.min.js)
+browser: */dist/object_hash.js*
 ```
 <script src="object_hash.min.js" type="text/javascript"></script>
 ```
@@ -72,15 +74,16 @@ console.log(objectHash(bob, { algorithm: 'md5', encoding: 'base64' }));
 ```
 
 ## Development
+
 ```
-// if tape is installed globally
-tape test
+git clone https://github.com/puleos/object-hash
 ```
--or-
-```
-// if not
-npm test
-```
+
+### gulp tasks
+* `gulp watch` (default) watch files, test and lint on change/add
+* `gulp test` unit tests
+* `gulp lint` jshint
+* `gulp dest` create browser version in /dest
 
 ## License
 MIT
