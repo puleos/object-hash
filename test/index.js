@@ -69,7 +69,6 @@ test('array values are hashed', function(assert){
   assert.plan(1);
   var hash1 = hash({foo: ['bar', 'baz'], bax: true });
   var hash2 = hash({foo: ['baz', 'bar'], bax: true });
-  var hash3 = hash({bax: true, foo: ['bar', 'baz']});
   assert.notEqual(hash1, hash2, 'different array orders are unique');
 });
 

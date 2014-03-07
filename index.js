@@ -20,7 +20,7 @@ module.exports = function(object, options){
   validate(object, options);
 
   return hash(object, options);
-}
+};
 
 var validate = function(object, options){
   var hashes = crypto.getHashes();
@@ -43,7 +43,6 @@ var validate = function(object, options){
 
 var hash = function(object, options){
   var hashFn = crypto.createHash(options.algorithm);
-  var type = typeof value;
 
   typeHasher(hashFn, options).dispatch(object);
 
@@ -104,6 +103,6 @@ function typeHasher(hashFn, options){
     _null: function(){
       return hashFn.update('Null');
     }
-  }
-};
+  };
+}
 

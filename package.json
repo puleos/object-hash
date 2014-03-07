@@ -22,6 +22,11 @@
   "author": "Scott Puleo <puleos@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "tape": "~2.10.2"
+    "tape": "~2.10.2",
+    "gulp": "~3.5.5",
+    "gulp-jshint": "~1.5.0",
+    "gulp-browserify": "~0.4.6",
+    "jshint-stylish": "~0.1.5",
+    "gulp-exec": "~1.0.4"
   }
 }
