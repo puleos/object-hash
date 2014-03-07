@@ -72,15 +72,16 @@ console.log(objectHash(bob, { algorithm: 'md5', encoding: 'base64' }));
 ```
 
 ## Development
+
 ```
-// if tape is installed globally
-tape test
+git clone https://github.com/puleos/object-hash
 ```
--or-
-```
-// if not
-npm test
-```
+
+### gulp tasks
+* `gulp watch` (default) watch files, test and lint on change/add
+* `gulp test` unit tests
+* `gulp lint` jshint
+* `gulp dest` create browser version in /dest
 
 ## License
 MIT
