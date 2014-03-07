@@ -12,7 +12,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 
 node:
 ```
-npm install object-hash`
+npm install object-hash
 ```
 
 browser: (/dist/object_hash.min.js)
@@ -73,11 +73,13 @@ console.log(objectHash(bob, { algorithm: 'md5', encoding: 'base64' }));
 
 ## Development
 ```
-tape test // if tape is installed globally
+// if tape is installed globally
+tape test
 ```
 -or-
 ```
-npm test // if not
+// if not
+npm test
 ```
 
 ## License
