@@ -15,7 +15,7 @@ node:
 npm install object-hash
 ```
 
-browser: (/dist/object_hash.min.js)
+browser: */dist/object_hash.js*
 ```
 <script src="object_hash.min.js" type="text/javascript"></script>
 ```
