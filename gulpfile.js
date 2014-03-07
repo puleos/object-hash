@@ -4,6 +4,9 @@ var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 var exec = require('gulp-exec');
 var stylish = require('jshint-stylish');
+var browserify = require('gulp-browserify');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 
 var paths = {
   index: './index.js',
@@ -21,6 +24,17 @@ function lint(src){
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter(stylish));
 }
+
+gulp.task('dist', function(){
+  return gulp.src([paths.index])
+    .pipe(browserify({
+      insertGlobals : true,
+      debug: true,
+    }))
+    .pipe(rename('object_hash.js'))
+    .pipe(uglify({outSourceMap: true}))
+    .pipe(gulp.dest('./dist'));
+});
 
 gulp.task('test', function() {
   test([paths.tests]);

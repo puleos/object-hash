@@ -27,6 +27,8 @@
     "gulp-jshint": "~1.5.0",
     "gulp-browserify": "~0.4.6",
     "jshint-stylish": "~0.1.5",
-    "gulp-exec": "~1.0.4"
+    "gulp-exec": "~1.0.4",
+    "gulp-uglify": "~0.2.1",
+    "gulp-rename": "~1.2.0"
   }
 }
