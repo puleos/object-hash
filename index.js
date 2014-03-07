@@ -2,6 +2,13 @@
 
 var crypto = require('crypto');
 
+/**
+ * Export hashing function
+ * 
+ * @param {object} value to hash
+ * @return {hash value}
+ * @api public
+ */
 module.exports = function(object, options){
   options = options || {};
   options.algorithm = options.algorithm || 'sha1';
@@ -60,7 +67,7 @@ function typeHasher(hashFn, options){
       if(objType !== 'object') { 
         return typeHasher(hashFn)['_' + objType](object); 
       }else{
-        // TODO polyfil Object.keys if needed
+        // TODO polyfill Object.keys if needed
         // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
         return keys.forEach(function(key){

@@ -1,6 +1,6 @@
 {
   "name": "object-hash",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Generate hashes from javascript objects in node and the browser.",
   "homepage": "https://github.com/puleos/object-hash",
   "repository": {

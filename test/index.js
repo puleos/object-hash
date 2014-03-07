@@ -30,7 +30,7 @@ test('hashes non-object types', function(assert){
 });
 
 test('hashes special object types', function(assert){
-  assert.plan(5);
+  assert.plan(6);
   var dt = new Date();
   dt.setDate(dt.getDate() + 1);
 
@@ -39,6 +39,7 @@ test('hashes special object types', function(assert){
   assert.ok(validSha1.test(hash(new Date())), 'hash date');
   assert.notEqual(hash(new Date()), hash(dt), 'different dates not equal');
   assert.ok(validSha1.test(hash(null)), 'hash Null');
+  assert.ok(validSha1.test(hash(Number.NaN)), 'hash NaN');
 });
 
 test('hashes a simple object', function(assert){
@@ -55,7 +56,7 @@ test('hashes identical objects with different key ordering', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test('hashes object keys only when excludeValues option is set', function(assert){
+test('only hashes object keys when excludeValues option is set', function(assert){
   assert.plan(2);
   var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
   var hash2 = hash({foo: true, bar: 'NO'}, { excludeValues: true });
