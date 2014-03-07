@@ -1,7 +1,7 @@
 {
   "name": "object-hash",
-  "version": "0.0.0",
-  "description": "Generate MD5/SHA1 hashes from javascript objects in node and the browser.",
+  "version": "0.0.1",
+  "description": "Generate hashes from javascript objects in node and the browser.",
   "homepage": "https://github.com/puleos/object-hash",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   "keywords": [
     "object",
     "hash",
-    "sha",
+    "sha1",
     "md5"
   ],
   "bugs": {

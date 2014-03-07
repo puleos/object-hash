@@ -15,16 +15,16 @@ module.exports = function(object, options){
 }
 
 var validate = function(object, algo, encoding){
-	var supported = crypto.getHashes();
+	var hashes = crypto.getHashes();
 	var encodings = ['buffer', 'hex', 'binary', 'base64'];
 
 	if(typeof object === 'undefined') { 
     throw new Error('Object argument required.');
   }
 
-	if(supported.indexOf(algo) === -1){
+	if(hashes.indexOf(algo) === -1){
 		throw new Error('Algorithm "' + algo + '"  not supported. ' + 
-			'supported values: ' + supported.join(', '));
+			'supported values: ' + hashes.join(', '));
 	}
 
 	if(encodings.indexOf(encoding) === -1){
@@ -50,10 +50,23 @@ function typeHasher(hashFn){
 			return func(value);
 		},
 		_object: function(object) {
-			var objType = Object.prototype.toString.call(object);
-			//if(objType === '[object Array]') { 
-			return typeHasher._array.call(this, object);
-		},
+			var pattern = (/\[object (.*)\]/i);
+			var objString = Object.prototype.toString.call(object);
+			var objType = pattern.exec(objString)[1] || 'null';
+			objType = objType.toLowerCase();
+
+			if(objType !== 'object') { 
+				return typeHasher(hashFn)['_' + objType](object); 
+			}else{
+				// TODO polyfil Object.keys if needed
+				// TODO think on hasOwnProperty, do we care?
+				var keys = Object.keys(object).sort();
+				return keys.forEach(function(key){
+					hashFn.update(key);
+					typeHasher(hashFn).dispatch(object[key]);
+				});
+			}
+		},	
 		_boolean: function(bool){
 			return hashFn.update(bool.toString());
 		},
@@ -69,8 +82,8 @@ function typeHasher(hashFn){
 		_xml: function(xml){
 			return hashFn.update(xml.toString());
 		},
-		_array: function(){
-
+		_null: function(){
+			return hashFn.update('Null');
 		}
 	}
 };
