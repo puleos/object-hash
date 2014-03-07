@@ -26,13 +26,18 @@ function lint(src){
 }
 
 gulp.task('dist', function(){
-  return gulp.src([paths.index])
+  gulp.src([paths.index])
     .pipe(browserify({
       insertGlobals : true,
       debug: true,
     }))
     .pipe(rename('object_hash.js'))
     .pipe(uglify({outSourceMap: true}))
+    .pipe(gulp.dest('./dist'));
+    // tests
+    gulp.src([paths.tests])
+    .pipe(browserify())
+    .pipe(rename('object_hash_test.js'))
     .pipe(gulp.dest('./dist'));
 });
 

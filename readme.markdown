@@ -83,7 +83,7 @@ git clone https://github.com/puleos/object-hash
 * `gulp watch` (default) watch files, test and lint on change/add
 * `gulp test` unit tests
 * `gulp lint` jshint
-* `gulp dest` create browser version in /dest
+* `gulp dist` create browser version in /dest
 
 ## License
 MIT
