@@ -22,11 +22,23 @@ test('throws when passed an invalid options', function(assert){
 
 test('hashes non-object types', function(assert){
   assert.plan(4);
-  var func = function(a){ return a+1; };
+  var func = function(a){ return a + 1; };
   assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
   assert.ok(validSha1.test(hash(42)), 'hash number');
   assert.ok(validSha1.test(hash(true)), 'hash bool');
-  assert.ok(validSha1.test(hash(func)), 'hash function');
+  assert.ok(validSha1.test(hash(func)), 'hash function'); 
+});
+
+test('hashes special object types', function(assert){
+  assert.plan(5);
+  var dt = new Date();
+  dt.setDate(dt.getDate() + 1);
+
+  assert.ok(validSha1.test(hash([1,2,3,4])), 'hash array');
+  assert.notEqual(hash([1,2,3,4]), hash([4,3,2,1]), 'different arrays not equal');
+  assert.ok(validSha1.test(hash(new Date())), 'hash date');
+  assert.notEqual(hash(new Date()), hash(dt), 'different dates not equal');
+  assert.ok(validSha1.test(hash(null)), 'hash Null');
 });
 
 test('hashes a simple object', function(assert){
@@ -43,4 +55,28 @@ test('hashes identical objects with different key ordering', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-// TODO, test arrays, nesting, and edge cases.
+test('hashes object keys only when excludeValues option is set', function(assert){
+  assert.plan(2);
+  var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
+  var hash2 = hash({foo: true, bar: 'NO'}, { excludeValues: true });
+  var hash3 = hash({foo: true, bar: 'OK', baz: false}, { excludeValues: true });
+  assert.equal(hash1, hash2, 'values not in hash digest');
+  assert.notEqual(hash1, hash3, 'different keys not equal');
+});
+
+test('array values are hashed', function(assert){
+  assert.plan(1);
+  var hash1 = hash({foo: ['bar', 'baz'], bax: true });
+  var hash2 = hash({foo: ['baz', 'bar'], bax: true });
+  var hash3 = hash({bax: true, foo: ['bar', 'baz']});
+  assert.notEqual(hash1, hash2, 'different array orders are unique');
+});
+
+test('nested object values are hashed', function(assert){
+  assert.plan(2);
+  var hash1 = hash({foo: {bar: true, bax: 1}});
+  var hash2 = hash({foo: {bar: true, bax: 1}});
+  var hash3 = hash({foo: {bar: false, bax: 1}});
+  assert.equal(hash1, hash2, 'hashes are equal');
+  assert.notEqual(hash1, hash3, 'different objects not equal');
+});
