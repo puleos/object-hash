@@ -23,7 +23,7 @@ module.exports = function(object, options){
 };
 
 var validate = function(object, options){
-  var hashes = crypto.getHashes();
+  var hashes = crypto.getHashes ? crypto.getHashes() : ['sha', 'sha1', 'md5'];
   var encodings = ['buffer', 'hex', 'binary', 'base64'];
 
   if(typeof object === 'undefined') { 
