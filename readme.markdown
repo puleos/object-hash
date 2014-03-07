@@ -1,3 +1,5 @@
+![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)
+
 # Object-Hash
 
 Generate hashes from objects and values in node and the browser.  Uses node.js crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os).
