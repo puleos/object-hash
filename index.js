@@ -66,7 +66,15 @@ function typeHasher(hashFn){
 					typeHasher(hashFn).dispatch(object[key]);
 				});
 			}
-		},	
+		},
+		_array: function(arr){
+			return arr.forEach(function(el){
+				typeHasher(hashFn).dispatch(el);	
+			});
+		},
+		_date: function(date){
+			return hashFn.update(date.toString());
+		},
 		_boolean: function(bool){
 			return hashFn.update(bool.toString());
 		},
