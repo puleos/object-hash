@@ -5,7 +5,7 @@ Generate hashes from objects and values in node and the browser.  Uses node.js c
 ```
 var objectHash = require('object-hash');
 ```
-## hashObject(value, options);
+## objectHash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 
 ## Installation
@@ -15,9 +15,9 @@ node:
 npm install object-hash`
 ```
 
-browser:
+browser: (/dist/object_hash.min.js)
 ```
-<script src="object_hash.js">
+<script src="object_hash.min.js" type="text/javascript"></script>
 ```
 
 ## Example usage
@@ -28,17 +28,17 @@ var peter = {name: 'Peter', stapler: false, friends: ['Joanna', 'Michael', 'Sami
 var michael = {name: 'Michael', stapler: false, friends: ['Peter', 'Samir'] };
 var bob = {name: 'Bob', stapler: true, friends: [] };
 
-/*** 
+/***
  * sha1 hex encoding (default)
  */
-console.log(objectHash(peter));   
+console.log(objectHash(peter));
 // 14fa461bf4b98155e82adc86532938553b4d33a9
-console.log(objectHash(michael)); 
+console.log(objectHash(michael));
 // 4b2b30e27699979ce46714253bc2213010db039c
 console.log(objectHash(bob));
 // 38d96106bc8ef3d8bd369b99bb6972702c9826d5
 
-/*** 
+/***
  * hash object keys, values ignored
  */
 console.log(objectHash(peter, { excludeValues: true }));
@@ -48,7 +48,7 @@ console.log(objectHash(michael, { excludeValues: true }));
 console.log(objectHash(bob, { excludeValues: true }));
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
 
-/*** 
+/***
  * md5 binary encoding
  */
 console.log(objectHash(peter, { algorithm: 'md5', encoding: 'base64' }));
@@ -69,6 +69,15 @@ console.log(objectHash(bob, { algorithm: 'md5', encoding: 'base64' }));
 	excludeValues: <false(default)|true>
 }
 
+```
+
+## Development
+```
+tape test // if tape is installed globally
+```
+-or-
+```
+npm test // if not
 ```
 
 ## License
