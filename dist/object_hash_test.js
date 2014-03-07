@@ -24,7 +24,7 @@ module.exports = function(object, options){
 };
 
 var validate = function(object, options){
-  var hashes = crypto.getHashes();
+  var hashes = crypto.getHashes ? crypto.getHashes() : ['sha', 'sha1', 'md5'];
   var encodings = ['buffer', 'hex', 'binary', 'base64'];
 
   if(typeof object === 'undefined') { 
@@ -56,7 +56,7 @@ function typeHasher(hashFn, options){
     dispatch: function(value){	
       var type = typeof value;
       var func = this['_' + type];
-      return func(value);
+      return (value === null) ? this._null() : func(value);
     },
     _object: function(object) {
       var pattern = (/\[object (.*)\]/i);
@@ -65,7 +65,11 @@ function typeHasher(hashFn, options){
       objType = objType.toLowerCase();
 
       if(objType !== 'object') { 
-        return typeHasher(hashFn)['_' + objType](object); 
+        if(typeHasher(hashFn)['_' + objType]) {
+          typeHasher(hashFn)['_' + objType](object);
+        }else{
+          throw new Error('Unknown object type "' + objType + '"');
+        } 
       }else{
         // TODO polyfill Object.keys if needed
         // TODO, add option for enumerating, for key in obj includePrototypeChain
@@ -103,6 +107,9 @@ function typeHasher(hashFn, options){
     },
     _null: function(){
       return hashFn.update('Null');
+    },
+    _domwindow: function(window){
+      return hashFn.update('domwindow');
     }
   };
 }
