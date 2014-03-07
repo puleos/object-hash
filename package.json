@@ -30,5 +30,8 @@
     "gulp-exec": "~1.0.4",
     "gulp-uglify": "~0.2.1",
     "gulp-rename": "~1.2.0"
+  },
+  "dependencies": {
+    "tape": "~2.10.2"
   }
 }
