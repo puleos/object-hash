@@ -1,4 +1,5 @@
 ![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)
+![testling](https://ci.testling.com/puleos/object-hash.png)
 
 # Object-Hash
 
