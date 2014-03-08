@@ -53,7 +53,7 @@ console.log(objectHash(bob, { excludeValues: true }));
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
 
 /***
- * md5 binary encoding
+ * md5 base64 encoding
  */
 console.log(objectHash(peter, { algorithm: 'md5', encoding: 'base64' }));
 // 6rkWaaDiG3NynWw4svGH7g==
@@ -85,7 +85,7 @@ git clone https://github.com/puleos/object-hash
 * `gulp watch` (default) watch files, test and lint on change/add
 * `gulp test` unit tests
 * `gulp lint` jshint
-* `gulp dist` create browser version in /dest
+* `gulp dist` create browser version in /dist
 
 ## License
 MIT
