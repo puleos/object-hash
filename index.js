@@ -1,6 +1,6 @@
 'use strict';
 
-require('./lib/object-keys');
+require('./lib/polyfills');
 var crypto = require('crypto');
 
 /**

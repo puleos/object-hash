@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-require('./lib/object-keys');
+require('./lib/polyfills');
 var crypto = require('crypto');
 
 /**
@@ -115,7 +115,7 @@ function typeHasher(hashFn, options){
   };
 }
 
-},{"./lib/object-keys":2,"crypto":7}],2:[function(require,module,exports){
+},{"./lib/polyfills":2,"crypto":7}],2:[function(require,module,exports){
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 if (!Object.keys) {
   Object.keys = (function () {
@@ -158,6 +158,38 @@ if (!Object.keys) {
   }());
 }
 
+// indexOf polyfill from MDN
+
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+      if ( this === undefined || this === null ) {
+        throw new TypeError( '"this" is null or not defined' );
+      }
+
+      var length = this.length >>> 0; // Hack to convert object.length to a UInt32
+
+      fromIndex = +fromIndex || 0;
+
+      if (Math.abs(fromIndex) === Infinity) {
+        fromIndex = 0;
+      }
+
+      if (fromIndex < 0) {
+        fromIndex += length;
+        if (fromIndex < 0) {
+          fromIndex = 0;
+        }
+      }
+
+      for (;fromIndex < length; fromIndex++) {
+        if (this[fromIndex] === searchElement) {
+          return fromIndex;
+        }
+      }
+
+      return -1;
+    };
+  }
 },{}],3:[function(require,module,exports){
 /**
  * The buffer module from node.js, for the browser.
