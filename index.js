@@ -31,25 +31,13 @@ function objectHash(object, options){
  * Export sugar methods
  */
 exports.keys = function(object){
-  return objectHash(object, {excludeValues: true});
+  return objectHash(object, {excludeValues: true, algorithm: 'sha1', encoding: 'hex'});
 };
 exports.MD5 = function(object){
   return objectHash(object, {algorithm: 'md5', encoding: 'hex'});
 };
-exports.SHA1 = function(object){
-  return objectHash(object, {algorithm: 'sha1', encoding: 'hex'});
-};
-exports.SHA = function(object){
-  return objectHash(object, {algorithm: 'sha', encoding: 'hex'});
-};
 exports.keysMD5 = function(object){
   return objectHash(object, {algorithm: 'md5', encoding: 'hex', excludeValues: true});
-};
-exports.keysSHA1 = function(object){
-  return objectHash(object, {algorithm: 'sha1', encoding: 'hex', excludeValues: true});
-};
-exports.keysSHA = function(object){
-  return objectHash(object, {algorithm: 'sha', encoding: 'hex', excludeValues: true});
 };
 
 

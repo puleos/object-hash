@@ -84,17 +84,10 @@ test('nested object values are hashed', function(assert){
 });
 
 test('sugar methods should be equivalent', function(assert){
-  assert.plan(7);
+  assert.plan(3);
   var obj = {foo: 'bar', baz: true};
   assert.equal(hash.keys(obj), hash(obj, {excludeValues: true}), 'keys');
-  assert.equal(hash.SHA(obj), hash(obj, {algorithm: 'sha'}), 'sha');
-  assert.equal(hash.SHA1(obj), hash(obj, {algorithm: 'sha1'}), 'sha1');
   assert.equal(hash.MD5(obj), hash(obj, {algorithm: 'md5'}), 'md5');
-
-  assert.equal(hash.keysSHA(obj),
-    hash(obj, {algorithm: 'sha', excludeValues: true}), 'keys sha');
-  assert.equal(hash.keysSHA1(obj),
-    hash(obj, {algorithm: 'sha1', excludeValues: true}), 'keys sha1');
   assert.equal(hash.keysMD5(obj),
     hash(obj, {algorithm: 'md5', excludeValues: true}), 'keys md5');
 });
