@@ -83,8 +83,8 @@ function typeHasher(hashFn, options){
       objType = objType.toLowerCase();
 
       if(objType !== 'object') {
-        if(typeHasher(hashFn)['_' + objType]) {
-          typeHasher(hashFn)['_' + objType](object);
+        if(typeHasher(hashFn, options)['_' + objType]) {
+          typeHasher(hashFn, options)['_' + objType](object);
         }else{
           throw new Error('Unknown object type "' + objType + '"');
         }
@@ -101,7 +101,7 @@ function typeHasher(hashFn, options){
     },
     _array: function(arr){
       return arr.forEach(function(el){
-        typeHasher(hashFn).dispatch(el);
+        typeHasher(hashFn, options).dispatch(el);
       });
     },
     _date: function(date){

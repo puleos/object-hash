@@ -91,3 +91,12 @@ test('sugar methods should be equivalent', function(assert){
   assert.equal(hash.keysMD5(obj),
     hash(obj, {algorithm: 'md5', excludeValues: true}), 'keys md5');
 });
+
+test('array of nested object values are hashed', function(assert){
+  assert.plan(2);
+  var hash1 = hash({foo: [ {bar: true, bax: 1}, {bar: false, bax: 2} ] });
+  var hash2 = hash({foo: [ {bar: true, bax: 1}, {bar: false, bax: 2} ] });
+  var hash3 = hash({foo: [ {bar: false, bax: 2} ] });
+  assert.equal(hash1, hash2, 'hashes are equal');
+  assert.notEqual(hash1, hash3, 'different objects not equal');
+});
