@@ -15,14 +15,8 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 ## hash.keys(value);
 Sugar method, equivalent to hash(value, {excludeValues: true})
 
-## hash.SHA1(value);
-Sugar method, equivalent to hash(value, {algorithm: 'sha1'})
-
 ## hash.MD5(value);
 Sugar method, equivalent to hash(value, {algorithm: 'md5'})
-
-## hash.keysSHA1(value);
-Sugar method, equivalent to hash(value, {algorithm: 'sha1', excludeValues: true})
 
 ## hash.keysMD5(value);
 Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})
