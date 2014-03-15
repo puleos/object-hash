@@ -2,6 +2,8 @@ var test = require('tape');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
+console.log(hash);
+
 test('throws when nothing to hash', function (assert) {
   assert.plan(2);
   assert.throws(hash, 'no arguments');
@@ -26,7 +28,7 @@ test('hashes non-object types', function(assert){
   assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
   assert.ok(validSha1.test(hash(42)), 'hash number');
   assert.ok(validSha1.test(hash(true)), 'hash bool');
-  assert.ok(validSha1.test(hash(func)), 'hash function'); 
+  assert.ok(validSha1.test(hash(func)), 'hash function');
 });
 
 test('hashes special object types', function(assert){
@@ -79,4 +81,20 @@ test('nested object values are hashed', function(assert){
   var hash3 = hash({foo: {bar: false, bax: 1}});
   assert.equal(hash1, hash2, 'hashes are equal');
   assert.notEqual(hash1, hash3, 'different objects not equal');
+});
+
+test('sugar methods should be equivalent', function(assert){
+  assert.plan(7);
+  var obj = {foo: 'bar', baz: true};
+  assert.equal(hash.keys(obj), hash(obj, {excludeValues: true}), 'keys');
+  assert.equal(hash.SHA(obj), hash(obj, {algorithm: 'sha'}), 'sha');
+  assert.equal(hash.SHA1(obj), hash(obj, {algorithm: 'sha1'}), 'sha1');
+  assert.equal(hash.MD5(obj), hash(obj, {algorithm: 'md5'}), 'md5');
+
+  assert.equal(hash.keysSHA(obj),
+    hash(obj, {algorithm: 'sha', excludeValues: true}), 'keys sha');
+  assert.equal(hash.keysSHA1(obj),
+    hash(obj, {algorithm: 'sha1', excludeValues: true}), 'keys sha1');
+  assert.equal(hash.keysMD5(obj),
+    hash(obj, {algorithm: 'md5', excludeValues: true}), 'keys md5');
 });

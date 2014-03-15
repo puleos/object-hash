@@ -11,7 +11,10 @@ var crypto = require('crypto');
  * @return {hash value}
  * @api public
  */
-module.exports = function(object, options){
+
+exports = module.exports = objectHash;
+
+function objectHash(object, options){
   options = options || {};
   options.algorithm = options.algorithm || 'sha1';
   options.encoding = options.encoding || 'hex';
@@ -22,7 +25,33 @@ module.exports = function(object, options){
   validate(object, options);
 
   return hash(object, options);
+}
+
+/**
+ * Export sugar methods
+ */
+exports.keys = function(object){
+  return objectHash(object, {excludeValues: true});
 };
+exports.MD5 = function(object){
+  return objectHash(object, {algorithm: 'md5', encoding: 'hex'});
+};
+exports.SHA1 = function(object){
+  return objectHash(object, {algorithm: 'sha1', encoding: 'hex'});
+};
+exports.SHA = function(object){
+  return objectHash(object, {algorithm: 'sha', encoding: 'hex'});
+};
+exports.keysMD5 = function(object){
+  return objectHash(object, {algorithm: 'md5', encoding: 'hex', excludeValues: true});
+};
+exports.keysSHA1 = function(object){
+  return objectHash(object, {algorithm: 'sha1', encoding: 'hex', excludeValues: true});
+};
+exports.keysSHA = function(object){
+  return objectHash(object, {algorithm: 'sha', encoding: 'hex', excludeValues: true});
+};
+
 
 function validate(object, options){
   var hashes = crypto.getHashes ? crypto.getHashes() : ['sha', 'sha1', 'md5'];

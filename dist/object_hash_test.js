@@ -12,7 +12,10 @@ var crypto = require('crypto');
  * @return {hash value}
  * @api public
  */
-module.exports = function(object, options){
+
+exports = module.exports = objectHash;
+
+function objectHash(object, options){
   options = options || {};
   options.algorithm = options.algorithm || 'sha1';
   options.encoding = options.encoding || 'hex';
@@ -23,7 +26,33 @@ module.exports = function(object, options){
   validate(object, options);
 
   return hash(object, options);
+}
+
+/**
+ * Export sugar methods
+ */
+exports.keys = function(object){
+  return objectHash(object, {excludeValues: true});
 };
+exports.MD5 = function(object){
+  return objectHash(object, {algorithm: 'md5', encoding: 'hex'});
+};
+exports.SHA1 = function(object){
+  return objectHash(object, {algorithm: 'sha1', encoding: 'hex'});
+};
+exports.SHA = function(object){
+  return objectHash(object, {algorithm: 'sha', encoding: 'hex'});
+};
+exports.keysMD5 = function(object){
+  return objectHash(object, {algorithm: 'md5', encoding: 'hex', excludeValues: true});
+};
+exports.keysSHA1 = function(object){
+  return objectHash(object, {algorithm: 'sha1', encoding: 'hex', excludeValues: true});
+};
+exports.keysSHA = function(object){
+  return objectHash(object, {algorithm: 'sha', encoding: 'hex', excludeValues: true});
+};
+
 
 function validate(object, options){
   var hashes = crypto.getHashes ? crypto.getHashes() : ['sha', 'sha1', 'md5'];
@@ -159,7 +188,6 @@ if (!Object.keys) {
 }
 
 // indexOf polyfill from MDN
-
 if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (searchElement, fromIndex) {
       if ( this === undefined || this === null ) {
@@ -190,6 +218,33 @@ if (!Array.prototype.indexOf) {
       return -1;
     };
   }
+// forEach https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+if (!Array.prototype.forEach)
+{
+  Array.prototype.forEach = function(fun /*, thisArg */)
+  {
+    "use strict";
+
+    if (this === void 0 || this === null) {
+      throw new TypeError();
+    }
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+    if (typeof fun !== "function") {
+      throw new TypeError();
+    }
+
+    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+    for (var i = 0; i < len; i++)
+    {
+      if (i in t) {
+        fun.call(thisArg, t[i], i, t);
+      }
+    }
+  };
+}
+
 },{}],3:[function(require,module,exports){
 /**
  * The buffer module from node.js, for the browser.
@@ -6433,6 +6488,8 @@ var test = require('tape');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
+console.log(hash);
+
 test('throws when nothing to hash', function (assert) {
   assert.plan(2);
   assert.throws(hash, 'no arguments');
@@ -6457,7 +6514,7 @@ test('hashes non-object types', function(assert){
   assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
   assert.ok(validSha1.test(hash(42)), 'hash number');
   assert.ok(validSha1.test(hash(true)), 'hash bool');
-  assert.ok(validSha1.test(hash(func)), 'hash function'); 
+  assert.ok(validSha1.test(hash(func)), 'hash function');
 });
 
 test('hashes special object types', function(assert){
@@ -6510,6 +6567,22 @@ test('nested object values are hashed', function(assert){
   var hash3 = hash({foo: {bar: false, bax: 1}});
   assert.equal(hash1, hash2, 'hashes are equal');
   assert.notEqual(hash1, hash3, 'different objects not equal');
+});
+
+test('sugar methods should be equivalent', function(assert){
+  assert.plan(7);
+  var obj = {foo: 'bar', baz: true};
+  assert.equal(hash.keys(obj), hash(obj, {excludeValues: true}), 'keys');
+  assert.equal(hash.SHA(obj), hash(obj, {algorithm: 'sha'}), 'sha');
+  assert.equal(hash.SHA1(obj), hash(obj, {algorithm: 'sha1'}), 'sha1');
+  assert.equal(hash.MD5(obj), hash(obj, {algorithm: 'md5'}), 'md5');
+
+  assert.equal(hash.keysSHA(obj),
+    hash(obj, {algorithm: 'sha', excludeValues: true}), 'keys sha');
+  assert.equal(hash.keysSHA1(obj),
+    hash(obj, {algorithm: 'sha1', excludeValues: true}), 'keys sha1');
+  assert.equal(hash.keysMD5(obj),
+    hash(obj, {algorithm: 'md5', excludeValues: true}), 'keys md5');
 });
 
 },{"../index":1,"tape":26}]},{},[38])
