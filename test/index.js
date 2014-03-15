@@ -2,8 +2,6 @@ var test = require('tape');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
-console.log(hash);
-
 test('throws when nothing to hash', function (assert) {
   assert.plan(2);
   assert.throws(hash, 'no arguments');
