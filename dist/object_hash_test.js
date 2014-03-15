@@ -84,8 +84,8 @@ function typeHasher(hashFn, options){
       objType = objType.toLowerCase();
 
       if(objType !== 'object') {
-        if(typeHasher(hashFn)['_' + objType]) {
-          typeHasher(hashFn)['_' + objType](object);
+        if(typeHasher(hashFn, options)['_' + objType]) {
+          typeHasher(hashFn, options)['_' + objType](object);
         }else{
           throw new Error('Unknown object type "' + objType + '"');
         }
@@ -102,7 +102,7 @@ function typeHasher(hashFn, options){
     },
     _array: function(arr){
       return arr.forEach(function(el){
-        typeHasher(hashFn).dispatch(el);
+        typeHasher(hashFn, options).dispatch(el);
       });
     },
     _date: function(date){
@@ -6564,6 +6564,16 @@ test('sugar methods should be equivalent', function(assert){
   assert.equal(hash.MD5(obj), hash(obj, {algorithm: 'md5'}), 'md5');
   assert.equal(hash.keysMD5(obj),
     hash(obj, {algorithm: 'md5', excludeValues: true}), 'keys md5');
+});
+
+
+test('array of nested object values are hashed', function(assert){
+  assert.plan(2);
+  var hash1 = hash({foo: [ {bar: true, bax: 1}, {bar: false, bax: 2} ] });
+  var hash2 = hash({foo: [ {bar: true, bax: 1}, {bar: false, bax: 2} ] });
+  var hash3 = hash({foo: [ {bar: false, bax: 2} ] });
+  assert.equal(hash1, hash2, 'hashes are equal');
+  assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
 },{"../index":1,"tape":26}]},{},[38])
