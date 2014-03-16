@@ -4,14 +4,20 @@ require('./lib/polyfills');
 var crypto = require('crypto');
 
 /**
- * Export hashing function
+ * Exported function
+ *
+ * Options:
+ *
+ *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5' 
+ *  - `excludeValues` {true|*false} hash object keys, values ignored 
+ *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
+ *  * = default
  *
  * @param {object} value to hash
  * @param {options} hashing options
  * @return {hash value}
  * @api public
  */
-
 exports = module.exports = objectHash;
 
 function objectHash(object, options){
@@ -28,7 +34,11 @@ function objectHash(object, options){
 }
 
 /**
- * Export sugar methods
+ * Exported sugar methods
+ *
+ * @param {object} value to hash
+ * @return {hash value}
+ * @api public
  */
 exports.keys = function(object){
   return objectHash(object, {excludeValues: true, algorithm: 'sha1', encoding: 'hex'});
@@ -40,9 +50,16 @@ exports.keysMD5 = function(object){
   return objectHash(object, {algorithm: 'md5', encoding: 'hex', excludeValues: true});
 };
 
+/**
+ * Expose HashTable constructor
+ *
+ */
+exports.HashTable = require('./lib/hashTable');
 
+
+// Internals
 function validate(object, options){
-  var hashes = crypto.getHashes ? crypto.getHashes() : ['sha', 'sha1', 'md5'];
+  var hashes = crypto.getHashes ? crypto.getHashes() : ['sha1', 'md5'];
   var encodings = ['buffer', 'hex', 'binary', 'base64'];
 
   if(typeof object === 'undefined') {

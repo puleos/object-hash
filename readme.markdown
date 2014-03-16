@@ -4,13 +4,17 @@
 
 ![testling](https://ci.testling.com/puleos/object-hash.png)
 
-Generate hashes from objects and values in node and the browser.  Uses node.js crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os).
+Generate hashes from objects and values in node and the browser.  Uses node.js
+crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os).
 
 ```
 var hash = require('object-hash');
 ```
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
+*  `algorithm` hash algo to be used by this instance: 'sha1', 'md5'
+*  `excludeValues` {true|false} hash object keys, values ignored
+*  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'
 
 ## hash.keys(value);
 Sugar method, equivalent to hash(value, {excludeValues: true})
@@ -21,6 +25,32 @@ Sugar method, equivalent to hash(value, {algorithm: 'md5'})
 ## hash.keysMD5(value);
 Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})
 
+## var hashTable = new hash.HashTable(options);
+Create a new HashTable instance.  Standard hashing options are supported.
+
+## hashTable.add(value1, value2, ...);
+Add an object to the hash table. Supports parameters or a single array.
+
+## hashTable.getValue(hashKey);
+Retrive the object value by hashKey.
+
+## hashTable.getCount(hashKey);
+Retrieve the a counter representing the number of times an object was added to
+the table.  
+
+## hashTable.hasKey(hashKey);
+Returns true if the specified hash is in the hashTable.
+
+## hashTable.toArray();
+Returns an array of the HashTable contents in the following format:
+```
+[ {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
+    count: 2, value: {foo: 'bar', baz: true }},
+  {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
+    count: 1, value: {foo: 'bar', baz: true }} ]
+```
+## hashTable.reset();
+Clears contents of the hashTable.
 
 ## Installation
 
@@ -71,17 +101,6 @@ console.log(hash(michael, { algorithm: 'md5', encoding: 'base64' }));
 // djXaWpuWVJeOF8Sb6SFFNg==
 console.log(hash(bob, { algorithm: 'md5', encoding: 'base64' }));
 // lFzkw/IJ8/12jZI0rQeS3w==
-
-```
-
-## Options
-
-```js
-{
-	algorithm: '<sha1(default)|sha|md5|...>',
-	encoding: '<hex(default)|buffer|binary|base64>',
-	excludeValues: <false(default)|true>
-}
 
 ```
 
