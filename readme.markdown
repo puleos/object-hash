@@ -7,7 +7,7 @@
 Generate hashes from objects and values in node and the browser.  Uses node.js
 crypo module for hashing.  Supports sha1, md5 and many others (depending on the platform).
 
-* Hash any values of any type
+* Hash values of any type.
 * Provides a hash table implementation.
 * Supports a keys only option for grouping like objects with different values.
 
@@ -22,18 +22,21 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 
 ## hash.keys(value);
 Hash object keys using the sha1 algorithm, values ignored.
+
 *Sugar method, equivalent to hash(value, {excludeValues: true})*
 
 ## hash.MD5(value);
 Hash using the md5 algorithm.
+
 *Sugar method, equivalent to hash(value, {algorithm: 'md5'})*
 
 ## hash.keysMD5(value);
 Hash object keys using the md5 algorithm, values ignored.
+
 *Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})*
 
 ## var hashTable = new hash.HashTable(options);
-Create a new HashTable instance.  Hashing options are supported and applied to values
+Create a new HashTable instance.  Hashing options are supported and applied to all values
 added to the table.
 
 ## hashTable.add(value1, value2, ...);
@@ -63,10 +66,10 @@ Returns an array of the hash table contents in the following format:
   {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
     count: 1, value: {foo: 'bar', baz: true }} ]
 ```
-!Note: when the excludeValues option is set, the `value` of the hash table is an array of objects with matching keys.
+*Note: when the excludeValues option is set, the `value` of the hash table is an array of objects with matching keys.*
 
 ## hashTable.reset();
-Clears contents of the hashTable.
+Clears the contents of the hash table.
 
 ## Installation
 
