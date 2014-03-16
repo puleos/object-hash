@@ -152,6 +152,7 @@ function typeHasher(hashFn, options){
 },{"./lib/hashTable":2,"./lib/polyfills":3,"crypto":8}],2:[function(require,module,exports){
 'use strict';
 var hasher = require('../index');
+require('./polyfills');
 
 /**
  * Setup a HashTable instance with options
@@ -177,7 +178,7 @@ HashTable.prototype.add = function(/* values to be added */){
   var self = this;
   var args = Array.prototype.slice.call(arguments, 0);
   args.forEach(function(obj){
-    if(toString.call(obj) === '[object Array]'){
+    if(Object.prototype.toString.call(obj) === '[object Array]'){
       obj.forEach(function(val){
         self._addObject(val);
       });
@@ -238,7 +239,7 @@ HashTable.prototype.reset = function(){
   this._table = {};
   return this;
 }
-},{"../index":1}],3:[function(require,module,exports){
+},{"../index":1,"./polyfills":3}],3:[function(require,module,exports){
 // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 if (!Object.keys) {
   Object.keys = (function () {
@@ -338,6 +339,43 @@ if (!Array.prototype.forEach)
     }
   };
 }
+
+(function () {
+    'use strict';
+    var _slice = Array.prototype.slice;
+
+    try {
+        // Can't be used with DOM elements in IE < 9
+        _slice.call(document.documentElement); 
+    }
+    catch (e) { // Fails in IE < 9
+        Array.prototype.slice = function (begin, end) {
+            var i, arrl = this.length, a = [];
+            // Although IE < 9 does not fail when applying Array.prototype.slice
+            // to strings, here we do have to duck-type to avoid failing
+            // with IE < 9's lack of support for string indexes
+            if (this.charAt) { 
+                for (i = 0; i < arrl; i++) {
+                    a.push(this.charAt(i));
+                }
+            }
+            // This will work for genuine arrays, array-like objects, 
+            // NamedNodeMap (attributes, entities, notations),
+            // NodeList (e.g., getElementsByTagName), HTMLCollection (e.g., childNodes),
+            // and will not fail on other DOM objects (as do DOM elements in IE < 9)
+            else { 
+                // IE < 9 (at least IE < 9 mode in IE 10) does not work with
+                // node.attributes (NamedNodeMap) without a dynamically checked length here
+                for (i = 0; i < this.length; i++) { 
+                    a.push(this[i]);
+                }
+            }
+            // IE < 9 gives errors here if end is allowed as undefined
+            // (as opposed to just missing) so we default ourselves
+            return _slice.call(a, begin, end || a.length);
+        };
+    }
+}());
 
 },{}],4:[function(require,module,exports){
 /**
