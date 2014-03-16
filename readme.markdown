@@ -2,7 +2,7 @@
 
 ![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)
 
-![testling](https://ci.testling.com/puleos/object-hash.png)
+![testling](https://ci.testling.com/puleos/object-hash.png?v=0.2.0)
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
 crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os).
@@ -32,23 +32,25 @@ Create a new HashTable instance.  Standard hashing options are supported.
 Add an object to the hash table. Supports parameters or a single array.
 
 ## hashTable.getValue(hashKey);
-Retrive the object value by hashKey.
+Retrive the objects value from the table by hash key.
 
 ## hashTable.getCount(hashKey);
-Retrieve the a counter representing the number of times an object was added to
+Retrieve a counter representing the number of times an object was added to
 the table.  
 
 ## hashTable.hasKey(hashKey);
-Returns true if the specified hash is in the hashTable.
+Returns true if the specified hash is in the hash table.
 
 ## hashTable.toArray();
-Returns an array of the HashTable contents in the following format:
+Returns an array of the hash table contents in the following format:
 ```
 [ {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
     count: 2, value: {foo: 'bar', baz: true }},
   {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
     count: 1, value: {foo: 'bar', baz: true }} ]
 ```
+!Note: in when the excludeValues option is set, the `value` of the hash table is an array of objects with matching keys.
+
 ## hashTable.reset();
 Clears contents of the hashTable.
 
