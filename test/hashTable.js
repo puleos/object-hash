@@ -59,10 +59,11 @@ test('.add() should support a series of objects', function(assert){
 test('.getValue() should return the proper object', function(assert){
   var hashTable = new hash.HashTable();
   var hash1 = hash(obj1);
-  assert.plan(1);
+  assert.plan(2);
 
   hashTable.add(obj1, obj2, obj3);
   assert.looseEqual(hashTable.getValue(hash1), obj1, 'obj1 = value');
+  assert.equal(hashTable.getValue('XXXXXXXX'), undefined, 'undef ok');
 });
 
 test('.getCount() should return the proper count', function(assert){
