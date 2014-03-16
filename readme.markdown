@@ -5,9 +5,10 @@
 ![testling](https://ci.testling.com/puleos/object-hash.png?v=0.2.0)
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
-crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os). 
+crypo module for hashing.  Supports sha1, md5 and many others (depending on the platform).
 
-* Provides a Hashtable implementation.
+* Hash any values of any type
+* Provides a hash table implementation.
 * Supports a keys only option for grouping like objects with different values.
 
 ```
@@ -15,34 +16,44 @@ var hash = require('object-hash');
 ```
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
-*  `algorithm` hash algo to be used by this instance: 'sha1', 'md5'
+*  `algorithm` hash algo to be used: 'sha1', 'md5'
 *  `excludeValues` {true|false} hash object keys, values ignored
 *  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'
 
 ## hash.keys(value);
-Sugar method, equivalent to hash(value, {excludeValues: true})
+Hash object keys using the sha1 algorithm, values ignored.
+*Sugar method, equivalent to hash(value, {excludeValues: true})*
 
 ## hash.MD5(value);
-Sugar method, equivalent to hash(value, {algorithm: 'md5'})
+Hash using the md5 algorithm.
+*Sugar method, equivalent to hash(value, {algorithm: 'md5'})*
 
 ## hash.keysMD5(value);
-Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})
+Hash object keys using the md5 algorithm, values ignored.
+*Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})*
 
 ## var hashTable = new hash.HashTable(options);
-Create a new HashTable instance.  Standard hashing options are supported.
+Create a new HashTable instance.  Hashing options are supported and applied to values
+added to the table.
 
 ## hashTable.add(value1, value2, ...);
-Add an object to the hash table. Supports parameters or a single array.
+Add an object to the hash table. Supports n parameters or an array of values to be
+added to the table.  
+
+*Note: if you wish to evaluate an array as a single table entry
+you must wrap it first `{[1,2,3,4]}` otherwise each element will be added to the
+table separately.*
 
 ## hashTable.getValue(hashKey);
-Retrive the objects value from the table by hash key.
+Retrive the objects value from the table by hash key.  If there is no matching entry
+returns undefined.
 
 ## hashTable.getCount(hashKey);
 Retrieve a counter representing the number of times an object was added to
-the table.  
+the table.  Returns 0 if a matching key is not found.
 
 ## hashTable.hasKey(hashKey);
-Returns true if the specified hash is in the hash table.
+Returns true if the specified hash is in the hash table otherwise false.
 
 ## hashTable.toArray();
 Returns an array of the hash table contents in the following format:
@@ -66,7 +77,7 @@ npm install object-hash
 
 browser: */dist/object_hash.js*
 ```
-<script src="object_hash.min.js" type="text/javascript"></script>
+<script src="object_hash.js" type="text/javascript"></script>
 ```
 
 ## Example usage
@@ -80,33 +91,56 @@ var bob = {name: 'Bob', stapler: true, friends: [] };
 /***
  * sha1 hex encoding (default)
  */
-console.log(hash(peter));
+hash(peter);
 // 14fa461bf4b98155e82adc86532938553b4d33a9
-console.log(hash(michael));
+hash(michael);
 // 4b2b30e27699979ce46714253bc2213010db039c
-console.log(hash(bob));
+hash(bob);
 // 38d96106bc8ef3d8bd369b99bb6972702c9826d5
 
 /***
  * hash object keys, values ignored
  */
-console.log(hash(peter, { excludeValues: true }));
+hash(peter, { excludeValues: true });
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
-console.log(hash(michael, { excludeValues: true }));
+hash(michael, { excludeValues: true });
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
-console.log(hash.keys(bob));
+hash.keys(bob);
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
 
 /***
  * md5 base64 encoding
  */
-console.log(hash(peter, { algorithm: 'md5', encoding: 'base64' }));
+hash(peter, { algorithm: 'md5', encoding: 'base64' });
 // 6rkWaaDiG3NynWw4svGH7g==
-console.log(hash(michael, { algorithm: 'md5', encoding: 'base64' }));
+hash(michael, { algorithm: 'md5', encoding: 'base64' });
 // djXaWpuWVJeOF8Sb6SFFNg==
-console.log(hash(bob, { algorithm: 'md5', encoding: 'base64' }));
+hash(bob, { algorithm: 'md5', encoding: 'base64' });
 // lFzkw/IJ8/12jZI0rQeS3w==
 
+/***
+ * HashTable example
+ */
+var hashTable = new hash.HashTable();
+var peterHash = hash(peter);
+
+hashTable.add(peter, michael, bob);
+hashTable.getValue(peterHash);
+// {name: 'Peter', stapler: false, friends: ['Joanna', 'Michael', 'Samir'] };
+hashTable.getCount(peterHash);
+// 1
+hashTable.add({name: 'Peter', stapler: false, friends: ['Joanna', 'Michael', 'Samir'] });
+hashTable.getCount(peterHash);
+// 2
+hashTable.hasKey(peterHash);
+// true
+hashTable.toArray();
+// [ {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
+//    count: 2, value: {name: 'Peter', stapler: false, friends: ['Joanna', 'Michael', 'Samir'] }},
+//  {hash:'4b2b30e27699979ce46714253bc2213010db039c',
+//    count: 1, value: {name: 'Michael', stapler: false, friends: ['Peter', 'Samir'] }},
+//  {hash:'38d96106bc8ef3d8bd369b99bb6972702c9826d5',
+//    count: 1, value: {name: 'Bob', stapler: true, friends: [] }} ]
 ```
 
 ## Development
