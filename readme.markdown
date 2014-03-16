@@ -5,7 +5,10 @@
 ![testling](https://ci.testling.com/puleos/object-hash.png?v=0.2.0)
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
-crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os).
+crypo module for hashing.  Supports sha1, md5 and many others (depending on the host os). 
+
+* Provides a Hashtable implementation.
+* Supports a keys only option for grouping like objects with different values.
 
 ```
 var hash = require('object-hash');
@@ -49,7 +52,7 @@ Returns an array of the hash table contents in the following format:
   {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
     count: 1, value: {foo: 'bar', baz: true }} ]
 ```
-!Note: in when the excludeValues option is set, the `value` of the hash table is an array of objects with matching keys.
+!Note: when the excludeValues option is set, the `value` of the hash table is an array of objects with matching keys.
 
 ## hashTable.reset();
 Clears contents of the hashTable.
