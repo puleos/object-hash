@@ -30,7 +30,7 @@ test('hashes non-object types', function(assert){
 });
 
 test('hashes special object types', function(assert){
-  assert.plan(6);
+  assert.plan(7);
   var dt = new Date();
   dt.setDate(dt.getDate() + 1);
 
@@ -40,6 +40,7 @@ test('hashes special object types', function(assert){
   assert.notEqual(hash(new Date()), hash(dt), 'different dates not equal');
   assert.ok(validSha1.test(hash(null)), 'hash Null');
   assert.ok(validSha1.test(hash(Number.NaN)), 'hash NaN');
+  assert.ok(validSha1.test(hash({ foo: undefined })), 'hash Undefined value');
 });
 
 test('hashes a simple object', function(assert){
