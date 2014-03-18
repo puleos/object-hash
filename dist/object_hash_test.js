@@ -143,6 +143,9 @@ function typeHasher(hashFn, options){
     _null: function(){
       return hashFn.update('Null');
     },
+    _undefined: function(){
+      return hashFn.update('Undefined');
+    },
     _domwindow: function(){
       return hashFn.update('domwindow');
     }
@@ -2825,8 +2828,8 @@ var substr = 'ab'.substr(-1) === 'b'
     }
 ;
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15}],17:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4010,8 +4013,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":18,"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"buffer":4,"events":13,"inherits":14,"process/browser.js":19,"string_decoder":24}],22:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./index.js":18,"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"buffer":4,"events":13,"inherits":14,"process/browser.js":19,"string_decoder":24}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5394,8 +5397,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":25,"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"inherits":14}],27:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":25,"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"inherits":14}],27:[function(require,module,exports){
 (function (process){
 var defined = require('defined');
 var createDefaultStream = require('./lib/default_stream');
@@ -5545,8 +5548,8 @@ function createHarness (conf_) {
     return test;
 }
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./lib/default_stream":28,"./lib/results":29,"./lib/test":30,"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"defined":34,"through":38}],28:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"./lib/default_stream":28,"./lib/results":29,"./lib/test":30,"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"defined":34,"through":38}],28:[function(require,module,exports){
 var through = require('through');
 
 module.exports = function () {
@@ -5764,8 +5767,8 @@ function has (obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"events":13,"inherits":35,"object-inspect":36,"resumer":37,"through":38}],30:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"events":13,"inherits":35,"object-inspect":36,"resumer":37,"through":38}],30:[function(require,module,exports){
 (function (process,__dirname){
 var Stream = require('stream');
 var deepEqual = require('deep-equal');
@@ -6214,8 +6217,8 @@ function has (obj, prop) {
 
 // vim: set softtabstop=4 shiftwidth=4:
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),"/../node_modules/tape/lib")
-},{"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"deep-equal":31,"defined":34,"events":13,"path":16,"stream":18,"util":26}],31:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),"/../node_modules/tape/lib")
+},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"deep-equal":31,"defined":34,"events":13,"path":16,"stream":18,"util":26}],31:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -6502,8 +6505,8 @@ module.exports = function (write, end) {
     return tr;
 };
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"through":38}],38:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"through":38}],38:[function(require,module,exports){
 (function (process){
 var Stream = require('stream')
 
@@ -6614,8 +6617,8 @@ function through (write, end, opts) {
 }
 
 
-}).call(this,require("/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/spuleo/repos/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"stream":18}],39:[function(require,module,exports){
+}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
+},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"stream":18}],39:[function(require,module,exports){
 var test = require('tape');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
@@ -6648,7 +6651,7 @@ test('hashes non-object types', function(assert){
 });
 
 test('hashes special object types', function(assert){
-  assert.plan(6);
+  assert.plan(7);
   var dt = new Date();
   dt.setDate(dt.getDate() + 1);
 
@@ -6658,6 +6661,7 @@ test('hashes special object types', function(assert){
   assert.notEqual(hash(new Date()), hash(dt), 'different dates not equal');
   assert.ok(validSha1.test(hash(null)), 'hash Null');
   assert.ok(validSha1.test(hash(Number.NaN)), 'hash NaN');
+  assert.ok(validSha1.test(hash({ foo: undefined })), 'hash Undefined value');
 });
 
 test('hashes a simple object', function(assert){
