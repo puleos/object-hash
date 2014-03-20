@@ -20,6 +20,11 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `excludeValues` {true|false} hash object keys, values ignored
 *  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'
 
+## hash.sha1(value);
+Hash using the sha1 algorithm.
+
+*Sugar method, equivalent to hash(value, {algorithm: 'sha1'})*
+
 ## hash.keys(value);
 Hash object keys using the sha1 algorithm, values ignored.
 

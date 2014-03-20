@@ -40,6 +40,9 @@ function objectHash(object, options){
  * @return {hash value}
  * @api public
  */
+exports.sha1 = function(object){
+  return objectHash(object);
+};
 exports.keys = function(object){
   return objectHash(object, {excludeValues: true, algorithm: 'sha1', encoding: 'hex'});
 };
