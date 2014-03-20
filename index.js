@@ -145,6 +145,9 @@ function typeHasher(hashFn, options){
     _null: function(){
       return hashFn.update('Null');
     },
+    _undefined: function(){
+      return hashFn.update('Undefined');
+    },
     _domwindow: function(){
       return hashFn.update('domwindow');
     }
