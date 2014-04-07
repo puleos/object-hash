@@ -148,6 +148,9 @@ function typeHasher(hashFn, options){
     _undefined: function(){
       return hashFn.update('Undefined');
     },
+    _regexp: function(regex){
+      return hashFn.update(regex.toString());
+    },
     _domwindow: function(){
       return hashFn.update('domwindow');
     }
