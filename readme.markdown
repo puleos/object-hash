@@ -151,6 +151,11 @@ hashTable.toArray();
 //    count: 1, value: {name: 'Bob', stapler: true, friends: [] }} ]
 ```
 
+## Legacy Browser Support
+IE <= 8 and Opera <= 11 support dropped in version 0.3.0.  If you require 
+legacy browser support you must either use an ES5 shim or use version 0.2.5
+of this module.
+
 ## Development
 
 ```

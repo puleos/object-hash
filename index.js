@@ -1,6 +1,5 @@
 'use strict';
 
-require('./lib/polyfills');
 var crypto = require('crypto');
 
 /**
