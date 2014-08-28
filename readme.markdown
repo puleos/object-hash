@@ -16,9 +16,9 @@ var hash = require('object-hash');
 ```
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
-*  `algorithm` hash algo to be used: 'sha1', 'md5'
-*  `excludeValues` {true|false} hash object keys, values ignored
-*  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'
+*  `algorithm` hash algo to be used: 'sha1', 'md5'. default: sha1
+*  `excludeValues` {true|false} hash object keys, values ignored. default: false
+*  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.
