@@ -110,3 +110,18 @@ test('.reset() should clear the hashTable', function(assert){
 });
 
 
+test('.remove() should decrement count', function(assert){
+  var hashTable = new hash.HashTable();
+  var hash1 = hash(obj1);
+  var hash2 = hash(obj2);
+  assert.plan(3);
+
+  hashTable.add(obj1, obj2, obj3);
+  hashTable.add(obj1);
+  hashTable.remove(obj1, obj2);
+
+  assert.equal(hashTable.getCount(hash1), 1, 'hash1 count = 1');
+  assert.equal(hashTable.getCount(hash2), 0, 'hash2 count = 0');
+  assert.equal(hashTable.hasKey(hash2), false, 'hash2 key is gone');
+  
+});
