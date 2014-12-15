@@ -134,7 +134,7 @@ function typeHasher(hashFn, options, context){
       });
     },
     _date: function(date){
-      return hashFn.update(date.toString());
+      return hashFn.update(date.toJSON());
     },
     _boolean: function(bool){
       return hashFn.update(bool.toString());
