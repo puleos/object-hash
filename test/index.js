@@ -109,6 +109,13 @@ test("recursive objects don't blow up stack", function(assert) {
   assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
 });
 
+test("recursive arrays don't blow up stack", function(assert) {
+  assert.plan(1);
+  var hash1 = ['foo', 'bar'];
+  hash1.push(hash1);
+  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+});
+
 test("recursive handling tracks identity", function(assert) {
   assert.plan(1);
   var hash1 = {k1: {k: 'v'}, k2: {k: 'k2'}};
