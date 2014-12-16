@@ -82,13 +82,15 @@ function validate(object, options){
 function hash(object, options){
   var hashFn = crypto.createHash(options.algorithm);
 
-  typeHasher(hashFn, options).dispatch(object);
+  var context = [];
+
+  typeHasher(hashFn, options, context).dispatch(object);
 
   return (options.encoding === 'buffer') ? hashFn.digest() :
     hashFn.digest(options.encoding);
 }
 
-function typeHasher(hashFn, options){
+function typeHasher(hashFn, options, context){
   return {
     dispatch: function(value){
       var type = typeof value;
@@ -99,11 +101,19 @@ function typeHasher(hashFn, options){
       var pattern = (/\[object (.*)\]/i);
       var objString = Object.prototype.toString.call(object);
       var objType = pattern.exec(objString)[1] || 'null';
+      var objectNumber = null;
       objType = objType.toLowerCase();
 
+      if ((objectNumber = context.indexOf(object)) >= 0) {
+        typeHasher(hashFn, options, context).dispatch("[CIRCULAR]: " + objectNumber);
+        return;
+      } else {
+        context.push(object);
+      }
+
       if(objType !== 'object') {
-        if(typeHasher(hashFn, options)['_' + objType]) {
-          typeHasher(hashFn, options)['_' + objType](object);
+        if(typeHasher(hashFn, options, context)['_' + objType]) {
+          typeHasher(hashFn, options, context)['_' + objType](object);
         }else{
           throw new Error('Unknown object type "' + objType + '"');
         }
@@ -113,18 +123,18 @@ function typeHasher(hashFn, options){
         return keys.forEach(function(key){
           hashFn.update(key);
           if(!options.excludeValues) {
-            typeHasher(hashFn, options).dispatch(object[key]);
+            typeHasher(hashFn, options, context).dispatch(object[key]);
           }
         });
       }
     },
     _array: function(arr){
       return arr.forEach(function(el){
-        typeHasher(hashFn, options).dispatch(el);
+        typeHasher(hashFn, options, context).dispatch(el);
       });
     },
     _date: function(date){
-      return hashFn.update(date.toString());
+      return hashFn.update(date.toJSON());
     },
     _boolean: function(bool){
       return hashFn.update(bool.toString());

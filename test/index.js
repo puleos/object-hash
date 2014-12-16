@@ -101,3 +101,28 @@ test('array of nested object values are hashed', function(assert){
   assert.equal(hash1, hash2, 'hashes are equal');
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
+
+test("recursive objects don't blow up stack", function(assert) {
+  assert.plan(1);
+  var hash1 = {foo: 'bar'};
+  hash1.recursive = hash1;
+  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+});
+
+test("recursive arrays don't blow up stack", function(assert) {
+  assert.plan(1);
+  var hash1 = ['foo', 'bar'];
+  hash1.push(hash1);
+  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+});
+
+test("recursive handling tracks identity", function(assert) {
+  assert.plan(1);
+  var hash1 = {k1: {k: 'v'}, k2: {k: 'k2'}};
+  hash1.k1.r1 = hash1.k1;
+  hash1.k2.r2 = hash1.k2;
+  var hash2 = {k1: {k: 'v'}, k2: {k: 'k2'}};
+  hash2.k1.r1 = hash2.k2;
+  hash2.k2.r2 = hash2.k1;
+  assert.notEqual(hash(hash1), hash(hash2), "order of recursive objects should matter");
+});
