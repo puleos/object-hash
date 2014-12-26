@@ -110,6 +110,11 @@ function typeHasher(hashFn, options, context){
       } else {
         context.push(object);
       }
+      
+      if (typeof Buffer != 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
+        hashFn.update('buffer:');
+        return hashFn.update(object);
+      }
 
       if(objType !== 'object') {
         if(typeHasher(hashFn, options, context)['_' + objType]) {
@@ -161,6 +166,46 @@ function typeHasher(hashFn, options, context){
     },
     _regexp: function(regex){
       return hashFn.update('regex:' + regex.toString());
+    },
+    _uint8array: function(arr){
+      hashFn.update('uint8array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint8clampedarray: function(arr){
+      hashFn.update('uint8clampedarray:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int8array: function(arr){
+      hashFn.update('uint8array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint16array: function(arr){
+      hashFn.update('uint16array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int16array: function(arr){
+      hashFn.update('uint16array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint32array: function(arr){
+      hashFn.update('uint32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int32array: function(arr){
+      hashFn.update('uint32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _float32array: function(arr){
+      hashFn.update('float32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _float64array: function(arr){
+      hashFn.update('float64array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _arraybuffer: function(arr){
+      hashFn.update('arraybuffer:');
+      return typeHasher(hashFn, options, context).dispatch(new Uint8Array(arr));
     },
     _domwindow: function(){
       return hashFn.update('domwindow');

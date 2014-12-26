@@ -140,3 +140,25 @@ test("object types are hashed", function(assert) {
   var hash2 = hash(['foo', 'bar']);
   assert.notEqual(hash1, hash2, "arrays and objects should not produce identical hashes");
 });
+
+if (typeof Buffer != 'undefined')
+test("Buffers can be hashed", function(assert) {
+  assert.plan(1);
+  assert.ok(validSha1.test(hash(new Buffer('Banana'))), 'hashes Buffers');
+});
+
+if (typeof Uint8Array != 'undefined')
+test("Typed arrays can be hashed", function(assert) {
+  assert.plan(10);
+  
+  assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]))), 'hashes Uint8Array');
+  assert.ok(validSha1.test(hash(new  Int8Array([1,2,3,4]))), 'hashes  Int8Array');
+  assert.ok(validSha1.test(hash(new Uint16Array([1,2,3,4]))), 'hashes Uint16Array');
+  assert.ok(validSha1.test(hash(new  Int16Array([1,2,3,4]))), 'hashes  Int16Array');
+  assert.ok(validSha1.test(hash(new Uint32Array([1,2,3,4]))), 'hashes Uint32Array');
+  assert.ok(validSha1.test(hash(new  Int32Array([1,2,3,4]))), 'hashes  Int32Array');
+  assert.ok(validSha1.test(hash(new Float32Array([1,2,3,4]))), 'hashes Float32Array');
+  assert.ok(validSha1.test(hash(new Float64Array([1,2,3,4]))), 'hashes Float64Array');
+  assert.ok(validSha1.test(hash(new Uint8ClampedArray([1,2,3,4]))), 'hashes Uint8ClampedArray');
+  assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
+});
