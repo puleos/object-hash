@@ -58,7 +58,7 @@ test('hashes identical objects with different key ordering', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test('only hashes object keys when excludeValues option is set', function(assert){
+test('hashes only object keys when excludeValues option is set', function(assert){
   assert.plan(2);
   var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
   var hash2 = hash({foo: true, bar: 'NO'}, { excludeValues: true });
