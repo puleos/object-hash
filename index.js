@@ -118,6 +118,7 @@ function typeHasher(hashFn, options, context){
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
+        hashFn.update('object:');
         // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
         return keys.forEach(function(key){
@@ -129,27 +130,28 @@ function typeHasher(hashFn, options, context){
       }
     },
     _array: function(arr){
+      hashFn.update('array:' + arr.length + ':');
       return arr.forEach(function(el){
         typeHasher(hashFn, options, context).dispatch(el);
       });
     },
     _date: function(date){
-      return hashFn.update(date.toJSON());
+      return hashFn.update('date:' + date.toJSON());
     },
     _boolean: function(bool){
-      return hashFn.update(bool.toString());
+      return hashFn.update('bool:' + bool.toString());
     },
     _string: function(string){
-      return hashFn.update(string);
+      return hashFn.update('string:' + string);
     },
     _function: function(fn){
-      return hashFn.update(fn.toString());
+      return hashFn.update('fn:' + fn.toString());
     },
     _number: function(number){
-      return hashFn.update(number.toString());
+      return hashFn.update('number:' + number.toString());
     },
     _xml: function(xml){
-      return hashFn.update(xml.toString());
+      return hashFn.update('xml:' + xml.toString());
     },
     _null: function(){
       return hashFn.update('Null');
@@ -158,7 +160,7 @@ function typeHasher(hashFn, options, context){
       return hashFn.update('Undefined');
     },
     _regexp: function(regex){
-      return hashFn.update(regex.toString());
+      return hashFn.update('regex:' + regex.toString());
     },
     _domwindow: function(){
       return hashFn.update('domwindow');

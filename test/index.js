@@ -126,3 +126,17 @@ test("recursive handling tracks identity", function(assert) {
   hash2.k2.r2 = hash2.k1;
   assert.notEqual(hash(hash1), hash(hash2), "order of recursive objects should matter");
 });
+
+test("null and 'Null' string produce different hashes", function(assert) {
+  assert.plan(1);
+  var hash1 = hash({foo: null});
+  var hash2 = hash({foo: 'Null'});
+  assert.notEqual(hash1, hash2, "null and 'Null' should not produce identical hashes");
+});
+
+test("object types are hashed", function(assert) {
+  assert.plan(1);
+  var hash1 = hash({foo: 'bar'});
+  var hash2 = hash(['foo', 'bar']);
+  assert.notEqual(hash1, hash2, "arrays and objects should not produce identical hashes");
+});
