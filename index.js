@@ -143,6 +143,9 @@ function typeHasher(hashFn, options, context){
     _date: function(date){
       return hashFn.update('date:' + date.toJSON());
     },
+    _error: function(err){
+      return hashFn.update('error:' + err.toString());
+    },
     _boolean: function(bool){
       return hashFn.update('bool:' + bool.toString());
     },
