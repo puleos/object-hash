@@ -111,7 +111,7 @@ function typeHasher(hashFn, options, context){
         context.push(object);
       }
       
-      if (typeof Buffer != 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
+      if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
         hashFn.update('buffer:');
         return hashFn.update(object);
       }
@@ -215,19 +215,19 @@ function typeHasher(hashFn, options, context){
     _process: function(){ return hashFn.update('process'); },
     _timer: function(){ return hashFn.update('timer'); },
     _pipe: function(){ return hashFn.update('pipe'); },
-    _tcp: function(err){ return hashFn.update('tcp'); },
-    _udp: function(err){ return hashFn.update('udp'); },
-    _tty: function(err){ return hashFn.update('tty'); },
-    _statwatcher: function(err){ return hashFn.update('statwatcher'); },
-    _securecontext: function(err){ return hashFn.update('securecontext'); },
-    _connection: function(err){ return hashFn.update('connection'); },
-    _zlib: function(err){ return hashFn.update('zlib'); },
-    _context: function(err){ return hashFn.update('context'); },
-    _nodescript: function(err){ return hashFn.update('nodescript'); },
-    _httpparser: function(err){ return hashFn.update('httpparser'); },
-    _dataview: function(err){ return hashFn.update('dataview'); },
-    _signal: function(err){ return hashFn.update('signal'); },
-    _fsevent: function(err){ return hashFn.update('fsevent'); },
-    _tlswrap: function(err){ return hashFn.update('tlswrap'); }
+    _tcp: function(){ return hashFn.update('tcp'); },
+    _udp: function(){ return hashFn.update('udp'); },
+    _tty: function(){ return hashFn.update('tty'); },
+    _statwatcher: function(){ return hashFn.update('statwatcher'); },
+    _securecontext: function(){ return hashFn.update('securecontext'); },
+    _connection: function(){ return hashFn.update('connection'); },
+    _zlib: function(){ return hashFn.update('zlib'); },
+    _context: function(){ return hashFn.update('context'); },
+    _nodescript: function(){ return hashFn.update('nodescript'); },
+    _httpparser: function(){ return hashFn.update('httpparser'); },
+    _dataview: function(){ return hashFn.update('dataview'); },
+    _signal: function(){ return hashFn.update('signal'); },
+    _fsevent: function(){ return hashFn.update('fsevent'); },
+    _tlswrap: function(){ return hashFn.update('tlswrap'); }
   };
 }

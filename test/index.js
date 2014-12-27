@@ -142,13 +142,14 @@ test("object types are hashed", function(assert) {
   assert.notEqual(hash1, hash2, "arrays and objects should not produce identical hashes");
 });
 
-if (typeof Buffer != 'undefined')
+if (typeof Buffer !== 'undefined') {
 test("Buffers can be hashed", function(assert) {
   assert.plan(1);
   assert.ok(validSha1.test(hash(new Buffer('Banana'))), 'hashes Buffers');
 });
+}
 
-if (typeof Uint8Array != 'undefined')
+if (typeof Uint8Array !== 'undefined') {
 test("Typed arrays can be hashed", function(assert) {
   assert.plan(10);
   
@@ -163,3 +164,4 @@ test("Typed arrays can be hashed", function(assert) {
   assert.ok(validSha1.test(hash(new Uint8ClampedArray([1,2,3,4]))), 'hashes Uint8ClampedArray');
   assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
 });
+}
