@@ -110,6 +110,11 @@ function typeHasher(hashFn, options, context){
       } else {
         context.push(object);
       }
+      
+      if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
+        hashFn.update('buffer:');
+        return hashFn.update(object);
+      }
 
       if(objType !== 'object') {
         if(typeHasher(hashFn, options, context)['_' + objType]) {
@@ -118,6 +123,7 @@ function typeHasher(hashFn, options, context){
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
+        hashFn.update('object:');
         // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
         return keys.forEach(function(key){
@@ -129,27 +135,31 @@ function typeHasher(hashFn, options, context){
       }
     },
     _array: function(arr){
+      hashFn.update('array:' + arr.length + ':');
       return arr.forEach(function(el){
         typeHasher(hashFn, options, context).dispatch(el);
       });
     },
     _date: function(date){
-      return hashFn.update(date.toJSON());
+      return hashFn.update('date:' + date.toJSON());
+    },
+    _error: function(err){
+      return hashFn.update('error:' + err.toString());
     },
     _boolean: function(bool){
-      return hashFn.update(bool.toString());
+      return hashFn.update('bool:' + bool.toString());
     },
     _string: function(string){
-      return hashFn.update(string);
+      return hashFn.update('string:' + string);
     },
     _function: function(fn){
-      return hashFn.update(fn.toString());
+      return hashFn.update('fn:' + fn.toString());
     },
     _number: function(number){
-      return hashFn.update(number.toString());
+      return hashFn.update('number:' + number.toString());
     },
     _xml: function(xml){
-      return hashFn.update(xml.toString());
+      return hashFn.update('xml:' + xml.toString());
     },
     _null: function(){
       return hashFn.update('Null');
@@ -158,10 +168,66 @@ function typeHasher(hashFn, options, context){
       return hashFn.update('Undefined');
     },
     _regexp: function(regex){
-      return hashFn.update(regex.toString());
+      return hashFn.update('regex:' + regex.toString());
     },
-    _domwindow: function(){
-      return hashFn.update('domwindow');
-    }
+    _uint8array: function(arr){
+      hashFn.update('uint8array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint8clampedarray: function(arr){
+      hashFn.update('uint8clampedarray:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int8array: function(arr){
+      hashFn.update('uint8array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint16array: function(arr){
+      hashFn.update('uint16array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int16array: function(arr){
+      hashFn.update('uint16array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint32array: function(arr){
+      hashFn.update('uint32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int32array: function(arr){
+      hashFn.update('uint32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _float32array: function(arr){
+      hashFn.update('float32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _float64array: function(arr){
+      hashFn.update('float64array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _arraybuffer: function(arr){
+      hashFn.update('arraybuffer:');
+      return typeHasher(hashFn, options, context).dispatch(new Uint8Array(arr));
+    },
+    _domwindow: function(){ return hashFn.update('domwindow'); },
+    /* Node.js standard native objects */
+    _process: function(){ return hashFn.update('process'); },
+    _timer: function(){ return hashFn.update('timer'); },
+    _pipe: function(){ return hashFn.update('pipe'); },
+    _tcp: function(){ return hashFn.update('tcp'); },
+    _udp: function(){ return hashFn.update('udp'); },
+    _tty: function(){ return hashFn.update('tty'); },
+    _statwatcher: function(){ return hashFn.update('statwatcher'); },
+    _securecontext: function(){ return hashFn.update('securecontext'); },
+    _connection: function(){ return hashFn.update('connection'); },
+    _zlib: function(){ return hashFn.update('zlib'); },
+    _context: function(){ return hashFn.update('context'); },
+    _nodescript: function(){ return hashFn.update('nodescript'); },
+    _httpparser: function(){ return hashFn.update('httpparser'); },
+    _dataview: function(){ return hashFn.update('dataview'); },
+    _signal: function(){ return hashFn.update('signal'); },
+    _fsevent: function(){ return hashFn.update('fsevent'); },
+    _tlswrap: function(){ return hashFn.update('tlswrap'); }
   };
 }

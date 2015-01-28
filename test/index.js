@@ -30,7 +30,7 @@ test('hashes non-object types', function(assert){
 });
 
 test('hashes special object types', function(assert){
-  assert.plan(8);
+  assert.plan(9);
   var dt = new Date();
   dt.setDate(dt.getDate() + 1);
 
@@ -42,6 +42,7 @@ test('hashes special object types', function(assert){
   assert.ok(validSha1.test(hash(Number.NaN)), 'hash NaN');
   assert.ok(validSha1.test(hash({ foo: undefined })), 'hash Undefined value');
   assert.ok(validSha1.test(hash(new RegExp())), 'hash regex');
+  assert.ok(validSha1.test(hash(new Error())), 'hash error');
 });
 
 test('hashes a simple object', function(assert){
@@ -58,7 +59,7 @@ test('hashes identical objects with different key ordering', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test('only hashes object keys when excludeValues option is set', function(assert){
+test('hashes only object keys when excludeValues option is set', function(assert){
   assert.plan(2);
   var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
   var hash2 = hash({foo: true, bar: 'NO'}, { excludeValues: true });
@@ -126,3 +127,41 @@ test("recursive handling tracks identity", function(assert) {
   hash2.k2.r2 = hash2.k1;
   assert.notEqual(hash(hash1), hash(hash2), "order of recursive objects should matter");
 });
+
+test("null and 'Null' string produce different hashes", function(assert) {
+  assert.plan(1);
+  var hash1 = hash({foo: null});
+  var hash2 = hash({foo: 'Null'});
+  assert.notEqual(hash1, hash2, "null and 'Null' should not produce identical hashes");
+});
+
+test("object types are hashed", function(assert) {
+  assert.plan(1);
+  var hash1 = hash({foo: 'bar'});
+  var hash2 = hash(['foo', 'bar']);
+  assert.notEqual(hash1, hash2, "arrays and objects should not produce identical hashes");
+});
+
+if (typeof Buffer !== 'undefined') {
+test("Buffers can be hashed", function(assert) {
+  assert.plan(1);
+  assert.ok(validSha1.test(hash(new Buffer('Banana'))), 'hashes Buffers');
+});
+}
+
+if (typeof Uint8Array !== 'undefined') {
+test("Typed arrays can be hashed", function(assert) {
+  assert.plan(10);
+  
+  assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]))), 'hashes Uint8Array');
+  assert.ok(validSha1.test(hash(new  Int8Array([1,2,3,4]))), 'hashes  Int8Array');
+  assert.ok(validSha1.test(hash(new Uint16Array([1,2,3,4]))), 'hashes Uint16Array');
+  assert.ok(validSha1.test(hash(new  Int16Array([1,2,3,4]))), 'hashes  Int16Array');
+  assert.ok(validSha1.test(hash(new Uint32Array([1,2,3,4]))), 'hashes Uint32Array');
+  assert.ok(validSha1.test(hash(new  Int32Array([1,2,3,4]))), 'hashes  Int32Array');
+  assert.ok(validSha1.test(hash(new Float32Array([1,2,3,4]))), 'hashes Float32Array');
+  assert.ok(validSha1.test(hash(new Float64Array([1,2,3,4]))), 'hashes Float64Array');
+  assert.ok(validSha1.test(hash(new Uint8ClampedArray([1,2,3,4]))), 'hashes Uint8ClampedArray');
+  assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
+});
+}
