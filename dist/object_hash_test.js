@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (Buffer){
 'use strict';
 
-require('./lib/polyfills');
 var crypto = require('crypto');
 
 /**
@@ -84,13 +84,15 @@ function validate(object, options){
 function hash(object, options){
   var hashFn = crypto.createHash(options.algorithm);
 
-  typeHasher(hashFn, options).dispatch(object);
+  var context = [];
+
+  typeHasher(hashFn, options, context).dispatch(object);
 
   return (options.encoding === 'buffer') ? hashFn.digest() :
     hashFn.digest(options.encoding);
 }
 
-function typeHasher(hashFn, options){
+function typeHasher(hashFn, options, context){
   return {
     dispatch: function(value){
       var type = typeof value;
@@ -101,47 +103,65 @@ function typeHasher(hashFn, options){
       var pattern = (/\[object (.*)\]/i);
       var objString = Object.prototype.toString.call(object);
       var objType = pattern.exec(objString)[1] || 'null';
+      var objectNumber = null;
       objType = objType.toLowerCase();
 
+      if ((objectNumber = context.indexOf(object)) >= 0) {
+        typeHasher(hashFn, options, context).dispatch("[CIRCULAR]: " + objectNumber);
+        return;
+      } else {
+        context.push(object);
+      }
+      
+      if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
+        hashFn.update('buffer:');
+        return hashFn.update(object);
+      }
+
       if(objType !== 'object') {
-        if(typeHasher(hashFn, options)['_' + objType]) {
-          typeHasher(hashFn, options)['_' + objType](object);
+        if(typeHasher(hashFn, options, context)['_' + objType]) {
+          typeHasher(hashFn, options, context)['_' + objType](object);
         }else{
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
+        hashFn.update('object:');
         // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
         return keys.forEach(function(key){
-          hashFn.update(key);
+          hashFn.update(key, 'utf8');
           if(!options.excludeValues) {
-            typeHasher(hashFn, options).dispatch(object[key]);
+            typeHasher(hashFn, options, context).dispatch(object[key]);
           }
         });
       }
     },
     _array: function(arr){
+      hashFn.update('array:' + arr.length + ':');
       return arr.forEach(function(el){
-        typeHasher(hashFn, options).dispatch(el);
+        typeHasher(hashFn, options, context).dispatch(el);
       });
     },
     _date: function(date){
-      return hashFn.update(date.toString());
+      return hashFn.update('date:' + date.toJSON());
+    },
+    _error: function(err){
+      return hashFn.update('error:' + err.toString(), 'utf8');
     },
     _boolean: function(bool){
-      return hashFn.update(bool.toString());
+      return hashFn.update('bool:' + bool.toString());
     },
     _string: function(string){
-      return hashFn.update(string);
+      return hashFn.update('string:' + string, 'utf8');
     },
     _function: function(fn){
-      return hashFn.update(fn.toString());
+      return hashFn.update('fn:' + fn.toString(), 'utf8');
     },
     _number: function(number){
-      return hashFn.update(number.toString());
+      return hashFn.update('number:' + number.toString());
     },
     _xml: function(xml){
-      return hashFn.update(xml.toString());
+      return hashFn.update('xml:' + xml.toString(), 'utf8');
     },
     _null: function(){
       return hashFn.update('Null');
@@ -150,18 +170,74 @@ function typeHasher(hashFn, options){
       return hashFn.update('Undefined');
     },
     _regexp: function(regex){
-      return hashFn.update(regex.toString());
+      return hashFn.update('regex:' + regex.toString(), 'utf8');
     },
-    _domwindow: function(){
-      return hashFn.update('domwindow');
-    }
+    _uint8array: function(arr){
+      hashFn.update('uint8array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint8clampedarray: function(arr){
+      hashFn.update('uint8clampedarray:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int8array: function(arr){
+      hashFn.update('uint8array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint16array: function(arr){
+      hashFn.update('uint16array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int16array: function(arr){
+      hashFn.update('uint16array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _uint32array: function(arr){
+      hashFn.update('uint32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _int32array: function(arr){
+      hashFn.update('uint32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _float32array: function(arr){
+      hashFn.update('float32array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _float64array: function(arr){
+      hashFn.update('float64array:');
+      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+    },
+    _arraybuffer: function(arr){
+      hashFn.update('arraybuffer:');
+      return typeHasher(hashFn, options, context).dispatch(new Uint8Array(arr));
+    },
+    _domwindow: function(){ return hashFn.update('domwindow'); },
+    /* Node.js standard native objects */
+    _process: function(){ return hashFn.update('process'); },
+    _timer: function(){ return hashFn.update('timer'); },
+    _pipe: function(){ return hashFn.update('pipe'); },
+    _tcp: function(){ return hashFn.update('tcp'); },
+    _udp: function(){ return hashFn.update('udp'); },
+    _tty: function(){ return hashFn.update('tty'); },
+    _statwatcher: function(){ return hashFn.update('statwatcher'); },
+    _securecontext: function(){ return hashFn.update('securecontext'); },
+    _connection: function(){ return hashFn.update('connection'); },
+    _zlib: function(){ return hashFn.update('zlib'); },
+    _context: function(){ return hashFn.update('context'); },
+    _nodescript: function(){ return hashFn.update('nodescript'); },
+    _httpparser: function(){ return hashFn.update('httpparser'); },
+    _dataview: function(){ return hashFn.update('dataview'); },
+    _signal: function(){ return hashFn.update('signal'); },
+    _fsevent: function(){ return hashFn.update('fsevent'); },
+    _tlswrap: function(){ return hashFn.update('tlswrap'); }
   };
 }
 
-},{"./lib/hashTable":2,"./lib/polyfills":3,"crypto":8}],2:[function(require,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"./lib/hashTable":2,"buffer":3,"crypto":7}],2:[function(require,module,exports){
 'use strict';
 var hasher = require('../index');
-require('./polyfills');
 
 /**
  * Setup a HashTable instance with options
@@ -199,6 +275,32 @@ HashTable.prototype.add = function(/* values to be added */){
   return this;
 };
 
+HashTable.prototype.remove = function(/* values to be removed */){
+  var self = this;
+  var args = Array.prototype.slice.call(arguments, 0);
+  args.forEach(function(obj){
+    if(Object.prototype.toString.call(obj) === '[object Array]'){
+      obj.forEach(function(val){
+        self._removeObject(val);
+      });
+    }else{
+      self._removeObject(obj);
+    }
+  });
+  
+  return this;
+};
+
+HashTable.prototype._removeObject = function(object){
+  var hash = hasher(object, this.options),
+      count = this.getCount(hash);
+  if(count<=1) {
+    delete this._table[hash];
+  } else {
+    this._table[hash].count = count-1;
+  }
+};
+
 HashTable.prototype._addObject = function(object){
   var hash = hasher(object, this.options);
 
@@ -213,7 +315,7 @@ HashTable.prototype._addObject = function(object){
       count: 1
     }; 
   }
-}
+};
 
 HashTable.prototype.hasKey = function(key){
   return !!(this._table[key]);
@@ -247,153 +349,14 @@ HashTable.prototype.toArray = function(){
 HashTable.prototype.reset = function(){
   this._table = {};
   return this;
-}
-},{"../index":1,"./polyfills":3}],3:[function(require,module,exports){
-// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-if (!Object.keys) {
-  Object.keys = (function () {
-    'use strict';
-    var hasOwnProperty = Object.prototype.hasOwnProperty,
-        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
-        dontEnums = [
-          'toString',
-          'toLocaleString',
-          'valueOf',
-          'hasOwnProperty',
-          'isPrototypeOf',
-          'propertyIsEnumerable',
-          'constructor'
-        ],
-        dontEnumsLength = dontEnums.length;
+};
 
-    return function (obj) {
-      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-        throw new TypeError('Object.keys called on non-object');
-      }
-
-      var result = [], prop, i;
-
-      for (prop in obj) {
-        if (hasOwnProperty.call(obj, prop)) {
-          result.push(prop);
-        }
-      }
-
-      if (hasDontEnumBug) {
-        for (i = 0; i < dontEnumsLength; i++) {
-          if (hasOwnProperty.call(obj, dontEnums[i])) {
-            result.push(dontEnums[i]);
-          }
-        }
-      }
-      return result;
-    };
-  }());
-}
-
-// indexOf polyfill from MDN
-if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (searchElement, fromIndex) {
-      if ( this === undefined || this === null ) {
-        throw new TypeError( '"this" is null or not defined' );
-      }
-
-      var length = this.length >>> 0; // Hack to convert object.length to a UInt32
-
-      fromIndex = +fromIndex || 0;
-
-      if (Math.abs(fromIndex) === Infinity) {
-        fromIndex = 0;
-      }
-
-      if (fromIndex < 0) {
-        fromIndex += length;
-        if (fromIndex < 0) {
-          fromIndex = 0;
-        }
-      }
-
-      for (;fromIndex < length; fromIndex++) {
-        if (this[fromIndex] === searchElement) {
-          return fromIndex;
-        }
-      }
-
-      return -1;
-    };
-  }
-// forEach https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-if (!Array.prototype.forEach)
-{
-  Array.prototype.forEach = function(fun /*, thisArg */)
-  {
-    "use strict";
-
-    if (this === void 0 || this === null) {
-      throw new TypeError();
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-    if (typeof fun !== "function") {
-      throw new TypeError();
-    }
-
-    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-    for (var i = 0; i < len; i++)
-    {
-      if (i in t) {
-        fun.call(thisArg, t[i], i, t);
-      }
-    }
-  };
-}
-
-(function () {
-    'use strict';
-    var _slice = Array.prototype.slice;
-
-    try {
-        // Can't be used with DOM elements in IE < 9
-        _slice.call(document.documentElement); 
-    }
-    catch (e) { // Fails in IE < 9
-        Array.prototype.slice = function (begin, end) {
-            var i, arrl = this.length, a = [];
-            // Although IE < 9 does not fail when applying Array.prototype.slice
-            // to strings, here we do have to duck-type to avoid failing
-            // with IE < 9's lack of support for string indexes
-            if (this.charAt) { 
-                for (i = 0; i < arrl; i++) {
-                    a.push(this.charAt(i));
-                }
-            }
-            // This will work for genuine arrays, array-like objects, 
-            // NamedNodeMap (attributes, entities, notations),
-            // NodeList (e.g., getElementsByTagName), HTMLCollection (e.g., childNodes),
-            // and will not fail on other DOM objects (as do DOM elements in IE < 9)
-            else { 
-                // IE < 9 (at least IE < 9 mode in IE 10) does not work with
-                // node.attributes (NamedNodeMap) without a dynamically checked length here
-                for (i = 0; i < this.length; i++) { 
-                    a.push(this[i]);
-                }
-            }
-            // IE < 9 gives errors here if end is allowed as undefined
-            // (as opposed to just missing) so we default ourselves
-            return _slice.call(a, begin, end || a.length);
-        };
-    }
-}());
-
-},{}],4:[function(require,module,exports){
-/**
+},{"../index":1}],3:[function(require,module,exports){
+/*!
  * The buffer module from node.js, for the browser.
  *
- * Author:   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * License:  MIT
- *
- * `npm install buffer`
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
  */
 
 var base64 = require('base64-js')
@@ -410,17 +373,14 @@ Buffer.poolSize = 8192
  *   === false   Use Object implementation (compatible down to IE6)
  */
 Buffer._useTypedArrays = (function () {
-   // Detect if browser supports Typed Arrays. Supported browsers are IE 10+,
-   // Firefox 4+, Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+.
-  if (typeof Uint8Array !== 'function' || typeof ArrayBuffer !== 'function')
-    return false
-
-  // Does the browser support adding properties to `Uint8Array` instances? If
-  // not, then that's the same as no `Uint8Array` support. We need to be able to
-  // add all the node Buffer API methods.
-  // Bug in Firefox 4-29, now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
+  // Detect if browser supports Typed Arrays. Supported browsers are IE 10+, Firefox 4+,
+  // Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+. If the browser does not support adding
+  // properties to `Uint8Array` instances, then that's the same as no `Uint8Array` support
+  // because we need to be able to add all the node Buffer API methods. This is an issue
+  // in Firefox 4-29. Now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
   try {
-    var arr = new Uint8Array(0)
+    var buf = new ArrayBuffer(0)
+    var arr = new Uint8Array(buf)
     arr.foo = function () { return 42 }
     return 42 === arr.foo() &&
         typeof arr.subarray === 'function' // Chrome 9-10 lack `subarray`
@@ -463,14 +423,14 @@ function Buffer (subject, encoding, noZero) {
   else if (type === 'string')
     length = Buffer.byteLength(subject, encoding)
   else if (type === 'object')
-    length = coerce(subject.length) // Assume object is an array
+    length = coerce(subject.length) // assume that object is array-like
   else
     throw new Error('First argument needs to be a number, array or string.')
 
   var buf
   if (Buffer._useTypedArrays) {
     // Preferred: Return an augmented `Uint8Array` instance for best performance
-    buf = augment(new Uint8Array(length))
+    buf = Buffer._augment(new Uint8Array(length))
   } else {
     // Fallback: Return THIS instance of Buffer (created by `new`)
     buf = this
@@ -479,9 +439,8 @@ function Buffer (subject, encoding, noZero) {
   }
 
   var i
-  if (Buffer._useTypedArrays && typeof Uint8Array === 'function' &&
-      subject instanceof Uint8Array) {
-    // Speed optimization -- use set if we're copying from a Uint8Array
+  if (Buffer._useTypedArrays && typeof subject.byteLength === 'number') {
+    // Speed optimization -- use set if we're copying from a typed array
     buf._set(subject)
   } else if (isArrayish(subject)) {
     // Treat array-ish objects as a byte array
@@ -778,9 +737,14 @@ Buffer.prototype.copy = function (target, target_start, start, end) {
   if (target.length - target_start < end - start)
     end = target.length - target_start + start
 
-  // copy!
-  for (var i = 0; i < end - start; i++)
-    target[i + target_start] = this[i + start]
+  var len = end - start
+
+  if (len < 100 || !Buffer._useTypedArrays) {
+    for (var i = 0; i < len; i++)
+      target[i + target_start] = this[i + start]
+  } else {
+    target._set(this.subarray(start, start + len), target_start)
+  }
 }
 
 function _base64Slice (buf, start, end) {
@@ -849,7 +813,7 @@ Buffer.prototype.slice = function (start, end) {
   end = clamp(end, len, len)
 
   if (Buffer._useTypedArrays) {
-    return augment(this.subarray(start, end))
+    return Buffer._augment(this.subarray(start, end))
   } else {
     var sliceLen = end - start
     var newBuf = new Buffer(sliceLen, undefined, true)
@@ -1292,7 +1256,7 @@ Buffer.prototype.inspect = function () {
  * Added in Node 0.12. Only available in browsers that support ArrayBuffer.
  */
 Buffer.prototype.toArrayBuffer = function () {
-  if (typeof Uint8Array === 'function') {
+  if (typeof Uint8Array !== 'undefined') {
     if (Buffer._useTypedArrays) {
       return (new Buffer(this)).buffer
     } else {
@@ -1317,9 +1281,9 @@ function stringtrim (str) {
 var BP = Buffer.prototype
 
 /**
- * Augment the Uint8Array *instance* (not the class!) with Buffer methods
+ * Augment a Uint8Array *instance* (not the Uint8Array class!) with Buffer methods
  */
-function augment (arr) {
+Buffer._augment = function (arr) {
   arr._isBuffer = true
 
   // save reference to original Uint8Array get/set methods before overwriting
@@ -1498,7 +1462,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":5,"ieee754":6}],5:[function(require,module,exports){
+},{"base64-js":4,"ieee754":5}],4:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1508,18 +1472,21 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
     ? Uint8Array
     : Array
 
-	var ZERO   = '0'.charCodeAt(0)
 	var PLUS   = '+'.charCodeAt(0)
 	var SLASH  = '/'.charCodeAt(0)
 	var NUMBER = '0'.charCodeAt(0)
 	var LOWER  = 'a'.charCodeAt(0)
 	var UPPER  = 'A'.charCodeAt(0)
+	var PLUS_URL_SAFE = '-'.charCodeAt(0)
+	var SLASH_URL_SAFE = '_'.charCodeAt(0)
 
 	function decode (elt) {
 		var code = elt.charCodeAt(0)
-		if (code === PLUS)
+		if (code === PLUS ||
+		    code === PLUS_URL_SAFE)
 			return 62 // '+'
-		if (code === SLASH)
+		if (code === SLASH ||
+		    code === SLASH_URL_SAFE)
 			return 63 // '/'
 		if (code < NUMBER)
 			return -1 //no match
@@ -1617,11 +1584,11 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 		return output
 	}
 
-	module.exports.toByteArray = b64ToByteArray
-	module.exports.fromByteArray = uint8ToBase64
-}())
+	exports.toByteArray = b64ToByteArray
+	exports.fromByteArray = uint8ToBase64
+}(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -1707,7 +1674,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var Buffer = require('buffer').Buffer;
 var intSize = 4;
 var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
@@ -1744,7 +1711,7 @@ function hash(buf, fn, hashSize, bigEndian) {
 
 module.exports = { hash: hash };
 
-},{"buffer":4}],8:[function(require,module,exports){
+},{"buffer":3}],7:[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 var sha = require('./sha')
 var sha256 = require('./sha256')
@@ -1843,7 +1810,7 @@ each(['createCredentials'
   }
 })
 
-},{"./md5":9,"./rng":10,"./sha":11,"./sha256":12,"buffer":4}],9:[function(require,module,exports){
+},{"./md5":8,"./rng":9,"./sha":10,"./sha256":11,"buffer":3}],8:[function(require,module,exports){
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
  * Digest Algorithm, as defined in RFC 1321.
@@ -2008,7 +1975,7 @@ module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
 
-},{"./helpers":7}],10:[function(require,module,exports){
+},{"./helpers":6}],9:[function(require,module,exports){
 // Original code adapted from Robert Kieffer.
 // details at https://github.com/broofa/node-uuid
 (function() {
@@ -2041,7 +2008,7 @@ module.exports = function md5(buf) {
 
 }())
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
  * in FIPS PUB 180-1
@@ -2144,7 +2111,7 @@ module.exports = function sha1(buf) {
   return helpers.hash(buf, core_sha1, 20, true);
 };
 
-},{"./helpers":7}],12:[function(require,module,exports){
+},{"./helpers":6}],11:[function(require,module,exports){
 
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -2225,7 +2192,7 @@ module.exports = function sha256(buf) {
   return helpers.hash(buf, core_sha256, 32, true);
 };
 
-},{"./helpers":7}],13:[function(require,module,exports){
+},{"./helpers":6}],12:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2285,10 +2252,8 @@ EventEmitter.prototype.emit = function(type) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
-      } else {
-        throw TypeError('Uncaught, unspecified "error" event.');
       }
-      return false;
+      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
@@ -2373,7 +2338,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -2527,7 +2495,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2552,62 +2520,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],15:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
-    }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
-    }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-}
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-
-},{}],16:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -2834,8 +2747,73 @@ var substr = 'ab'.substr(-1) === 'b'
     }
 ;
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15}],17:[function(require,module,exports){
+}).call(this,require("1YiZ5S"))
+},{"1YiZ5S":15}],15:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+
+process.nextTick = (function () {
+    var canSetImmediate = typeof window !== 'undefined'
+    && window.setImmediate;
+    var canPost = typeof window !== 'undefined'
+    && window.postMessage && window.addEventListener
+    ;
+
+    if (canSetImmediate) {
+        return function (f) { return window.setImmediate(f) };
+    }
+
+    if (canPost) {
+        var queue = [];
+        window.addEventListener('message', function (ev) {
+            var source = ev.source;
+            if ((source === window || source === null) && ev.data === 'process-tick') {
+                ev.stopPropagation();
+                if (queue.length > 0) {
+                    var fn = queue.shift();
+                    fn();
+                }
+            }
+        }, true);
+
+        return function nextTick(fn) {
+            queue.push(fn);
+            window.postMessage('process-tick', '*');
+        };
+    }
+
+    return function nextTick(fn) {
+        setTimeout(fn, 0);
+    };
+})();
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+}
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+
+},{}],16:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2909,7 +2887,7 @@ function onend() {
   });
 }
 
-},{"./readable.js":21,"./writable.js":23,"inherits":14,"process/browser.js":19}],18:[function(require,module,exports){
+},{"./readable.js":20,"./writable.js":22,"inherits":13,"process/browser.js":18}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3038,9 +3016,62 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"./duplex.js":17,"./passthrough.js":20,"./readable.js":21,"./transform.js":22,"./writable.js":23,"events":13,"inherits":14}],19:[function(require,module,exports){
-module.exports=require(15)
-},{}],20:[function(require,module,exports){
+},{"./duplex.js":16,"./passthrough.js":19,"./readable.js":20,"./transform.js":21,"./writable.js":22,"events":12,"inherits":13}],18:[function(require,module,exports){
+// shim for using process in browser
+
+var process = module.exports = {};
+
+process.nextTick = (function () {
+    var canSetImmediate = typeof window !== 'undefined'
+    && window.setImmediate;
+    var canPost = typeof window !== 'undefined'
+    && window.postMessage && window.addEventListener
+    ;
+
+    if (canSetImmediate) {
+        return function (f) { return window.setImmediate(f) };
+    }
+
+    if (canPost) {
+        var queue = [];
+        window.addEventListener('message', function (ev) {
+            var source = ev.source;
+            if ((source === window || source === null) && ev.data === 'process-tick') {
+                ev.stopPropagation();
+                if (queue.length > 0) {
+                    var fn = queue.shift();
+                    fn();
+                }
+            }
+        }, true);
+
+        return function nextTick(fn) {
+            queue.push(fn);
+            window.postMessage('process-tick', '*');
+        };
+    }
+
+    return function nextTick(fn) {
+        setTimeout(fn, 0);
+    };
+})();
+
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+}
+
+// TODO(shtylman)
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+
+},{}],19:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3083,7 +3114,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./transform.js":22,"inherits":14}],21:[function(require,module,exports){
+},{"./transform.js":21,"inherits":13}],20:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -4019,8 +4050,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./index.js":18,"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"buffer":4,"events":13,"inherits":14,"process/browser.js":19,"string_decoder":24}],22:[function(require,module,exports){
+}).call(this,require("1YiZ5S"))
+},{"./index.js":17,"1YiZ5S":15,"buffer":3,"events":12,"inherits":13,"process/browser.js":18,"string_decoder":23}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4226,7 +4257,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./duplex.js":17,"inherits":14}],23:[function(require,module,exports){
+},{"./duplex.js":16,"inherits":13}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4614,7 +4645,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./index.js":18,"buffer":4,"inherits":14,"process/browser.js":19}],24:[function(require,module,exports){
+},{"./index.js":17,"buffer":3,"inherits":13,"process/browser.js":18}],23:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4807,14 +4838,14 @@ function base64DetectIncompleteChar(buffer) {
   return incomplete;
 }
 
-},{"buffer":4}],25:[function(require,module,exports){
+},{"buffer":3}],24:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5403,8 +5434,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":25,"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"inherits":14}],27:[function(require,module,exports){
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":24,"1YiZ5S":15,"inherits":13}],26:[function(require,module,exports){
 (function (process){
 var defined = require('defined');
 var createDefaultStream = require('./lib/default_stream');
@@ -5413,7 +5444,7 @@ var createResult = require('./lib/results');
 var through = require('through');
 
 var canEmitExit = typeof process !== 'undefined' && process
-    && typeof process.on === 'function'
+    && typeof process.on === 'function' && process.browser !== true
 ;
 var canExit = typeof process !== 'undefined' && process
     && typeof process.exit === 'function'
@@ -5554,8 +5585,8 @@ function createHarness (conf_) {
     return test;
 }
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./lib/default_stream":28,"./lib/results":29,"./lib/test":30,"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"defined":34,"through":38}],28:[function(require,module,exports){
+}).call(this,require("1YiZ5S"))
+},{"./lib/default_stream":27,"./lib/results":28,"./lib/test":29,"1YiZ5S":15,"defined":33,"through":37}],27:[function(require,module,exports){
 var through = require('through');
 
 module.exports = function () {
@@ -5581,7 +5612,7 @@ module.exports = function () {
     }
 };
 
-},{"through":38}],29:[function(require,module,exports){
+},{"through":37}],28:[function(require,module,exports){
 (function (process){
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('inherits');
@@ -5773,8 +5804,8 @@ function has (obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"events":13,"inherits":35,"object-inspect":36,"resumer":37,"through":38}],30:[function(require,module,exports){
+}).call(this,require("1YiZ5S"))
+},{"1YiZ5S":15,"events":12,"inherits":34,"object-inspect":35,"resumer":36,"through":37}],29:[function(require,module,exports){
 (function (process,__dirname){
 var Stream = require('stream');
 var deepEqual = require('deep-equal');
@@ -6223,8 +6254,8 @@ function has (obj, prop) {
 
 // vim: set softtabstop=4 shiftwidth=4:
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),"/../node_modules/tape/lib")
-},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"deep-equal":31,"defined":34,"events":13,"path":16,"stream":18,"util":26}],31:[function(require,module,exports){
+}).call(this,require("1YiZ5S"),"/../node_modules/tape/lib")
+},{"1YiZ5S":15,"deep-equal":30,"defined":33,"events":12,"path":14,"stream":17,"util":25}],30:[function(require,module,exports){
 var pSlice = Array.prototype.slice;
 var objectKeys = require('./lib/keys.js');
 var isArguments = require('./lib/is_arguments.js');
@@ -6317,10 +6348,10 @@ function objEquiv(a, b, opts) {
     key = ka[i];
     if (!deepEqual(a[key], b[key], opts)) return false;
   }
-  return true;
+  return typeof a === typeof b;
 }
 
-},{"./lib/is_arguments.js":32,"./lib/keys.js":33}],32:[function(require,module,exports){
+},{"./lib/is_arguments.js":31,"./lib/keys.js":32}],31:[function(require,module,exports){
 var supportsArgumentsClass = (function(){
   return Object.prototype.toString.call(arguments)
 })() == '[object Arguments]';
@@ -6342,7 +6373,7 @@ function unsupported(object){
     false;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 exports = module.exports = typeof Object.keys === 'function'
   ? Object.keys : shim;
 
@@ -6353,16 +6384,16 @@ function shim (obj) {
   return keys;
 }
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = function () {
     for (var i = 0; i < arguments.length; i++) {
         if (arguments[i] !== undefined) return arguments[i];
     }
 };
 
+},{}],34:[function(require,module,exports){
+module.exports=require(13)
 },{}],35:[function(require,module,exports){
-module.exports=require(14)
-},{}],36:[function(require,module,exports){
 module.exports = function inspect_ (obj, opts, depth, seen) {
     if (!opts) opts = {};
     
@@ -6479,7 +6510,7 @@ function isElement (x) {
     ;
 }
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function (process){
 var through = require('through');
 var nextTick = typeof setImmediate !== 'undefined'
@@ -6511,8 +6542,8 @@ module.exports = function (write, end) {
     return tr;
 };
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"through":38}],38:[function(require,module,exports){
+}).call(this,require("1YiZ5S"))
+},{"1YiZ5S":15,"through":37}],37:[function(require,module,exports){
 (function (process){
 var Stream = require('stream')
 
@@ -6556,7 +6587,7 @@ function through (write, end, opts) {
   stream.queue = stream.push = function (data) {
 //    console.error(ended)
     if(_ended) return stream
-    if(data == null) _ended = true
+    if(data === null) _ended = true
     buffer.push(data)
     drain()
     return stream
@@ -6623,8 +6654,9 @@ function through (write, end, opts) {
 }
 
 
-}).call(this,require("/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/scott/Code/object-hash/node_modules/gulp-browserify/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":15,"stream":18}],39:[function(require,module,exports){
+}).call(this,require("1YiZ5S"))
+},{"1YiZ5S":15,"stream":17}],38:[function(require,module,exports){
+(function (Buffer){
 var test = require('tape');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
@@ -6657,7 +6689,7 @@ test('hashes non-object types', function(assert){
 });
 
 test('hashes special object types', function(assert){
-  assert.plan(8);
+  assert.plan(9);
   var dt = new Date();
   dt.setDate(dt.getDate() + 1);
 
@@ -6669,6 +6701,7 @@ test('hashes special object types', function(assert){
   assert.ok(validSha1.test(hash(Number.NaN)), 'hash NaN');
   assert.ok(validSha1.test(hash({ foo: undefined })), 'hash Undefined value');
   assert.ok(validSha1.test(hash(new RegExp())), 'hash regex');
+  assert.ok(validSha1.test(hash(new Error())), 'hash error');
 });
 
 test('hashes a simple object', function(assert){
@@ -6685,7 +6718,7 @@ test('hashes identical objects with different key ordering', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test('only hashes object keys when excludeValues option is set', function(assert){
+test('hashes only object keys when excludeValues option is set', function(assert){
   assert.plan(2);
   var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
   var hash2 = hash({foo: true, bar: 'NO'}, { excludeValues: true });
@@ -6729,4 +6762,76 @@ test('array of nested object values are hashed', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-},{"../index":1,"tape":27}]},{},[39])
+test("recursive objects don't blow up stack", function(assert) {
+  assert.plan(1);
+  var hash1 = {foo: 'bar'};
+  hash1.recursive = hash1;
+  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+});
+
+test("recursive arrays don't blow up stack", function(assert) {
+  assert.plan(1);
+  var hash1 = ['foo', 'bar'];
+  hash1.push(hash1);
+  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+});
+
+test("recursive handling tracks identity", function(assert) {
+  assert.plan(1);
+  var hash1 = {k1: {k: 'v'}, k2: {k: 'k2'}};
+  hash1.k1.r1 = hash1.k1;
+  hash1.k2.r2 = hash1.k2;
+  var hash2 = {k1: {k: 'v'}, k2: {k: 'k2'}};
+  hash2.k1.r1 = hash2.k2;
+  hash2.k2.r2 = hash2.k1;
+  assert.notEqual(hash(hash1), hash(hash2), "order of recursive objects should matter");
+});
+
+test("null and 'Null' string produce different hashes", function(assert) {
+  assert.plan(1);
+  var hash1 = hash({foo: null});
+  var hash2 = hash({foo: 'Null'});
+  assert.notEqual(hash1, hash2, "null and 'Null' should not produce identical hashes");
+});
+
+test("object types are hashed", function(assert) {
+  assert.plan(1);
+  var hash1 = hash({foo: 'bar'});
+  var hash2 = hash(['foo', 'bar']);
+  assert.notEqual(hash1, hash2, "arrays and objects should not produce identical hashes");
+});
+
+test("utf8 strings are hashed correctly", function(assert) {
+  assert.plan(1);
+  var hash1 = hash('\u03c3'); // cf 83 in utf8
+  var hash2 = hash('\u01c3'); // c7 83 in utf8
+  console.log('!!', hash1, hash2);
+  assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
+});
+
+if (typeof Buffer !== 'undefined') {
+test("Buffers can be hashed", function(assert) {
+  assert.plan(1);
+  assert.ok(validSha1.test(hash(new Buffer('Banana'))), 'hashes Buffers');
+});
+}
+
+if (typeof Uint8Array !== 'undefined') {
+test("Typed arrays can be hashed", function(assert) {
+  assert.plan(10);
+  
+  assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]))), 'hashes Uint8Array');
+  assert.ok(validSha1.test(hash(new  Int8Array([1,2,3,4]))), 'hashes  Int8Array');
+  assert.ok(validSha1.test(hash(new Uint16Array([1,2,3,4]))), 'hashes Uint16Array');
+  assert.ok(validSha1.test(hash(new  Int16Array([1,2,3,4]))), 'hashes  Int16Array');
+  assert.ok(validSha1.test(hash(new Uint32Array([1,2,3,4]))), 'hashes Uint32Array');
+  assert.ok(validSha1.test(hash(new  Int32Array([1,2,3,4]))), 'hashes  Int32Array');
+  assert.ok(validSha1.test(hash(new Float32Array([1,2,3,4]))), 'hashes Float32Array');
+  assert.ok(validSha1.test(hash(new Float64Array([1,2,3,4]))), 'hashes Float64Array');
+  assert.ok(validSha1.test(hash(new Uint8ClampedArray([1,2,3,4]))), 'hashes Uint8ClampedArray');
+  assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
+});
+}
+
+}).call(this,require("buffer").Buffer)
+},{"../index":1,"buffer":3,"tape":26}]},{},[38])
