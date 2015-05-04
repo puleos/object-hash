@@ -127,7 +127,7 @@ function typeHasher(hashFn, options, context){
         // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
         return keys.forEach(function(key){
-          hashFn.update(key);
+          hashFn.update(key, 'utf8');
           if(!options.excludeValues) {
             typeHasher(hashFn, options, context).dispatch(object[key]);
           }
@@ -144,22 +144,22 @@ function typeHasher(hashFn, options, context){
       return hashFn.update('date:' + date.toJSON());
     },
     _error: function(err){
-      return hashFn.update('error:' + err.toString());
+      return hashFn.update('error:' + err.toString(), 'utf8');
     },
     _boolean: function(bool){
       return hashFn.update('bool:' + bool.toString());
     },
     _string: function(string){
-      return hashFn.update('string:' + string);
+      return hashFn.update('string:' + string, 'utf8');
     },
     _function: function(fn){
-      return hashFn.update('fn:' + fn.toString());
+      return hashFn.update('fn:' + fn.toString(), 'utf8');
     },
     _number: function(number){
       return hashFn.update('number:' + number.toString());
     },
     _xml: function(xml){
-      return hashFn.update('xml:' + xml.toString());
+      return hashFn.update('xml:' + xml.toString(), 'utf8');
     },
     _null: function(){
       return hashFn.update('Null');
@@ -168,7 +168,7 @@ function typeHasher(hashFn, options, context){
       return hashFn.update('Undefined');
     },
     _regexp: function(regex){
-      return hashFn.update('regex:' + regex.toString());
+      return hashFn.update('regex:' + regex.toString(), 'utf8');
     },
     _uint8array: function(arr){
       hashFn.update('uint8array:');
