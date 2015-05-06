@@ -30,6 +30,7 @@ gulp.task('dist', function(){
     .pipe(browserify({
       insertGlobals : true,
       debug: true,
+      standalone: 'objectHash'
     }))
     .pipe(rename('object_hash.js'))
     .pipe(uglify({outSourceMap: true}))
