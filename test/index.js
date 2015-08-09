@@ -146,7 +146,6 @@ test("utf8 strings are hashed correctly", function(assert) {
   assert.plan(1);
   var hash1 = hash('\u03c3'); // cf 83 in utf8
   var hash2 = hash('\u01c3'); // c7 83 in utf8
-  console.log('!!', hash1, hash2);
   assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
 });
 

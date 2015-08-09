@@ -5,7 +5,7 @@
 ![testling](https://ci.testling.com/puleos/object-hash.png?v=0.2.0)
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
-crypo module for hashing.  Supports sha1, md5 and many others (depending on the platform).
+crypto module for hashing.  Supports sha1, md5 and many others (depending on the platform).
 
 * Hash values of any type.
 * Provides a hash table implementation.
