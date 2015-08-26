@@ -95,6 +95,12 @@ function hash(object, options){
     hashFn.digest(options.encoding);
 }
 
+/** Check if the given function is a native function */
+function isNativeFunction(f) {
+  var exp = /^function\s+\w*\s*\(\s*\)\s*{\s+\[native code\]\s+}$/i;
+  return exp.exec(String(f)) != null;
+}
+
 function typeHasher(hashFn, options, context){
   return {
     dispatch: function(value){
@@ -134,7 +140,9 @@ function typeHasher(hashFn, options, context){
         // a different hash and objects derived from
         // different functions (`new Foo`, `new Bar`) will
         // produce different hashes.
-        if (options.respectType !== false) {// default to true
+        // We never do this for native functions since some
+        // seem to break because of that.
+        if (options.respectType !== false && !isNativeFunction(object)) {
           keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
         }
         return keys.forEach(function(key){
@@ -224,6 +232,9 @@ function typeHasher(hashFn, options, context){
     _arraybuffer: function(arr){
       hashFn.update('arraybuffer:');
       return typeHasher(hashFn, options, context).dispatch(new Uint8Array(arr));
+    },
+    _url: function(url) {
+      return hashFn.update('url:' + url.toString(), 'utf8');
     },
     _domwindow: function(){ return hashFn.update('domwindow'); },
     /* Node.js standard native objects */
