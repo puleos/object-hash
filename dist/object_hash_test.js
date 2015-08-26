@@ -12,6 +12,7 @@ var crypto = require('crypto');
  *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5' 
  *  - `excludeValues` {true|*false} hash object keys, values ignored 
  *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
+ *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
  *  * = default
  *
  * @param {object} value to hash
@@ -28,6 +29,8 @@ function objectHash(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
+  // default to false
+  options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
 
   validate(object, options);
 
@@ -96,8 +99,7 @@ function typeHasher(hashFn, options, context){
   return {
     dispatch: function(value){
       var type = typeof value;
-      var func = this['_' + type];
-      return (value === null) ? this._null() : func(value);
+      return (value === null) ? this._null() : this['_' + type](value);
     },
     _object: function(object) {
       var pattern = (/\[object (.*)\]/i);
@@ -118,7 +120,7 @@ function typeHasher(hashFn, options, context){
         return hashFn.update(object);
       }
 
-      if(objType !== 'object') {
+      if(objType !== 'object' && objType !== 'function') {
         if(typeHasher(hashFn, options, context)['_' + objType]) {
           typeHasher(hashFn, options, context)['_' + objType](object);
         }else{
@@ -155,7 +157,11 @@ function typeHasher(hashFn, options, context){
       return hashFn.update('string:' + string, 'utf8');
     },
     _function: function(fn){
-      return hashFn.update('fn:' + fn.toString(), 'utf8');
+      hashFn.update('fn:' + fn.toString(), 'utf8');
+      if (options.respectFunctionProperties) {
+        this._object(fn);
+      }
+      return hashFn;
     },
     _number: function(number){
       return hashFn.update('number:' + number.toString());
@@ -1589,90 +1595,90 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 },{}],5:[function(require,module,exports){
-exports.read = function(buffer, offset, isLE, mLen, nBytes) {
-  var e, m,
-      eLen = nBytes * 8 - mLen - 1,
-      eMax = (1 << eLen) - 1,
-      eBias = eMax >> 1,
-      nBits = -7,
-      i = isLE ? (nBytes - 1) : 0,
-      d = isLE ? -1 : 1,
-      s = buffer[offset + i];
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
 
-  i += d;
+  i += d
 
-  e = s & ((1 << (-nBits)) - 1);
-  s >>= (-nBits);
-  nBits += eLen;
-  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
-  m = e & ((1 << (-nBits)) - 1);
-  e >>= (-nBits);
-  nBits += mLen;
-  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
   if (e === 0) {
-    e = 1 - eBias;
+    e = 1 - eBias
   } else if (e === eMax) {
-    return m ? NaN : ((s ? -1 : 1) * Infinity);
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
   } else {
-    m = m + Math.pow(2, mLen);
-    e = e - eBias;
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
   }
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
-};
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
 
-exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c,
-      eLen = nBytes * 8 - mLen - 1,
-      eMax = (1 << eLen) - 1,
-      eBias = eMax >> 1,
-      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
-      i = isLE ? 0 : (nBytes - 1),
-      d = isLE ? 1 : -1,
-      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c
+  var eLen = nBytes * 8 - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  var i = isLE ? 0 : (nBytes - 1)
+  var d = isLE ? 1 : -1
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
 
-  value = Math.abs(value);
+  value = Math.abs(value)
 
   if (isNaN(value) || value === Infinity) {
-    m = isNaN(value) ? 1 : 0;
-    e = eMax;
+    m = isNaN(value) ? 1 : 0
+    e = eMax
   } else {
-    e = Math.floor(Math.log(value) / Math.LN2);
+    e = Math.floor(Math.log(value) / Math.LN2)
     if (value * (c = Math.pow(2, -e)) < 1) {
-      e--;
-      c *= 2;
+      e--
+      c *= 2
     }
     if (e + eBias >= 1) {
-      value += rt / c;
+      value += rt / c
     } else {
-      value += rt * Math.pow(2, 1 - eBias);
+      value += rt * Math.pow(2, 1 - eBias)
     }
     if (value * c >= 2) {
-      e++;
-      c /= 2;
+      e++
+      c /= 2
     }
 
     if (e + eBias >= eMax) {
-      m = 0;
-      e = eMax;
+      m = 0
+      e = eMax
     } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen);
-      e = e + eBias;
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
     } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
-      e = 0;
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
     }
   }
 
-  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
 
-  e = (e << mLen) | m;
-  eLen += mLen;
-  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
 
-  buffer[offset + i - d] |= s * 128;
-};
+  buffer[offset + i - d] |= s * 128
+}
 
 },{}],6:[function(require,module,exports){
 var Buffer = require('buffer').Buffer;
@@ -6805,7 +6811,6 @@ test("utf8 strings are hashed correctly", function(assert) {
   assert.plan(1);
   var hash1 = hash('\u03c3'); // cf 83 in utf8
   var hash2 = hash('\u01c3'); // c7 83 in utf8
-  console.log('!!', hash1, hash2);
   assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
 });
 
@@ -6832,6 +6837,40 @@ test("Typed arrays can be hashed", function(assert) {
   assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
 });
 }
+
+test('Distinguish functions based on their properties', function(assert) {
+  assert.plan(3);
+
+  var a, b, c, d;
+  function Foo() {}
+  a = hash(Foo);
+
+  Foo.foo = 22;
+  b = hash(Foo);
+
+  Foo.bar = "42";
+  c = hash(Foo);
+
+  Foo.foo = "22";
+  d = hash(Foo);
+
+  assert.notEqual(a,b, 'adding a property changes the hash');
+  assert.notEqual(b,c, 'adding another property changes the hash');
+  assert.notEqual(c,d, 'changing a property changes the hash');
+});
+
+test('respectFunctionProperties = false', function(assert) {
+  assert.plan(1);
+
+  var a, b;
+  function Foo() {}
+  a = hash(Foo, {respectFunctionProperties: false});
+
+  Foo.foo = 22;
+  b = hash(Foo, {respectFunctionProperties: false});
+
+  assert.equal(a,b, 'function properties are ignored');
+});
 
 }).call(this,require("buffer").Buffer)
 },{"../index":1,"buffer":3,"tape":26}]},{},[38])

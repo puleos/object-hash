@@ -172,3 +172,37 @@ test("Typed arrays can be hashed", function(assert) {
   assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
 });
 }
+
+test('Distinguish functions based on their properties', function(assert) {
+  assert.plan(3);
+
+  var a, b, c, d;
+  function Foo() {}
+  a = hash(Foo);
+
+  Foo.foo = 22;
+  b = hash(Foo);
+
+  Foo.bar = "42";
+  c = hash(Foo);
+
+  Foo.foo = "22";
+  d = hash(Foo);
+
+  assert.notEqual(a,b, 'adding a property changes the hash');
+  assert.notEqual(b,c, 'adding another property changes the hash');
+  assert.notEqual(c,d, 'changing a property changes the hash');
+});
+
+test('respectFunctionProperties = false', function(assert) {
+  assert.plan(1);
+
+  var a, b;
+  function Foo() {}
+  a = hash(Foo, {respectFunctionProperties: false});
+
+  Foo.foo = 22;
+  b = hash(Foo, {respectFunctionProperties: false});
+
+  assert.equal(a,b, 'function properties are ignored');
+});
