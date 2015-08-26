@@ -13,6 +13,8 @@ var crypto = require('crypto');
  *  - `excludeValues` {true|*false} hash object keys, values ignored 
  *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
+ *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
+ *    when hashing to distinguish between types
  *  * = default
  *
  * @param {object} value to hash
@@ -29,7 +31,7 @@ function objectHash(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
-  // default to false
+  options.respectType = options.respectType === false ? false : true; // default to false
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
 
   validate(object, options);
@@ -128,8 +130,15 @@ function typeHasher(hashFn, options, context){
         }
       }else{
         hashFn.update('object:');
-        // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
+        // Make sure to incorporate special properties, so
+        // Types with different prototypes will produce
+        // a different hash and objects derived from
+        // different functions (`new Foo`, `new Bar`) will
+        // produce different hashes.
+        if (options.respectType !== false) {// default to true
+          keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
+        }
         return keys.forEach(function(key){
           hashFn.update(key, 'utf8');
           if(!options.excludeValues) {
@@ -6870,6 +6879,61 @@ test('respectFunctionProperties = false', function(assert) {
   b = hash(Foo, {respectFunctionProperties: false});
 
   assert.equal(a,b, 'function properties are ignored');
+});
+
+test('Distinguish functions based on prototype properties', function(assert) {
+  assert.plan(3);
+
+  var a, b, c, d;
+  function Foo() {}
+  a = hash(Foo);
+
+  Foo.prototype.foo = 22;
+  b = hash(Foo);
+
+  Foo.prototype.bar = "42";
+  c = hash(Foo);
+
+  Foo.prototype.foo = "22";
+  d = hash(Foo);
+
+  assert.notEqual(a,b, 'adding a property to the prototype changes the hash');
+  assert.notEqual(b,c, 'adding another property to the prototype changes the hash');
+  assert.notEqual(c,d, 'changing a property in the prototype changes the hash');
+});
+
+test('Distinguish objects based on their type', function(assert) {
+  assert.plan(2);
+
+  function Foo() {}
+  function Bar() {}
+
+  var f = new Foo(), b = new Bar();
+
+  assert.notEqual(hash(Foo), hash(Bar), 'Functions with different names should produce a different Hash.');
+  assert.notEqual(hash(f), hash(b), 'Objects with different constructor should have a different Hash.');
+});
+
+test('respectType = false', function(assert) {
+  var opt = { respectType: false };
+  assert.plan(2);
+
+
+  function Foo() {}
+  function Bar() {}
+
+  var f = new Foo(), b = new Bar();
+  assert.equal(hash(f, opt), hash(b, opt), 'Hashing should disregard the different constructor');
+
+
+  var ha, hb;
+  function F() {}
+  ha = hash(F, opt);
+
+  F.prototype.meaningOfLife = 42;
+  hb = hash(F, opt);
+
+  assert.equal(ha, hb, 'Hashing should disregard changes in the function\'s prototype');
 });
 
 }).call(this,require("buffer").Buffer)

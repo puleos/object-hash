@@ -11,6 +11,8 @@ var crypto = require('crypto');
  *  - `excludeValues` {true|*false} hash object keys, values ignored 
  *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
+ *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
+ *    when hashing to distinguish between types
  *  * = default
  *
  * @param {object} value to hash
@@ -27,7 +29,7 @@ function objectHash(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
-  // default to false
+  options.respectType = options.respectType === false ? false : true; // default to false
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
 
   validate(object, options);
@@ -126,8 +128,15 @@ function typeHasher(hashFn, options, context){
         }
       }else{
         hashFn.update('object:');
-        // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
+        // Make sure to incorporate special properties, so
+        // Types with different prototypes will produce
+        // a different hash and objects derived from
+        // different functions (`new Foo`, `new Bar`) will
+        // produce different hashes.
+        if (options.respectType !== false) {// default to true
+          keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
+        }
         return keys.forEach(function(key){
           hashFn.update(key, 'utf8');
           if(!options.excludeValues) {
