@@ -97,8 +97,11 @@ function hash(object, options){
 
 /** Check if the given function is a native function */
 function isNativeFunction(f) {
+  if ((typeof f) !== 'function') {
+    return false;
+  }
   var exp = /^function\s+\w*\s*\(\s*\)\s*{\s+\[native code\]\s+}$/i;
-  return exp.exec(String(f)) != null;
+  return exp.exec(Function.prototype.toString.call(f)) != null;
 }
 
 function typeHasher(hashFn, options, context){
