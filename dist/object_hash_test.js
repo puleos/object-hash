@@ -227,6 +227,9 @@ function typeHasher(hashFn, options, context){
       hashFn.update('arraybuffer:');
       return typeHasher(hashFn, options, context).dispatch(new Uint8Array(arr));
     },
+    _url: function(url) {
+      return hashFn.update('url:' + url.toString(), 'utf8');
+    },
     _domwindow: function(){ return hashFn.update('domwindow'); },
     /* Node.js standard native objects */
     _process: function(){ return hashFn.update('process'); },
