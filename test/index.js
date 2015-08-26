@@ -172,3 +172,92 @@ test("Typed arrays can be hashed", function(assert) {
   assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
 });
 }
+
+test('Distinguish functions based on their properties', function(assert) {
+  assert.plan(3);
+
+  var a, b, c, d;
+  function Foo() {}
+  a = hash(Foo);
+
+  Foo.foo = 22;
+  b = hash(Foo);
+
+  Foo.bar = "42";
+  c = hash(Foo);
+
+  Foo.foo = "22";
+  d = hash(Foo);
+
+  assert.notEqual(a,b, 'adding a property changes the hash');
+  assert.notEqual(b,c, 'adding another property changes the hash');
+  assert.notEqual(c,d, 'changing a property changes the hash');
+});
+
+test('respectFunctionProperties = false', function(assert) {
+  assert.plan(1);
+
+  var a, b;
+  function Foo() {}
+  a = hash(Foo, {respectFunctionProperties: false});
+
+  Foo.foo = 22;
+  b = hash(Foo, {respectFunctionProperties: false});
+
+  assert.equal(a,b, 'function properties are ignored');
+});
+
+test('Distinguish functions based on prototype properties', function(assert) {
+  assert.plan(3);
+
+  var a, b, c, d;
+  function Foo() {}
+  a = hash(Foo);
+
+  Foo.prototype.foo = 22;
+  b = hash(Foo);
+
+  Foo.prototype.bar = "42";
+  c = hash(Foo);
+
+  Foo.prototype.foo = "22";
+  d = hash(Foo);
+
+  assert.notEqual(a,b, 'adding a property to the prototype changes the hash');
+  assert.notEqual(b,c, 'adding another property to the prototype changes the hash');
+  assert.notEqual(c,d, 'changing a property in the prototype changes the hash');
+});
+
+test('Distinguish objects based on their type', function(assert) {
+  assert.plan(2);
+
+  function Foo() {}
+  function Bar() {}
+
+  var f = new Foo(), b = new Bar();
+
+  assert.notEqual(hash(Foo), hash(Bar), 'Functions with different names should produce a different Hash.');
+  assert.notEqual(hash(f), hash(b), 'Objects with different constructor should have a different Hash.');
+});
+
+test('respectType = false', function(assert) {
+  var opt = { respectType: false };
+  assert.plan(2);
+
+
+  function Foo() {}
+  function Bar() {}
+
+  var f = new Foo(), b = new Bar();
+  assert.equal(hash(f, opt), hash(b, opt), 'Hashing should disregard the different constructor');
+
+
+  var ha, hb;
+  function F() {}
+  ha = hash(F, opt);
+
+  F.prototype.meaningOfLife = 42;
+  hb = hash(F, opt);
+
+  assert.equal(ha, hb, 'Hashing should disregard changes in the function\'s prototype');
+});

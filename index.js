@@ -10,6 +10,9 @@ var crypto = require('crypto');
  *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5' 
  *  - `excludeValues` {true|*false} hash object keys, values ignored 
  *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
+ *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
+ *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
+ *    when hashing to distinguish between types
  *  * = default
  *
  * @param {object} value to hash
@@ -26,6 +29,8 @@ function objectHash(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
+  options.respectType = options.respectType === false ? false : true; // default to false
+  options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
 
   validate(object, options);
 
@@ -94,8 +99,7 @@ function typeHasher(hashFn, options, context){
   return {
     dispatch: function(value){
       var type = typeof value;
-      var func = this['_' + type];
-      return (value === null) ? this._null() : func(value);
+      return (value === null) ? this._null() : this['_' + type](value);
     },
     _object: function(object) {
       var pattern = (/\[object (.*)\]/i);
@@ -116,7 +120,7 @@ function typeHasher(hashFn, options, context){
         return hashFn.update(object);
       }
 
-      if(objType !== 'object') {
+      if(objType !== 'object' && objType !== 'function') {
         if(typeHasher(hashFn, options, context)['_' + objType]) {
           typeHasher(hashFn, options, context)['_' + objType](object);
         }else{
@@ -124,8 +128,15 @@ function typeHasher(hashFn, options, context){
         }
       }else{
         hashFn.update('object:');
-        // TODO, add option for enumerating, for key in obj includePrototypeChain
         var keys = Object.keys(object).sort();
+        // Make sure to incorporate special properties, so
+        // Types with different prototypes will produce
+        // a different hash and objects derived from
+        // different functions (`new Foo`, `new Bar`) will
+        // produce different hashes.
+        if (options.respectType !== false) {// default to true
+          keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
+        }
         return keys.forEach(function(key){
           hashFn.update(key, 'utf8');
           if(!options.excludeValues) {
@@ -153,7 +164,11 @@ function typeHasher(hashFn, options, context){
       return hashFn.update('string:' + string, 'utf8');
     },
     _function: function(fn){
-      return hashFn.update('fn:' + fn.toString(), 'utf8');
+      hashFn.update('fn:' + fn.toString(), 'utf8');
+      if (options.respectFunctionProperties) {
+        this._object(fn);
+      }
+      return hashFn;
     },
     _number: function(number){
       return hashFn.update('number:' + number.toString());

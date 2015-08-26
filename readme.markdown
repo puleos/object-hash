@@ -19,6 +19,9 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `algorithm` hash algo to be used: 'sha1', 'md5'. default: sha1
 *  `excludeValues` {true|false} hash object keys, values ignored. default: false
 *  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
+*  `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
+*  `respectTypes` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
+   are hashed. default: true
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.
