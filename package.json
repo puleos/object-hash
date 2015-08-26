@@ -17,7 +17,8 @@
     "url": "https://github.com/puleos/object-hash/issues"
   },
   "scripts": {
-    "test": "set -e; for t in test/*.js; do node $t; done"
+    "test": "set -e; for t in test/*.js; do node $t; done",
+    "prepublish": "gulp dist"
   },
   "author": "Scott Puleo <puleos@gmail.com>",
   "license": "MIT",
