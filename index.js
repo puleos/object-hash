@@ -73,6 +73,12 @@ function validate(object, options){
     throw new Error('Object argument required.');
   }
 
+  // if there is a case-insensitive match in the hashes list, accept it
+  // (i.e. SHA256 for sha256)
+  for (var i = 0; i < hashes.length; ++i)
+    if (hashes[i].toLowerCase() == options.algorithm.toLowerCase())
+      options.algorithm = hashes[i];
+  
   if(hashes.indexOf(options.algorithm) === -1){
     throw new Error('Algorithm "' + options.algorithm + '"  not supported. ' +
       'supported values: ' + hashes.join(', '));

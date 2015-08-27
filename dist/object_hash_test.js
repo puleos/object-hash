@@ -75,6 +75,12 @@ function validate(object, options){
     throw new Error('Object argument required.');
   }
 
+  // if there is a case-insensitive match in the hashes list, accept it
+  // (i.e. SHA256 for sha256)
+  for (var i = 0; i < hashes.length; ++i)
+    if (hashes[i].toLowerCase() == options.algorithm.toLowerCase())
+      options.algorithm = hashes[i];
+  
   if(hashes.indexOf(options.algorithm) === -1){
     throw new Error('Algorithm "' + options.algorithm + '"  not supported. ' +
       'supported values: ' + hashes.join(', '));
@@ -6687,6 +6693,7 @@ function through (write, end, opts) {
 },{"1YiZ5S":15,"stream":17}],38:[function(require,module,exports){
 (function (Buffer){
 var test = require('tape');
+var crypto = require('crypto');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
@@ -6837,6 +6844,23 @@ test("utf8 strings are hashed correctly", function(assert) {
   assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
 });
 
+test("various hashes in crypto.getHashes() should be supported", function(assert) {
+  var hashes = ['sha1', 'md5'];
+  
+  if (crypto.getHashes) {
+    // take all hashes from crypto.getHashes() starting with MD or SHA
+    hashes = crypto.getHashes().filter(RegExp.prototype.test.bind(/^(md|sha)/i));
+  }
+  
+  assert.plan(hashes.length);
+  var obj = {randomText: 'bananas'};
+  
+  for (var i = 0; i < hashes.length; i++) {
+    console.log(hashes[i]);
+    assert.ok(hash(obj, {algorithm: hashes[i]}), 'Algorithm ' + hashes[i] + ' should be supported');
+  }
+});
+
 if (typeof Buffer !== 'undefined') {
 test("Buffers can be hashed", function(assert) {
   assert.plan(1);
@@ -6951,4 +6975,4 @@ test('respectType = false', function(assert) {
 });
 
 }).call(this,require("buffer").Buffer)
-},{"../index":1,"buffer":3,"tape":26}]},{},[38])
+},{"../index":1,"buffer":3,"crypto":7,"tape":26}]},{},[38])

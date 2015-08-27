@@ -1,4 +1,5 @@
 var test = require('tape');
+var crypto = require('crypto');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
@@ -147,6 +148,22 @@ test("utf8 strings are hashed correctly", function(assert) {
   var hash1 = hash('\u03c3'); // cf 83 in utf8
   var hash2 = hash('\u01c3'); // c7 83 in utf8
   assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
+});
+
+test("various hashes in crypto.getHashes() should be supported", function(assert) {
+  var hashes = ['sha1', 'md5'];
+  
+  if (crypto.getHashes) {
+    // take all hashes from crypto.getHashes() starting with MD or SHA
+    hashes = crypto.getHashes().filter(RegExp.prototype.test.bind(/^(md|sha)/i));
+  }
+  
+  assert.plan(hashes.length);
+  var obj = {randomText: 'bananas'};
+  
+  for (var i = 0; i < hashes.length; i++) {
+    assert.ok(hash(obj, {algorithm: hashes[i]}), 'Algorithm ' + hashes[i] + ' should be supported');
+  }
 });
 
 if (typeof Buffer !== 'undefined') {
