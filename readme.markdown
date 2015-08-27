@@ -1,8 +1,7 @@
 # Object-Hash
 
-![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)
-
-![testling](https://ci.testling.com/puleos/object-hash.png?v=0.2.0)
+[![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
+[![testling](https://ci.testling.com/puleos/object-hash.png?v=0.2.0)](https://ci.testling.com/puleos/object-hash?v=0.2.0)
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
 crypto module for hashing.  Supports sha1, md5 and many others (depending on the platform).
