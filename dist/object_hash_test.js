@@ -173,6 +173,9 @@ function typeHasher(hashFn, options, context){
     _date: function(date){
       return hashFn.update('date:' + date.toJSON());
     },
+    _symbol: function(sym){
+      return hashFn.update('symbol:' + sym.toString(), 'utf8');
+    },
     _error: function(err){
       return hashFn.update('error:' + err.toString(), 'utf8');
     },
@@ -6740,6 +6743,12 @@ test('hashes special object types', function(assert){
   assert.ok(validSha1.test(hash(new Error())), 'hash error');
 });
 
+if (typeof Symbol !== 'undefined')
+test('hashes Symbols', function(assert){
+  assert.plan(1);
+  assert.ok(validSha1.test(hash(Symbol('Banana'))), 'hash error');
+});
+
 test('hashes a simple object', function(assert){
   assert.plan(1);
   assert.ok(validSha1.test(hash({foo: 'bar', bar: 'baz'})), 'hash object');
@@ -6856,7 +6865,6 @@ test("various hashes in crypto.getHashes() should be supported", function(assert
   var obj = {randomText: 'bananas'};
   
   for (var i = 0; i < hashes.length; i++) {
-    console.log(hashes[i]);
     assert.ok(hash(obj, {algorithm: hashes[i]}), 'Algorithm ' + hashes[i] + ' should be supported');
   }
 });
