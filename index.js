@@ -171,6 +171,9 @@ function typeHasher(hashFn, options, context){
     _date: function(date){
       return hashFn.update('date:' + date.toJSON());
     },
+    _symbol: function(sym){
+      return hashFn.update('symbol:' + sym.toString(), 'utf8');
+    },
     _error: function(err){
       return hashFn.update('error:' + err.toString(), 'utf8');
     },

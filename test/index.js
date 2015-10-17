@@ -46,6 +46,12 @@ test('hashes special object types', function(assert){
   assert.ok(validSha1.test(hash(new Error())), 'hash error');
 });
 
+if (typeof Symbol !== 'undefined')
+test('hashes Symbols', function(assert){
+  assert.plan(1);
+  assert.ok(validSha1.test(hash(Symbol('Banana'))), 'hash error');
+});
+
 test('hashes a simple object', function(assert){
   assert.plan(1);
   assert.ok(validSha1.test(hash({foo: 'bar', bar: 'baz'})), 'hash object');
