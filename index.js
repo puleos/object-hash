@@ -76,7 +76,7 @@ function validate(object, options){
   // if there is a case-insensitive match in the hashes list, accept it
   // (i.e. SHA256 for sha256)
   for (var i = 0; i < hashes.length; ++i)
-    if (hashes[i].toLowerCase() == options.algorithm.toLowerCase())
+    if (hashes[i].toLowerCase() === options.algorithm.toLowerCase())
       options.algorithm = hashes[i];
   
   if(hashes.indexOf(options.algorithm) === -1){
