@@ -7,6 +7,7 @@ var stylish = require('jshint-stylish');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
+var karma = require('karma');
 
 var paths = {
   index: './index.js',
@@ -14,9 +15,16 @@ var paths = {
 };
 
 function test(src){
-  return gulp.src(src, { read: false } )
-    .pipe(exec('node <%= file.path %>')
+  gulp.src(src, { read: false } )
+    .pipe(exec('mocha <%= file.path %>')
       .on('error', function(err){ console.log(err.message); }));
+}
+
+function testKarma(done){
+  new karma.Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
 }
 
 function lint(src){
@@ -36,7 +44,7 @@ gulp.task('dist', function(){
     .pipe(uglify({outSourceMap: true}))
     .pipe(gulp.dest('./dist'));
     // tests
-    gulp.src([paths.tests])
+  gulp.src([paths.tests])
     .pipe(browserify())
     .pipe(rename('object_hash_test.js'))
     .pipe(gulp.dest('./dist'));
@@ -44,6 +52,10 @@ gulp.task('dist', function(){
 
 gulp.task('test', function() {
   test([paths.tests]);
+});
+
+gulp.task('karma', function() {
+  testKarma();
 });
 
 gulp.task('lint', function () {
@@ -60,7 +72,7 @@ gulp.task('watch', function () {
   });
 
   // run the tests when something changes
-  gulp.watch([paths.index, paths.tests], ['test']);
+  gulp.watch([paths.index, paths.tests], ['test', 'karma']);
 
 });
 
