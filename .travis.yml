@@ -5,7 +5,18 @@ node_js:
   - 4
   - 5
 sudo: false
+# use g++-4.8 for karma
+cache:
+  - apt
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
+      - libstdc++-4.8-dev
 before_install:
+  - export CXX="g++-4.8" CC="gcc-4.8"
   - export "PATH=./node_modules/.bin:$PATH"
 install: npm install
 script:
@@ -14,3 +25,4 @@ script:
   - gulp test karma
 after_success:
   - gulp coveralls
+
