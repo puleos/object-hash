@@ -1,17 +1,21 @@
 # Object-Hash
 
-[![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
-
 Generate hashes from objects and values in node and the browser.  Uses node.js
 crypto module for hashing.  Supports sha1, md5 and many others (depending on the platform).
+
+[![NPM](https://nodei.co/npm/object-hash.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/object-hash)
+[![NPM](https://nodei.co/npm-dl/object-hash.png?months=6&height=3)](https://www.npmjs.com/package/object-hash)
+
+[![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
 
 * Hash values of any type.
 * Provides a hash table implementation.
 * Supports a keys only option for grouping like objects with different values.
 
-```
+```js
 var hash = require('object-hash');
 ```
+
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `algorithm` hash algo to be used: 'sha1', 'md5'. default: sha1
@@ -66,7 +70,7 @@ Returns true if the specified hash is in the hash table otherwise false.
 
 ## hashTable.toArray();
 Returns an array of the hash table contents in the following format:
-```
+```js
 [ {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
     count: 2, value: {foo: 'bar', baz: true }},
   {hash:'14fa461bf4b98155e82adc86532938553b4d33a9',
@@ -80,7 +84,7 @@ Clears the contents of the hash table.
 ## Installation
 
 node:
-```
+```js
 npm install object-hash
 ```
 
