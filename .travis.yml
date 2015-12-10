@@ -5,3 +5,10 @@ node_js:
   - 4
   - 5
 sudo: false
+before_install:
+  - export "PATH=./node_modules/.bin:$PATH"
+install: npm install
+script:
+  - gulp lint
+  - gulp dist
+  - gulp test karma
