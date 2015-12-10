@@ -59,7 +59,7 @@ gulp.task('karma', function() {
 });
 
 gulp.task('lint', function () {
-  return lint([paths.index, paths.tests]);
+  return lint([paths.index]);
 });
 
 gulp.task('watch', function () {
