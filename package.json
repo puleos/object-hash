@@ -23,14 +23,14 @@
   "author": "Scott Puleo <puleos@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "tape": "~2.10.2",
-    "gulp": "~3.5.5",
-    "gulp-jshint": "~1.5.0",
-    "gulp-browserify": "~0.4.6",
-    "jshint-stylish": "~0.1.5",
-    "gulp-exec": "~1.0.4",
-    "gulp-uglify": "~0.2.1",
-    "gulp-rename": "~1.2.0"
+    "gulp": "^3.9.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-exec": "^2.1.2",
+    "gulp-jshint": "^2.0.0",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^1.5.1",
+    "jshint-stylish": "^2.1.0",
+    "tape": "^4.2.2"
   },
   "engines": {
     "node": ">= 0.8.0"
