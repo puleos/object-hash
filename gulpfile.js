@@ -72,7 +72,7 @@ gulp.task('karma', function() {
 });
 
 gulp.task('coveralls', function() {
-  gulp.src('test/coverage/**/lcov.info')
+  gulp.src('coverage/**/lcov.info')
     .pipe(coveralls());
 });
 
