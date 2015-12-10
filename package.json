@@ -17,7 +17,7 @@
     "url": "https://github.com/puleos/object-hash/issues"
   },
   "scripts": {
-    "test": "set -e; for t in test/*.js; do node $t; done",
+    "test": "node ./node_modules/.bin/mocha test",
     "prepublish": "gulp dist"
   },
   "author": "Scott Puleo <puleos@gmail.com>",
@@ -30,7 +30,7 @@
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^1.5.1",
     "jshint-stylish": "^2.1.0",
-    "tape": "^4.2.2"
+    "mocha": "^2.3.4"
   },
   "engines": {
     "node": ">= 0.8.0"

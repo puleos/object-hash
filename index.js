@@ -196,10 +196,10 @@ function typeHasher(hashFn, options, context){
     _xml: function(xml){
       return hashFn.update('xml:' + xml.toString(), 'utf8');
     },
-    _null: function(){
+    _null: function() {
       return hashFn.update('Null');
     },
-    _undefined: function(){
+    _undefined: function() {
       return hashFn.update('Undefined');
     },
     _regexp: function(regex){
@@ -248,24 +248,24 @@ function typeHasher(hashFn, options, context){
     _url: function(url) {
       return hashFn.update('url:' + url.toString(), 'utf8');
     },
-    _domwindow: function(){ return hashFn.update('domwindow'); },
+    _domwindow: function() { return hashFn.update('domwindow'); },
     /* Node.js standard native objects */
-    _process: function(){ return hashFn.update('process'); },
-    _timer: function(){ return hashFn.update('timer'); },
-    _pipe: function(){ return hashFn.update('pipe'); },
-    _tcp: function(){ return hashFn.update('tcp'); },
-    _udp: function(){ return hashFn.update('udp'); },
-    _tty: function(){ return hashFn.update('tty'); },
-    _statwatcher: function(){ return hashFn.update('statwatcher'); },
-    _securecontext: function(){ return hashFn.update('securecontext'); },
-    _connection: function(){ return hashFn.update('connection'); },
-    _zlib: function(){ return hashFn.update('zlib'); },
-    _context: function(){ return hashFn.update('context'); },
-    _nodescript: function(){ return hashFn.update('nodescript'); },
-    _httpparser: function(){ return hashFn.update('httpparser'); },
-    _dataview: function(){ return hashFn.update('dataview'); },
-    _signal: function(){ return hashFn.update('signal'); },
-    _fsevent: function(){ return hashFn.update('fsevent'); },
-    _tlswrap: function(){ return hashFn.update('tlswrap'); }
+    _process: function() { return hashFn.update('process'); },
+    _timer: function() { return hashFn.update('timer'); },
+    _pipe: function() { return hashFn.update('pipe'); },
+    _tcp: function() { return hashFn.update('tcp'); },
+    _udp: function() { return hashFn.update('udp'); },
+    _tty: function() { return hashFn.update('tty'); },
+    _statwatcher: function() { return hashFn.update('statwatcher'); },
+    _securecontext: function() { return hashFn.update('securecontext'); },
+    _connection: function() { return hashFn.update('connection'); },
+    _zlib: function() { return hashFn.update('zlib'); },
+    _context: function() { return hashFn.update('context'); },
+    _nodescript: function() { return hashFn.update('nodescript'); },
+    _httpparser: function() { return hashFn.update('httpparser'); },
+    _dataview: function() { return hashFn.update('dataview'); },
+    _signal: function() { return hashFn.update('signal'); },
+    _fsevent: function() { return hashFn.update('fsevent'); },
+    _tlswrap: function() { return hashFn.update('tlswrap'); }
   };
 }

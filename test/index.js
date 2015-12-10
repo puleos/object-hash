@@ -1,28 +1,26 @@
-var test = require('tape');
+var assert = require('assert');
 var crypto = require('crypto');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
-test('throws when nothing to hash', function (assert) {
-  assert.plan(2);
+describe('hash', function() {
+it('throws when nothing to hash', function () {
   assert.throws(hash, 'no arguments');
-  assert.throws(function(){
+  assert.throws(function() {
     hash(undefined, {algorithm: 'md5'});
   }, 'undefined');
 });
 
-test('throws when passed an invalid options', function(assert){
-  assert.plan(2);
-  assert.throws(function(){
+it('throws when passed an invalid options', function() {
+  assert.throws(function() {
     hash({foo: 'bar'}, {algorithm: 'shalala'});
   }, 'bad algorithm');
-  assert.throws(function(){
+  assert.throws(function() {
     hash({foo: 'bar'}, {encoding: 'base16'});
   }, 'bad encoding');
 });
 
-test('hashes non-object types', function(assert){
-  assert.plan(4);
+it('hashes non-object types', function() {
   var func = function(a){ return a + 1; };
   assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
   assert.ok(validSha1.test(hash(42)), 'hash number');
@@ -30,8 +28,7 @@ test('hashes non-object types', function(assert){
   assert.ok(validSha1.test(hash(func)), 'hash function');
 });
 
-test('hashes special object types', function(assert){
-  assert.plan(9);
+it('hashes special object types', function() {
   var dt = new Date();
   dt.setDate(dt.getDate() + 1);
 
@@ -47,18 +44,15 @@ test('hashes special object types', function(assert){
 });
 
 if (typeof Symbol !== 'undefined')
-test('hashes Symbols', function(assert){
-  assert.plan(1);
+it('hashes Symbols', function() {
   assert.ok(validSha1.test(hash(Symbol('Banana'))), 'hash error');
 });
 
-test('hashes a simple object', function(assert){
-  assert.plan(1);
+it('hashes a simple object', function() {
   assert.ok(validSha1.test(hash({foo: 'bar', bar: 'baz'})), 'hash object');
 });
 
-test('hashes identical objects with different key ordering', function(assert){
-  assert.plan(2);
+it('hashes identical objects with different key ordering', function() {
   var hash1 = hash({foo: 'bar', bar: 'baz'});
   var hash2 = hash({bar: 'baz', foo: 'bar'});
   var hash3 = hash({bar: 'foo', foo: 'baz'});
@@ -66,8 +60,7 @@ test('hashes identical objects with different key ordering', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test('hashes only object keys when excludeValues option is set', function(assert){
-  assert.plan(2);
+it('hashes only object keys when excludeValues option is set', function() {
   var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
   var hash2 = hash({foo: true, bar: 'NO'}, { excludeValues: true });
   var hash3 = hash({foo: true, bar: 'OK', baz: false}, { excludeValues: true });
@@ -75,15 +68,13 @@ test('hashes only object keys when excludeValues option is set', function(assert
   assert.notEqual(hash1, hash3, 'different keys not equal');
 });
 
-test('array values are hashed', function(assert){
-  assert.plan(1);
+it('array values are hashed', function() {
   var hash1 = hash({foo: ['bar', 'baz'], bax: true });
   var hash2 = hash({foo: ['baz', 'bar'], bax: true });
   assert.notEqual(hash1, hash2, 'different array orders are unique');
 });
 
-test('nested object values are hashed', function(assert){
-  assert.plan(2);
+it('nested object values are hashed', function() {
   var hash1 = hash({foo: {bar: true, bax: 1}});
   var hash2 = hash({foo: {bar: true, bax: 1}});
   var hash3 = hash({foo: {bar: false, bax: 1}});
@@ -91,8 +82,7 @@ test('nested object values are hashed', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test('sugar methods should be equivalent', function(assert){
-  assert.plan(3);
+it('sugar methods should be equivalent', function() {
   var obj = {foo: 'bar', baz: true};
   assert.equal(hash.keys(obj), hash(obj, {excludeValues: true}), 'keys');
   assert.equal(hash.MD5(obj), hash(obj, {algorithm: 'md5'}), 'md5');
@@ -101,8 +91,7 @@ test('sugar methods should be equivalent', function(assert){
 });
 
 
-test('array of nested object values are hashed', function(assert){
-  assert.plan(2);
+it('array of nested object values are hashed', function() {
   var hash1 = hash({foo: [ {bar: true, bax: 1}, {bar: false, bax: 2} ] });
   var hash2 = hash({foo: [ {bar: true, bax: 1}, {bar: false, bax: 2} ] });
   var hash3 = hash({foo: [ {bar: false, bax: 2} ] });
@@ -110,22 +99,19 @@ test('array of nested object values are hashed', function(assert){
   assert.notEqual(hash1, hash3, 'different objects not equal');
 });
 
-test("recursive objects don't blow up stack", function(assert) {
-  assert.plan(1);
+it("recursive objects don't blow up stack", function() {
   var hash1 = {foo: 'bar'};
   hash1.recursive = hash1;
-  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+  assert.doesNotThrow(function() {hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
 });
 
-test("recursive arrays don't blow up stack", function(assert) {
-  assert.plan(1);
+it("recursive arrays don't blow up stack", function() {
   var hash1 = ['foo', 'bar'];
   hash1.push(hash1);
-  assert.doesNotThrow(function(){hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+  assert.doesNotThrow(function() {hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
 });
 
-test("recursive handling tracks identity", function(assert) {
-  assert.plan(1);
+it("recursive handling tracks identity", function() {
   var hash1 = {k1: {k: 'v'}, k2: {k: 'k2'}};
   hash1.k1.r1 = hash1.k1;
   hash1.k2.r2 = hash1.k2;
@@ -135,28 +121,25 @@ test("recursive handling tracks identity", function(assert) {
   assert.notEqual(hash(hash1), hash(hash2), "order of recursive objects should matter");
 });
 
-test("null and 'Null' string produce different hashes", function(assert) {
-  assert.plan(1);
+it("null and 'Null' string produce different hashes", function() {
   var hash1 = hash({foo: null});
   var hash2 = hash({foo: 'Null'});
   assert.notEqual(hash1, hash2, "null and 'Null' should not produce identical hashes");
 });
 
-test("object types are hashed", function(assert) {
-  assert.plan(1);
+it("object types are hashed", function() {
   var hash1 = hash({foo: 'bar'});
   var hash2 = hash(['foo', 'bar']);
   assert.notEqual(hash1, hash2, "arrays and objects should not produce identical hashes");
 });
 
-test("utf8 strings are hashed correctly", function(assert) {
-  assert.plan(1);
+it("utf8 strings are hashed correctly", function() {
   var hash1 = hash('\u03c3'); // cf 83 in utf8
   var hash2 = hash('\u01c3'); // c7 83 in utf8
   assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
 });
 
-test("various hashes in crypto.getHashes() should be supported", function(assert) {
+it("various hashes in crypto.getHashes() should be supported", function() {
   var hashes = ['sha1', 'md5'];
   
   if (crypto.getHashes) {
@@ -164,7 +147,6 @@ test("various hashes in crypto.getHashes() should be supported", function(assert
     hashes = crypto.getHashes().filter(RegExp.prototype.test.bind(/^(md|sha)/i));
   }
   
-  assert.plan(hashes.length);
   var obj = {randomText: 'bananas'};
   
   for (var i = 0; i < hashes.length; i++) {
@@ -173,15 +155,13 @@ test("various hashes in crypto.getHashes() should be supported", function(assert
 });
 
 if (typeof Buffer !== 'undefined') {
-test("Buffers can be hashed", function(assert) {
-  assert.plan(1);
+it("Buffers can be hashed", function() {
   assert.ok(validSha1.test(hash(new Buffer('Banana'))), 'hashes Buffers');
 });
 }
 
 if (typeof Uint8Array !== 'undefined') {
-test("Typed arrays can be hashed", function(assert) {
-  assert.plan(10);
+it("Typed arrays can be hashed", function() {
   
   assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]))), 'hashes Uint8Array');
   assert.ok(validSha1.test(hash(new  Int8Array([1,2,3,4]))), 'hashes  Int8Array');
@@ -196,8 +176,7 @@ test("Typed arrays can be hashed", function(assert) {
 });
 }
 
-test('Distinguish functions based on their properties', function(assert) {
-  assert.plan(3);
+it('Distinguish functions based on their properties', function() {
 
   var a, b, c, d;
   function Foo() {}
@@ -217,8 +196,7 @@ test('Distinguish functions based on their properties', function(assert) {
   assert.notEqual(c,d, 'changing a property changes the hash');
 });
 
-test('respectFunctionProperties = false', function(assert) {
-  assert.plan(1);
+it('respectFunctionProperties = false', function() {
 
   var a, b;
   function Foo() {}
@@ -230,8 +208,7 @@ test('respectFunctionProperties = false', function(assert) {
   assert.equal(a,b, 'function properties are ignored');
 });
 
-test('Distinguish functions based on prototype properties', function(assert) {
-  assert.plan(3);
+it('Distinguish functions based on prototype properties', function() {
 
   var a, b, c, d;
   function Foo() {}
@@ -251,8 +228,7 @@ test('Distinguish functions based on prototype properties', function(assert) {
   assert.notEqual(c,d, 'changing a property in the prototype changes the hash');
 });
 
-test('Distinguish objects based on their type', function(assert) {
-  assert.plan(2);
+it('Distinguish objects based on their type', function() {
 
   function Foo() {}
   function Bar() {}
@@ -263,9 +239,8 @@ test('Distinguish objects based on their type', function(assert) {
   assert.notEqual(hash(f), hash(b), 'Objects with different constructor should have a different Hash.');
 });
 
-test('respectType = false', function(assert) {
+it('respectType = false', function() {
   var opt = { respectType: false };
-  assert.plan(2);
 
 
   function Foo() {}
@@ -283,4 +258,6 @@ test('respectType = false', function(assert) {
   hb = hash(F, opt);
 
   assert.equal(ha, hb, 'Hashing should disregard changes in the function\'s prototype');
+});
+
 });
