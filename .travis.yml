@@ -12,3 +12,5 @@ script:
   - gulp lint
   - gulp dist
   - gulp test karma
+after_success:
+  - gulp coveralls

@@ -12,4 +12,5 @@ bin/*.json
 build
 compile
 .lock-wscript
-node_modules
+node_modules/
+coverage/

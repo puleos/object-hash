@@ -8,16 +8,25 @@ var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var karma = require('karma');
+var coveralls = require('gulp-coveralls');
+var istanbul = require('gulp-istanbul');
+var mocha = require('gulp-mocha');
 
 var paths = {
   index: './index.js',
   tests: './test/**/*.js'
 };
 
+function preTest(src) {
+  return gulp.src(src)
+    .pipe(istanbul())
+    .pipe(istanbul.hookRequire());
+}
+
 function test(src){
-  gulp.src(src, { read: false } )
-    .pipe(exec('mocha <%= file.path %>')
-      .on('error', function(err){ console.log(err.message); }));
+  return gulp.src(src)
+    .pipe(mocha())
+    .pipe(istanbul.writeReports());
 }
 
 function testKarma(done){
@@ -50,12 +59,21 @@ gulp.task('dist', function(){
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('test', function() {
+gulp.task('pre-test', function() {
+  preTest([paths.index]);
+});
+
+gulp.task('test', ['pre-test'], function() {
   test([paths.tests]);
 });
 
 gulp.task('karma', function() {
   testKarma();
+});
+
+gulp.task('coveralls', function() {
+  gulp.src('test/coverage/**/lcov.info')
+    .pipe(coveralls());
 });
 
 gulp.task('lint', function () {

@@ -6,7 +6,9 @@ crypto module for hashing.  Supports sha1, md5 and many others (depending on the
 [![NPM](https://nodei.co/npm/object-hash.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/object-hash)
 [![NPM](https://nodei.co/npm-dl/object-hash.png?months=6&height=3)](https://www.npmjs.com/package/object-hash)
 
-[![status](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
+[![Travis CI](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
+[![Coverage Status](https://coveralls.io/repos/puleos/object-hash/badge.svg?branch=master&service=github)](https://coveralls.io/github/puleos/object-hash?branch=master)
+
 
 * Hash values of any type.
 * Provides a hash table implementation.
