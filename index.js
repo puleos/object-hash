@@ -248,6 +248,14 @@ function typeHasher(hashFn, options, context){
     _url: function(url) {
       return hashFn.update('url:' + url.toString(), 'utf8');
     },
+    _map: function(map) {
+      hashFn.update('map:');
+      return typeHasher(hashFn, options, context).dispatch(Array.from(map));
+    },
+    _set: function(set) {
+      hashFn.update('set:');
+      return typeHasher(hashFn, options, context).dispatch(Array.from(set));
+    },
     _domwindow: function() { return hashFn.update('domwindow'); },
     /* Node.js standard native objects */
     _process: function() { return hashFn.update('process'); },

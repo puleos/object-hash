@@ -178,6 +178,39 @@ it("Typed arrays can be hashed", function() {
 });
 }
 
+if (typeof Map !== 'undefined') {
+it("Maps can be hashed", function() {
+  var map = new Map([['a',1],['b',2]]);
+  assert.ok(validSha1.test(hash(map)), 'hashes Maps');
+});
+}
+
+if (typeof WeakMap !== 'undefined') {
+it("WeakMaps can’t be hashed", function() {
+  var map = new WeakMap([[{foo: 'bar'},1]]);
+  assert.throws(function() {
+    validSha1.test(hash(map))
+  }, 'does not hash WeakMaps');
+});
+}
+
+if (typeof Set !== 'undefined') {
+it("Sets can be hashed", function() {
+  var set = new Set(['you', 'du', 'tu', 'あなた', '您']);
+  assert.ok(validSha1.test(hash(set)), 'hashes Sets');
+});
+}
+
+if (typeof WeakSet !== 'undefined') {
+it("WeakSets can’t be hashed", function() {
+  var obj = {foo: 'bar'};
+  var set = new WeakSet([obj]);
+  assert.throws(function() {
+    validSha1.test(hash(set))
+  }, 'does not hash WeakSets');
+});
+}
+
 it('Distinguish functions based on their properties', function() {
 
   var a, b, c, d;
