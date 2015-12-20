@@ -295,4 +295,20 @@ it('respectType = false', function() {
   assert.equal(ha, hb, 'Hashing should disregard changes in the function\'s prototype');
 });
 
+it('unorderedArrays = false', function() {
+  ha = hash([1, 2, 3]);
+  hb = hash([3, 2, 1]);
+
+  assert.notEqual(ha, hb, 'Hashing should respect the order of array entries');
+});
+
+it('unorderedArrays = true', function() {
+  var opt = { unorderedArrays: true };
+  
+  ha = hash([1, 2, 3], opt);
+  hb = hash([3, 2, 1], opt);
+
+  assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
+});
+
 });

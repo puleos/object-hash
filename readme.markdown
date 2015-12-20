@@ -26,6 +26,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
 *  `respectTypes` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
    are hashed. default: true
+*  `unorderedArrays` {true|false} Sort all arrays before hashing. default: false
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.

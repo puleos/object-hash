@@ -13,6 +13,7 @@ var crypto = require('crypto');
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
  *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
  *    when hashing to distinguish between types
+ *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
  *  * = default
  *
  * @param {object} value to hash
@@ -29,8 +30,9 @@ function objectHash(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
-  options.respectType = options.respectType === false ? false : true; // default to false
+  options.respectType = options.respectType === false ? false : true; // default to true
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
+  options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
 
   validate(object, options);
 
@@ -166,6 +168,8 @@ function typeHasher(hashFn, options, context){
     },
     _array: function(arr){
       hashFn.update('array:' + arr.length + ':');
+      if (options.unorderedArrays !== false)
+        arr = arr.sort();
       return arr.forEach(function(el){
         typeHasher(hashFn, options, context).dispatch(el);
       });
