@@ -15,6 +15,7 @@ var crypto = require('crypto');
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
  *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
  *    when hashing to distinguish between types
+ *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
  *  * = default
  *
  * @param {object} value to hash
@@ -31,8 +32,9 @@ function objectHash(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
-  options.respectType = options.respectType === false ? false : true; // default to false
+  options.respectType = options.respectType === false ? false : true; // default to true
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
+  options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
 
   validate(object, options);
 
@@ -168,6 +170,9 @@ function typeHasher(hashFn, options, context){
     },
     _array: function(arr){
       hashFn.update('array:' + arr.length + ':');
+      if (options.unorderedArrays !== false) {
+        arr = arr.sort();
+      }
       return arr.forEach(function(el){
         typeHasher(hashFn, options, context).dispatch(el);
       });
@@ -3586,6 +3591,22 @@ it('respectType = false', function() {
   hb = hash(F, opt);
 
   assert.equal(ha, hb, 'Hashing should disregard changes in the function\'s prototype');
+});
+
+it('unorderedArrays = false', function() {
+  ha = hash([1, 2, 3]);
+  hb = hash([3, 2, 1]);
+
+  assert.notEqual(ha, hb, 'Hashing should respect the order of array entries');
+});
+
+it('unorderedArrays = true', function() {
+  var opt = { unorderedArrays: true };
+  
+  ha = hash([1, 2, 3], opt);
+  hb = hash([3, 2, 1], opt);
+
+  assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
 });
 
 });

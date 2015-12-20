@@ -168,8 +168,9 @@ function typeHasher(hashFn, options, context){
     },
     _array: function(arr){
       hashFn.update('array:' + arr.length + ':');
-      if (options.unorderedArrays !== false)
+      if (options.unorderedArrays !== false) {
         arr = arr.sort();
+      }
       return arr.forEach(function(el){
         typeHasher(hashFn, options, context).dispatch(el);
       });
