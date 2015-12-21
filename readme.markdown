@@ -29,7 +29,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `unorderedArrays` {true|false} Sort all arrays before hashing. Note that this affects *all* collections,
    i.e. including typed arrays, Sets, Maps, etc. default: false
 *  `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
-   `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: false
+   `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.

@@ -313,17 +313,17 @@ it('unorderedArrays = true', function() {
 
 if (typeof Set !== 'undefined') {
 it('unorderedSets = false', function() {
-  ha = hash(new Set([1, 2, 3]));
-  hb = hash(new Set([3, 2, 1]));
+  var opt = { unorderedSets: false };
+  
+  ha = hash(new Set([1, 2, 3]), opt);
+  hb = hash(new Set([3, 2, 1]), opt);
 
   assert.notEqual(ha, hb, 'Hashing should respect the order of Set entries');
 });
 
 it('unorderedSets = true', function() {
-  var opt = { unorderedSets: true };
-  
-  ha = hash(new Set([1, 2, 3]), opt);
-  hb = hash(new Set([3, 2, 1]), opt);
+  ha = hash(new Set([1, 2, 3]));
+  hb = hash(new Set([3, 2, 1]));
 
   assert.equal(ha, hb, 'Hashing should not respect the order of Set entries');
 });

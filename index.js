@@ -14,7 +14,7 @@ var crypto = require('crypto');
  *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
  *    when hashing to distinguish between types
  *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
- *  - `unorderedSets` {true|*false} Sort `Set` and `Map` instances before hashing
+ *  - `unorderedSets` {*true|false} Sort `Set` and `Map` instances before hashing
  *  * = default
  *
  * @param {object} value to hash
@@ -34,7 +34,7 @@ function objectHash(object, options){
   options.respectType = options.respectType === false ? false : true; // default to true
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
   options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
-  options.unorderedSets = options.unorderedSets !== true ? false : true; // default to false
+  options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
 
   validate(object, options);
 
