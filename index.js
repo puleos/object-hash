@@ -17,26 +17,15 @@ var crypto = require('crypto');
  *  - `unorderedSets` {*true|false} Sort `Set` and `Map` instances before hashing
  *  * = default
  *
- * @param {object} value to hash
- * @param {options} hashing options
- * @return {hash value}
+ * @param {object} object value to hash
+ * @param {object} options hashing options
+ * @return {string} hash value
  * @api public
  */
 exports = module.exports = objectHash;
 
 function objectHash(object, options){
-  options = options || {};
-  options.algorithm = options.algorithm || 'sha1';
-  options.encoding = options.encoding || 'hex';
-  options.excludeValues = options.excludeValues ? true : false;
-  options.algorithm = options.algorithm.toLowerCase();
-  options.encoding = options.encoding.toLowerCase();
-  options.respectType = options.respectType === false ? false : true; // default to true
-  options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
-  options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
-  options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
-
-  validate(object, options);
+  options = applyDefaults(object, options);
 
   return hash(object, options);
 }
@@ -44,8 +33,8 @@ function objectHash(object, options){
 /**
  * Exported sugar methods
  *
- * @param {object} value to hash
- * @return {hash value}
+ * @param {object} object value to hash
+ * @return {string} hash value
  * @api public
  */
 exports.sha1 = function(object){
@@ -62,9 +51,20 @@ exports.keysMD5 = function(object){
 };
 
 // Internals
-function validate(object, options){
+function applyDefaults(object, options){
   var hashes = crypto.getHashes ? crypto.getHashes() : ['sha1', 'md5'];
   var encodings = ['buffer', 'hex', 'binary', 'base64'];
+  
+  options = options || {};
+  options.algorithm = options.algorithm || 'sha1';
+  options.encoding = options.encoding || 'hex';
+  options.excludeValues = options.excludeValues ? true : false;
+  options.algorithm = options.algorithm.toLowerCase();
+  options.encoding = options.encoding.toLowerCase();
+  options.respectType = options.respectType === false ? false : true; // default to true
+  options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
+  options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
+  options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
@@ -87,17 +87,8 @@ function validate(object, options){
     throw new Error('Encoding "' + options.encoding + '"  not supported. ' +
       'supported values: ' + encodings.join(', '));
   }
-}
-
-function hash(object, options){
-  var hashFn = crypto.createHash(options.algorithm);
-
-  var context = [];
-
-  typeHasher(hashFn, options, context).dispatch(object);
-
-  return (options.encoding === 'buffer') ? hashFn.digest() :
-    hashFn.digest(options.encoding);
+  
+  return options;
 }
 
 /** Check if the given function is a native function */
@@ -109,7 +100,53 @@ function isNativeFunction(f) {
   return exp.exec(Function.prototype.toString.call(f)) != null;
 }
 
-function typeHasher(hashFn, options, context){
+function hash(object, options, hashingStream) {
+  var hashingStream = crypto.createHash(options.algorithm);
+  
+  if (typeof hashingStream.write === 'undefined') {
+    hashingStream.write = hashingStream.update;
+    hashingStream.end = hashingStream.update;
+  }
+  
+  var hasher = typeHasher(options, hashingStream);
+  hasher.dispatch(object);
+  hashingStream.end(''); // write empty string since .update() requires a string arg
+  
+  if (typeof hashingStream.read === 'undefined' &&
+      typeof hashingStream.digest === 'function') {
+    return hashingStream.digest(options.encoding === 'buffer' ? undefined : options.encoding);
+  }
+
+  var buf = hashingStream.read();
+  if (options.encoding === 'buffer') {
+    return buf;
+  }
+  
+  return buf.toString(options.encoding);
+}
+
+/**
+ * Expose streaming API
+ *
+ * @param {object} object  Value to serialize
+ * @param {object} options  Options, as for hash()
+ * @param {object} stream  A stream to write the serializiation to
+ * @api public
+ */
+exports.writeToStream = function(object, options, stream) {
+  if (typeof stream === 'undefined') {
+    stream = options;
+    options = {};
+  }
+  
+  options = applyDefaults(object, options);
+  
+  return typeHasher(options, stream).dispatch(object);
+};
+
+function typeHasher(options, writeTo){
+  var context = [];
+  
   return {
     dispatch: function(value){
       var type = typeof value;
@@ -123,25 +160,24 @@ function typeHasher(hashFn, options, context){
       objType = objType.toLowerCase();
 
       if ((objectNumber = context.indexOf(object)) >= 0) {
-        typeHasher(hashFn, options, context).dispatch("[CIRCULAR]: " + objectNumber);
-        return;
+        return this.dispatch("[CIRCULAR]: " + objectNumber);
       } else {
         context.push(object);
       }
       
       if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
-        hashFn.update('buffer:');
-        return hashFn.update(object);
+        writeTo.write('buffer:');
+        return writeTo.write(object);
       }
 
       if(objType !== 'object' && objType !== 'function') {
-        if(typeHasher(hashFn, options, context)['_' + objType]) {
-          typeHasher(hashFn, options, context)['_' + objType](object);
+        if(this['_' + objType]) {
+          this['_' + objType](object);
         }else{
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
-        hashFn.update('object:');
+        writeTo.write('object:');
         var keys = Object.keys(object).sort();
         // Make sure to incorporate special properties, so
         // Types with different prototypes will produce
@@ -153,137 +189,140 @@ function typeHasher(hashFn, options, context){
         if (options.respectType !== false && !isNativeFunction(object)) {
           keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
         }
+        
+        var self = this;
         return keys.forEach(function(key){
-          hashFn.update(key, 'utf8');
+          writeTo.write(key, 'utf8');
+          writeTo.write(':');
           if(!options.excludeValues) {
-            typeHasher(hashFn, options, context).dispatch(object[key]);
+            self.dispatch(object[key]);
           }
         });
       }
     },
     _array: function(arr){
-      hashFn.update('array:' + arr.length + ':');
+      writeTo.write('array:' + arr.length + ':');
       if (options.unorderedArrays !== false) {
         arr = arr.sort();
       }
-      return arr.forEach(function(el){
-        typeHasher(hashFn, options, context).dispatch(el);
+      var self = this;
+      return arr.forEach(function(entry) {
+        return self.dispatch(entry);
       });
     },
     _date: function(date){
-      return hashFn.update('date:' + date.toJSON());
+      return writeTo.write('date:' + date.toJSON());
     },
     _symbol: function(sym){
-      return hashFn.update('symbol:' + sym.toString(), 'utf8');
+      return writeTo.write('symbol:' + sym.toString(), 'utf8');
     },
     _error: function(err){
-      return hashFn.update('error:' + err.toString(), 'utf8');
+      return writeTo.write('error:' + err.toString(), 'utf8');
     },
     _boolean: function(bool){
-      return hashFn.update('bool:' + bool.toString());
+      return writeTo.write('bool:' + bool.toString());
     },
     _string: function(string){
-      return hashFn.update('string:' + string, 'utf8');
+      return writeTo.write('string:' + string, 'utf8');
     },
     _function: function(fn){
-      hashFn.update('fn:' + fn.toString(), 'utf8');
+      writeTo.write('fn:' + fn.toString(), 'utf8');
       if (options.respectFunctionProperties) {
         this._object(fn);
       }
-      return hashFn;
     },
     _number: function(number){
-      return hashFn.update('number:' + number.toString());
+      return writeTo.write('number:' + number.toString());
     },
     _xml: function(xml){
-      return hashFn.update('xml:' + xml.toString(), 'utf8');
+      return writeTo.write('xml:' + xml.toString(), 'utf8');
     },
     _null: function() {
-      return hashFn.update('Null');
+      return writeTo.write('Null');
     },
     _undefined: function() {
-      return hashFn.update('Undefined');
+      return writeTo.write('Undefined');
     },
     _regexp: function(regex){
-      return hashFn.update('regex:' + regex.toString(), 'utf8');
+      return writeTo.write('regex:' + regex.toString(), 'utf8');
     },
     _uint8array: function(arr){
-      hashFn.update('uint8array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint8array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _uint8clampedarray: function(arr){
-      hashFn.update('uint8clampedarray:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint8clampedarray:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _int8array: function(arr){
-      hashFn.update('uint8array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint8array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _uint16array: function(arr){
-      hashFn.update('uint16array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint16array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _int16array: function(arr){
-      hashFn.update('uint16array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint16array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _uint32array: function(arr){
-      hashFn.update('uint32array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint32array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _int32array: function(arr){
-      hashFn.update('uint32array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('uint32array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _float32array: function(arr){
-      hashFn.update('float32array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('float32array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _float64array: function(arr){
-      hashFn.update('float64array:');
-      return typeHasher(hashFn, options, context).dispatch(Array.prototype.slice.call(arr));
+      writeTo.write('float64array:');
+      return this.dispatch(Array.prototype.slice.call(arr));
     },
     _arraybuffer: function(arr){
-      hashFn.update('arraybuffer:');
-      return typeHasher(hashFn, options, context).dispatch(new Uint8Array(arr));
+      writeTo.write('arraybuffer:');
+      return this.dispatch(new Uint8Array(arr));
     },
     _url: function(url) {
-      return hashFn.update('url:' + url.toString(), 'utf8');
+      return writeTo.write('url:' + url.toString(), 'utf8');
     },
     _map: function(map) {
-      hashFn.update('map:');
+      writeTo.write('map:');
       var arr = Array.from(map);
       if (options.unorderedSets !== false && options.unorderedArrays === false) {
         arr = arr.sort();
       }
-      return typeHasher(hashFn, options, context).dispatch(arr);
+      return this.dispatch(arr);
     },
     _set: function(set) {
-      hashFn.update('set:');
+      writeTo.write('set:');
       var arr = Array.from(set);
       if (options.unorderedSets !== false && options.unorderedArrays === false) {
         arr = arr.sort();
       }
-      return typeHasher(hashFn, options, context).dispatch(arr);
+      return this.dispatch(arr);
     },
-    _domwindow: function() { return hashFn.update('domwindow'); },
+    _domwindow: function() { return writeTo.write('domwindow'); },
     /* Node.js standard native objects */
-    _process: function() { return hashFn.update('process'); },
-    _timer: function() { return hashFn.update('timer'); },
-    _pipe: function() { return hashFn.update('pipe'); },
-    _tcp: function() { return hashFn.update('tcp'); },
-    _udp: function() { return hashFn.update('udp'); },
-    _tty: function() { return hashFn.update('tty'); },
-    _statwatcher: function() { return hashFn.update('statwatcher'); },
-    _securecontext: function() { return hashFn.update('securecontext'); },
-    _connection: function() { return hashFn.update('connection'); },
-    _zlib: function() { return hashFn.update('zlib'); },
-    _context: function() { return hashFn.update('context'); },
-    _nodescript: function() { return hashFn.update('nodescript'); },
-    _httpparser: function() { return hashFn.update('httpparser'); },
-    _dataview: function() { return hashFn.update('dataview'); },
-    _signal: function() { return hashFn.update('signal'); },
-    _fsevent: function() { return hashFn.update('fsevent'); },
-    _tlswrap: function() { return hashFn.update('tlswrap'); }
+    _process: function() { return writeTo.write('process'); },
+    _timer: function() { return writeTo.write('timer'); },
+    _pipe: function() { return writeTo.write('pipe'); },
+    _tcp: function() { return writeTo.write('tcp'); },
+    _udp: function() { return writeTo.write('udp'); },
+    _tty: function() { return writeTo.write('tty'); },
+    _statwatcher: function() { return writeTo.write('statwatcher'); },
+    _securecontext: function() { return writeTo.write('securecontext'); },
+    _connection: function() { return writeTo.write('connection'); },
+    _zlib: function() { return writeTo.write('zlib'); },
+    _context: function() { return writeTo.write('context'); },
+    _nodescript: function() { return writeTo.write('nodescript'); },
+    _httpparser: function() { return writeTo.write('httpparser'); },
+    _dataview: function() { return writeTo.write('dataview'); },
+    _signal: function() { return writeTo.write('signal'); },
+    _fsevent: function() { return writeTo.write('fsevent'); },
+    _tlswrap: function() { return writeTo.write('tlswrap'); }
   };
 }

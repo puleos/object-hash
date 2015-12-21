@@ -1,4 +1,7 @@
+'use strict';
+
 var assert = require('assert');
+var stream = require('stream');
 var crypto = require('crypto');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
@@ -296,6 +299,7 @@ it('respectType = false', function() {
 });
 
 it('unorderedArrays = false', function() {
+  var ha, hb;
   ha = hash([1, 2, 3]);
   hb = hash([3, 2, 1]);
 
@@ -305,6 +309,7 @@ it('unorderedArrays = false', function() {
 it('unorderedArrays = true', function() {
   var opt = { unorderedArrays: true };
   
+  var ha, hb;
   ha = hash([1, 2, 3], opt);
   hb = hash([3, 2, 1], opt);
 
@@ -315,6 +320,7 @@ if (typeof Set !== 'undefined') {
 it('unorderedSets = false', function() {
   var opt = { unorderedSets: false };
   
+  var ha, hb;
   ha = hash(new Set([1, 2, 3]), opt);
   hb = hash(new Set([3, 2, 1]), opt);
 
@@ -322,6 +328,7 @@ it('unorderedSets = false', function() {
 });
 
 it('unorderedSets = true', function() {
+  var ha, hb;
   ha = hash(new Set([1, 2, 3]));
   hb = hash(new Set([3, 2, 1]));
 
@@ -329,4 +336,26 @@ it('unorderedSets = true', function() {
 });
 }
 
+});
+
+describe('writeToStream', function() {
+it('should emit information about an object to a stream', function() {
+  var strm = new stream.PassThrough();
+  
+  hash.writeToStream({foo: 'bar'}, strm);
+  var result = strm.read().toString();
+  assert.strictEqual(typeof result, 'string');
+  assert.notStrictEqual(result.indexOf('foo'), -1);
+  assert.notStrictEqual(result.indexOf('bar'), -1);
+});
+
+it('should leave out keys when excludeValues = true', function() {
+  var strm = new stream.PassThrough();
+  
+  hash.writeToStream({foo: 'bar'}, {excludeValues: true}, strm);
+  var result = strm.read().toString();
+  assert.strictEqual(typeof result, 'string');
+  assert.notStrictEqual(result.indexOf('foo'), -1);
+  assert.   strictEqual(result.indexOf('bar'), -1);
+});
 });

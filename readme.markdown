@@ -1,7 +1,8 @@
-# Object-Hash
+# object-hash
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
-crypto module for hashing.  Supports sha1, md5 and many others (depending on the platform).
+crypto module for hashing.  Supports SHA1, CRC32 and many others (depending on the platform)
+as well as custom streams.
 
 [![NPM](https://nodei.co/npm/object-hash.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/object-hash)
 [![NPM](https://nodei.co/npm-dl/object-hash.png?months=6&height=3)](https://www.npmjs.com/package/object-hash)
@@ -48,6 +49,13 @@ Hash using the md5 algorithm.
 Hash object keys using the md5 algorithm, values ignored.
 
 *Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})*
+
+## hash.writeToStream(value, [options,] stream):
+Write the information that would otherwise have been hashed to a stream, e.g.:
+```js
+hash.writeToStream({foo: 'bar', a: 42}, {respectType: false}, process.stdout)
+// => e.g. 'object:a:number:42foo:string:bar'
+```
 
 ## Installation
 
