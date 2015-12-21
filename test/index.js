@@ -311,4 +311,22 @@ it('unorderedArrays = true', function() {
   assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
 });
 
+if (typeof Set !== 'undefined') {
+it('unorderedSets = false', function() {
+  ha = hash(new Set([1, 2, 3]));
+  hb = hash(new Set([3, 2, 1]));
+
+  assert.notEqual(ha, hb, 'Hashing should respect the order of Set entries');
+});
+
+it('unorderedSets = true', function() {
+  var opt = { unorderedSets: true };
+  
+  ha = hash(new Set([1, 2, 3]), opt);
+  hb = hash(new Set([3, 2, 1]), opt);
+
+  assert.equal(ha, hb, 'Hashing should not respect the order of Set entries');
+});
+}
+
 });

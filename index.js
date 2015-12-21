@@ -14,6 +14,7 @@ var crypto = require('crypto');
  *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
  *    when hashing to distinguish between types
  *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
+ *  - `unorderedSets` {true|*false} Sort `Set` and `Map` instances before hashing
  *  * = default
  *
  * @param {object} value to hash
@@ -33,6 +34,7 @@ function objectHash(object, options){
   options.respectType = options.respectType === false ? false : true; // default to true
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
   options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
+  options.unorderedSets = options.unorderedSets !== true ? false : true; // default to false
 
   validate(object, options);
 
@@ -257,11 +259,19 @@ function typeHasher(hashFn, options, context){
     },
     _map: function(map) {
       hashFn.update('map:');
-      return typeHasher(hashFn, options, context).dispatch(Array.from(map));
+      var arr = Array.from(map);
+      if (options.unorderedSets !== false && options.unorderedArrays === false) {
+        arr = arr.sort();
+      }
+      return typeHasher(hashFn, options, context).dispatch(arr);
     },
     _set: function(set) {
       hashFn.update('set:');
-      return typeHasher(hashFn, options, context).dispatch(Array.from(set));
+      var arr = Array.from(set);
+      if (options.unorderedSets !== false && options.unorderedArrays === false) {
+        arr = arr.sort();
+      }
+      return typeHasher(hashFn, options, context).dispatch(arr);
     },
     _domwindow: function() { return hashFn.update('domwindow'); },
     /* Node.js standard native objects */
