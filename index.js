@@ -61,13 +61,6 @@ exports.keysMD5 = function(object){
   return objectHash(object, {algorithm: 'md5', encoding: 'hex', excludeValues: true});
 };
 
-/**
- * Expose HashTable constructor
- *
- */
-exports.HashTable = require('./lib/hashTable');
-
-
 // Internals
 function validate(object, options){
   var hashes = crypto.getHashes ? crypto.getHashes() : ['sha1', 'md5'];
