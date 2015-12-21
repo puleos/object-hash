@@ -24,7 +24,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `excludeValues` {true|false} hash object keys, values ignored. default: false
 *  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
 *  `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
-*  `respectTypes` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
+*  `respectType` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
    are hashed. default: true
 *  `unorderedArrays` {true|false} Sort all arrays before hashing. Note that this affects *all* collections,
    i.e. including typed arrays, Sets, Maps, etc. default: false
