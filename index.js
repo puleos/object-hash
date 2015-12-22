@@ -1,6 +1,7 @@
 'use strict';
 
 var crypto = require('crypto');
+var stream = require('stream');
 
 /**
  * Exported function
@@ -100,7 +101,7 @@ function isNativeFunction(f) {
   return exp.exec(Function.prototype.toString.call(f)) != null;
 }
 
-function hash(object, options, hashingStream) {
+function hash(object, options) {
   var hashingStream = crypto.createHash(options.algorithm);
   
   if (typeof hashingStream.write === 'undefined') {
@@ -144,8 +145,8 @@ exports.writeToStream = function(object, options, stream) {
   return typeHasher(options, stream).dispatch(object);
 };
 
-function typeHasher(options, writeTo){
-  var context = [];
+function typeHasher(options, writeTo, context){
+  context = context || [];
   
   return {
     dispatch: function(value){
@@ -160,7 +161,7 @@ function typeHasher(options, writeTo){
       objType = objType.toLowerCase();
 
       if ((objectNumber = context.indexOf(object)) >= 0) {
-        return this.dispatch("[CIRCULAR]: " + objectNumber);
+        return this.dispatch('[CIRCULAR:' + objectNumber + ']');
       } else {
         context.push(object);
       }
@@ -177,7 +178,6 @@ function typeHasher(options, writeTo){
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
-        writeTo.write('object:');
         var keys = Object.keys(object).sort();
         // Make sure to incorporate special properties, so
         // Types with different prototypes will produce
@@ -190,25 +190,52 @@ function typeHasher(options, writeTo){
           keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
         }
         
+        writeTo.write('object:' + keys.length + ':');
         var self = this;
         return keys.forEach(function(key){
-          writeTo.write(key, 'utf8');
+          self.dispatch(key);
           writeTo.write(':');
           if(!options.excludeValues) {
             self.dispatch(object[key]);
           }
+          writeTo.write(',');
         });
       }
     },
-    _array: function(arr){
-      writeTo.write('array:' + arr.length + ':');
-      if (options.unorderedArrays !== false) {
-        arr = arr.sort();
-      }
+    _array: function(arr, unordered){
+      unordered = typeof unordered !== 'undefined' ? unordered :
+        options.unorderedArrays !== false; // default to options.unorderedArrays
+      
       var self = this;
-      return arr.forEach(function(entry) {
-        return self.dispatch(entry);
+      writeTo.write('array:' + arr.length + ':');
+      if (!unordered) {
+        return arr.forEach(function(entry) {
+          return self.dispatch(entry);
+        });
+      }
+      
+      // the unordered case is a little more complicated:
+      // since there is no canonical ordering on objects,
+      // i.e. {a:1} < {a:2} and {a:1} > {a:2} are both false,
+      // we first serialize each entry using a PassThrough stream
+      // before sorting.
+      // also: we can’t use the same context array for all entries
+      // since the order of hashing should *not* matter. instead,
+      // we keep track of the additions to a copy of the context array
+      // and add all of them to the global context array when we’re done
+      var contextAdditions = [];
+      var entries = arr.map(function(entry) {
+        var strm = new stream.PassThrough();
+        var localContext = context.slice(); // make copy
+        var hasher = typeHasher(options, strm, localContext);
+        hasher.dispatch(entry);
+        // take only what was added to localContext and append it to contextAdditions
+        contextAdditions = contextAdditions.concat(localContext.slice(context.length));
+        return strm.read().toString();
       });
+      context = context.concat(contextAdditions);
+      entries.sort();
+      return this._array(entries, false);
     },
     _date: function(date){
       return writeTo.write('date:' + date.toJSON());
@@ -223,10 +250,17 @@ function typeHasher(options, writeTo){
       return writeTo.write('bool:' + bool.toString());
     },
     _string: function(string){
-      return writeTo.write('string:' + string, 'utf8');
+      writeTo.write('string:' + string.length + ':');
+      writeTo.write(string, 'utf8');
     },
     _function: function(fn){
-      writeTo.write('fn:' + fn.toString(), 'utf8');
+      writeTo.write('fn:');
+      if (isNativeFunction(fn)) {
+        this.dispatch('[native]');
+      } else {
+        this.dispatch(fn.toString());
+      }
+      
       if (options.respectFunctionProperties) {
         this._object(fn);
       }
@@ -292,18 +326,12 @@ function typeHasher(options, writeTo){
     _map: function(map) {
       writeTo.write('map:');
       var arr = Array.from(map);
-      if (options.unorderedSets !== false && options.unorderedArrays === false) {
-        arr = arr.sort();
-      }
-      return this.dispatch(arr);
+      return this._array(arr, options.unorderedSets !== false);
     },
     _set: function(set) {
       writeTo.write('set:');
       var arr = Array.from(set);
-      if (options.unorderedSets !== false && options.unorderedArrays === false) {
-        arr = arr.sort();
-      }
-      return this.dispatch(arr);
+      return this._array(arr, options.unorderedSets !== false);
     },
     _domwindow: function() { return writeTo.write('domwindow'); },
     /* Node.js standard native objects */

@@ -114,6 +114,12 @@ it("recursive arrays don't blow up stack", function() {
   assert.doesNotThrow(function() {hash(hash1);}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
 });
 
+it("recursive arrays don't blow up stack with unorderedArrays", function() {
+  var hash1 = ['foo', 'bar'];
+  hash1.push(hash1);
+  assert.doesNotThrow(function() {hash(hash1, {unorderedArrays: true});}, /Maximum call stack size exceeded/, 'Should not throw an stack size exceeded exception');
+});
+
 it("recursive handling tracks identity", function() {
   var hash1 = {k1: {k: 'v'}, k2: {k: 'k2'}};
   hash1.k1.r1 = hash1.k1;
@@ -312,6 +318,11 @@ it('unorderedArrays = true', function() {
   var ha, hb;
   ha = hash([1, 2, 3], opt);
   hb = hash([3, 2, 1], opt);
+
+  assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
+  
+  ha = hash([{a: 1}, {a: 2}], opt);
+  hb = hash([{a: 2}, {a: 1}], opt);
 
   assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
 });
