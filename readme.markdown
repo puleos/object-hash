@@ -25,7 +25,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
 *  `respectType` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
    are hashed. default: true
-*  `unorderedArrays` {true|false} Sort all arrays before hashing. Note that this affects *all* collections,
+*  `unorderedArrays` {true|false} Sort all arrays using before hashing. Note that this affects *all* collections,
    i.e. including typed arrays, Sets, Maps, etc. default: false
 *  `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
    `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
