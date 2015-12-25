@@ -1,8 +1,8 @@
 # object-hash
 
 Generate hashes from objects and values in node and the browser.  Uses node.js
-crypto module for hashing.  Supports SHA1, CRC32 and many others (depending on the platform)
-as well as custom streams.
+crypto module for hashing.  Supports SHA1 and many others (depending on the platform)
+as well as custom streams (e.g. CRC32).
 
 [![NPM](https://nodei.co/npm/object-hash.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/object-hash)
 [![NPM](https://nodei.co/npm-dl/object-hash.png?months=6&height=3)](https://www.npmjs.com/package/object-hash)
