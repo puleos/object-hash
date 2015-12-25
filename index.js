@@ -11,6 +11,8 @@ var stream = require('stream');
  *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5' 
  *  - `excludeValues` {true|*false} hash object keys, values ignored 
  *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
+ *  - `ignoreUnknown` {true|*false} ignore unknown object types
+ *  - `replacer` optional function that replaces values before hashing
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
  *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
  *    when hashing to distinguish between types
@@ -62,10 +64,12 @@ function applyDefaults(object, options){
   options.excludeValues = options.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
+  options.ignoreUnknown = options.ignoreUnknown !== true ? false : true; // default to false
   options.respectType = options.respectType === false ? false : true; // default to true
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
   options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
   options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
+  options.replacer = options.replacer || undefined;
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
@@ -150,8 +154,14 @@ function typeHasher(options, writeTo, context){
   
   return {
     dispatch: function(value){
+      if (options.replacer) {
+        value = options.replacer(value);
+      }
+      
       var type = typeof value;
-      return (value === null) ? this._null() : this['_' + type](value);
+      if (value === null)
+        type = 'null';
+      return this['_' + type](value);
     },
     _object: function(object) {
       var pattern = (/\[object (.*)\]/i);
@@ -174,7 +184,9 @@ function typeHasher(options, writeTo, context){
       if(objType !== 'object' && objType !== 'function') {
         if(this['_' + objType]) {
           this['_' + objType](object);
-        }else{
+        } else if (options.ignoreUnknown) {
+          return writeToStream.write('[' + objType + ']');
+        } else {
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
@@ -332,6 +344,15 @@ function typeHasher(options, writeTo, context){
       writeTo.write('set:');
       var arr = Array.from(set);
       return this._array(arr, options.unorderedSets !== false);
+    },
+    _blob: function(blob) {
+      if (options.ignoreUnknown) {
+        return writeTo.write('[blob]');
+      }
+      
+      throw Error('Hashing Blob objects is currently not supported\n' +
+        '(see https://github.com/puleos/object-hash/issues/26)\n' +
+        'Use "options.replacer" or "options.ignoreUnknown"\n');
     },
     _domwindow: function() { return writeTo.write('domwindow'); },
     /* Node.js standard native objects */
