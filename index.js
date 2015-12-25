@@ -167,8 +167,10 @@ function typeHasher(options, writeTo, context){
       }
       
       var type = typeof value;
-      if (value === null)
+      if (value === null) {
         type = 'null';
+      }
+      
       return this['_' + type](value);
     },
     _object: function(object) {
@@ -360,7 +362,7 @@ function typeHasher(options, writeTo, context){
       var arr = Array.from(set);
       return this._array(arr, options.unorderedSets !== false);
     },
-    _blob: function(blob) {
+    _blob: function() {
       if (options.ignoreUnknown) {
         return writeTo.write('[blob]');
       }
