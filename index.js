@@ -75,6 +75,7 @@ function applyDefaults(object, options){
     throw new Error('Object argument required.');
   }
 
+  hashes.push('passthrough');
   // if there is a case-insensitive match in the hashes list, accept it
   // (i.e. SHA256 for sha256)
   for (var i = 0; i < hashes.length; ++i) {
@@ -88,7 +89,8 @@ function applyDefaults(object, options){
       'supported values: ' + hashes.join(', '));
   }
 
-  if(encodings.indexOf(options.encoding) === -1){
+  if(encodings.indexOf(options.encoding) === -1 &&
+     options.algorithm !== 'passthrough'){
     throw new Error('Encoding "' + options.encoding + '"  not supported. ' +
       'supported values: ' + encodings.join(', '));
   }
@@ -106,11 +108,17 @@ function isNativeFunction(f) {
 }
 
 function hash(object, options) {
-  var hashingStream = crypto.createHash(options.algorithm);
+  var hashingStream;
+  
+  if (options.algorithm !== 'passthrough') {
+    hashingStream = crypto.createHash(options.algorithm);
+  } else {
+    hashingStream = new stream.PassThrough();
+  }
   
   if (typeof hashingStream.write === 'undefined') {
     hashingStream.write = hashingStream.update;
-    hashingStream.end = hashingStream.update;
+    hashingStream.end   = hashingStream.update;
   }
   
   var hasher = typeHasher(options, hashingStream);
@@ -166,9 +174,16 @@ function typeHasher(options, writeTo, context){
     _object: function(object) {
       var pattern = (/\[object (.*)\]/i);
       var objString = Object.prototype.toString.call(object);
-      var objType = pattern.exec(objString)[1] || 'null';
-      var objectNumber = null;
+      var objType = pattern.exec(objString);
+      if (!objType) { // object type did not match [object ...]
+        objType = 'unknown:[' + objString + ']';
+      } else {
+        objType = objType[1]; // take only the class name
+      }
+      
       objType = objType.toLowerCase();
+            
+      var objectNumber = null;
 
       if ((objectNumber = context.indexOf(object)) >= 0) {
         return this.dispatch('[CIRCULAR:' + objectNumber + ']');
@@ -185,7 +200,7 @@ function typeHasher(options, writeTo, context){
         if(this['_' + objType]) {
           this['_' + objType](object);
         } else if (options.ignoreUnknown) {
-          return writeToStream.write('[' + objType + ']');
+          return writeTo.write('[' + objType + ']');
         } else {
           throw new Error('Unknown object type "' + objType + '"');
         }
