@@ -1,7 +1,6 @@
 'use strict';
 
 var crypto = require('crypto');
-var stream = require('stream');
 
 /**
  * Exported function
@@ -113,7 +112,7 @@ function hash(object, options) {
   if (options.algorithm !== 'passthrough') {
     hashingStream = crypto.createHash(options.algorithm);
   } else {
-    hashingStream = new stream.PassThrough();
+    hashingStream = new PassThrough();
   }
   
   if (typeof hashingStream.write === 'undefined') {
@@ -237,7 +236,7 @@ function typeHasher(options, writeTo, context){
       
       var self = this;
       writeTo.write('array:' + arr.length + ':');
-      if (!unordered) {
+      if (!unordered || arr.length <= 1) {
         return arr.forEach(function(entry) {
           return self.dispatch(entry);
         });
@@ -254,7 +253,7 @@ function typeHasher(options, writeTo, context){
       // and add all of them to the global context array when we’re done
       var contextAdditions = [];
       var entries = arr.map(function(entry) {
-        var strm = new stream.PassThrough();
+        var strm = new PassThrough();
         var localContext = context.slice(); // make copy
         var hasher = typeHasher(options, strm, localContext);
         hasher.dispatch(entry);
@@ -390,5 +389,25 @@ function typeHasher(options, writeTo, context){
     _signal: function() { return writeTo.write('signal'); },
     _fsevent: function() { return writeTo.write('fsevent'); },
     _tlswrap: function() { return writeTo.write('tlswrap'); }
+  };
+}
+
+// Mini-implementation of stream.PassThrough
+// We are far from having need for the full implementation, and we can
+// make assumtions like "many writes, then only one final read"
+// and we can ignore encoding specifics
+function PassThrough() {
+  return {
+    buf: '',
+    
+    write: function(b) {
+      this.buf += b;
+    },
+    end: function(b) {
+      this.buf += b;
+    },
+    read: function() {
+      return this.buf;
+    }
   };
 }
