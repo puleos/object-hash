@@ -1,6 +1,6 @@
 {
   "name": "object-hash",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Generate hashes from javascript objects in node and the browser.",
   "homepage": "https://github.com/puleos/object-hash",
   "repository": {
@@ -23,7 +23,7 @@
   "author": "Scott Puleo <puleos@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "browserify": "^12.0.1",
+    "browserify": "^13.0.0",
     "gulp": "^3.9.0",
     "gulp-browserify": "^0.5.1",
     "gulp-coveralls": "^0.1.4",
