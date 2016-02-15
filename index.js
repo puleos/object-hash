@@ -13,6 +13,7 @@ var crypto = require('crypto');
  *  - `ignoreUnknown` {true|*false} ignore unknown object types
  *  - `replacer` optional function that replaces values before hashing
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
+ *  - `respectFunctionNames` {*true|false} consider 'name' property of functions for hashing
  *  - `respectType` {*true|false} Respect special properties (prototype, constructor)
  *    when hashing to distinguish between types
  *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
@@ -291,10 +292,12 @@ function typeHasher(options, writeTo, context){
         this.dispatch(fn.toString());
       }
 
-      // Make sure we can still distinguish native functions
-      // by their name, otherwise String and Function will
-      // have the same hash
-      this.dispatch("function-name:" + fn.name.toString());
+      if (options.respectFunctionNames !== false) {
+        // Make sure we can still distinguish native functions
+        // by their name, otherwise String and Function will
+        // have the same hash
+        this.dispatch("function-name:" + String(fn.name));
+      }
       
       if (options.respectFunctionProperties) {
         this._object(fn);

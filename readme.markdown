@@ -28,6 +28,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `ignoreUnknown` {true|*false} ignore unknown object types. default: false
 *  `replacer` optional function that replaces values before hashing. default: accept all values
 *  `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
+*  `respectFunctionNames` {true|false} consider `name` property of functions for hashing. default: true
 *  `respectType` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
    are hashed. default: true
 *  `unorderedArrays` {true|false} Sort all arrays using before hashing. Note that this affects *all* collections,

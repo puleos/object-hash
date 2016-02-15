@@ -130,4 +130,45 @@ describe('hash()ing different types', function() {
     // Self check; did we really hash all the types?
     assert.equal(no, types.length);
   });
+  
+  it("Builtin types might result in identical hashes with respectFunctionNames = false", function() {
+    var hashcount = {};
+    var types = [Object, Date, Number, String, Function, RegExp,
+      Error, 0, null, NaN];
+    if (typeof WeakSet !== 'undefined') types.push(WeakSet);
+    if (typeof Set !== 'undefined') types.push(Set);
+    if (typeof WeakMap !== 'undefined') types.push(WeakMap);
+    if (typeof Map !== 'undefined') types.push(Map);
+    if (typeof Symbol !== 'undefined') types.push(Symbol);
+    if (typeof Uint8Array !== 'undefined') types.push(Uint8Array);
+
+    // Hash each type
+    for (var idx in types) {
+      var h = hash(types[idx], { respectFunctionNames: false });
+      assert.ok(validSha1.test(h));
+      hashcount[h] = (hashcount[h] || 0) + 1;
+    }
+
+    // Check for collisions
+    var no = 0;
+    for (var h in hashcount) {
+      assert.ok(hashcount[h] >= 1);
+      no += hashcount[h];
+    }
+
+    // Self check; did we really hash all the types?
+    assert.equal(no, types.length);
+  });
+  
+  it("Functions with identical bodies and different names result in identical hashes with respectFunctionNames = false", function() {
+    var fn1 = function a() {};
+    var fn2 = function b() {};
+    var toStringDummy = function() { return '...'; };
+    fn1.toString = toStringDummy;
+    fn2.toString = toStringDummy;
+    
+    var h1 = hash(fn1, { respectFunctionNames: false });
+    var h2 = hash(fn2, { respectFunctionNames: false });
+    assert.strictEqual(h1, h2);
+  });
 });
