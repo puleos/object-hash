@@ -66,6 +66,7 @@ function applyDefaults(object, options){
   options.encoding = options.encoding.toLowerCase();
   options.ignoreUnknown = options.ignoreUnknown !== true ? false : true; // default to false
   options.respectType = options.respectType === false ? false : true; // default to true
+  options.respectFunctionNames = options.respectFunctionNames === false ? false : true;
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
   options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
   options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
