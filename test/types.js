@@ -101,4 +101,33 @@ describe('hash()ing different types', function() {
       }, 'does not hash WeakSets');
     });
   }
+
+  it("Builtin types themselves can be hashed", function() {
+    var hashcount = {};
+    var types = [Object, Date, Number, String, Function, RegExp,
+      Error, 0, null, NaN];
+    if (typeof WeakSet !== 'undefined') types.push(WeakSet);
+    if (typeof Set !== 'undefined') types.push(Set);
+    if (typeof WeakMap !== 'undefined') types.push(WeakMap);
+    if (typeof Map !== 'undefined') types.push(Map);
+    if (typeof Symbol !== 'undefined') types.push(Symbol);
+    if (typeof Uint8Array !== 'undefined') types.push(Uint8Array);
+
+    // Hash each type
+    for (var idx in types) {
+      var h = hash(types[idx]);
+      assert.ok(validSha1.test(h));
+      hashcount[h] = (hashcount[h] || 0) + 1;
+    }
+
+    // Check for collisions
+    var no = 0;
+    for (var h in hashcount) {
+      assert.equal(hashcount[h], 1);
+      no++;
+    }
+
+    // Self check; did we really hash all the types?
+    assert.equal(no, types.length);
+  });
 });

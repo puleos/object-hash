@@ -169,6 +169,8 @@ function typeHasher(options, writeTo, context){
       if (value === null) {
         type = 'null';
       }
+
+      //console.log("[DEBUG] Dispatch: ", value, "->", type, " -> ", "_" + type);
       
       return this['_' + type](value);
     },
@@ -288,6 +290,11 @@ function typeHasher(options, writeTo, context){
       } else {
         this.dispatch(fn.toString());
       }
+
+      // Make sure we can still distinguish native functions
+      // by their name, otherwise String and Function will
+      // have the same hash
+      this.dispatch("function-name:" + fn.name.toString());
       
       if (options.respectFunctionProperties) {
         this._object(fn);
