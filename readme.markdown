@@ -20,6 +20,10 @@ hash({foo: 'bar'}) // => '67b69634f9880a282c14a0f0cb7ba20cf5d677e9'
 hash([1, 2, 2.718, 3.14159]) // => '136b9b88375971dff9f1af09d7356e3e04281951'
 ```
 
+## Versioning Disclaimer
+
+**IMPORTANT:** If you need lasting hash consistency, you should should lock `object-hash` at a specific version, because new versions (even patch versions) are likely to affect the result. For more info, see [this discussion](https://github.com/puleos/object-hash/issues/30).
+
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `algorithm` hash algo to be used: 'sha1', 'md5'. default: sha1
