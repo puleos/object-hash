@@ -56,10 +56,11 @@ exports.keysMD5 = function(object){
 };
 
 // Internals
+var hashes = crypto.getHashes ? crypto.getHashes().slice() : ['sha1', 'md5'];
+hashes.push('passthrough');
+var encodings = ['buffer', 'hex', 'binary', 'base64'];
+
 function applyDefaults(object, options){
-  var hashes = crypto.getHashes ? crypto.getHashes() : ['sha1', 'md5'];
-  var encodings = ['buffer', 'hex', 'binary', 'base64'];
-  
   options = options || {};
   options.algorithm = options.algorithm || 'sha1';
   options.encoding = options.encoding || 'hex';
@@ -78,7 +79,6 @@ function applyDefaults(object, options){
     throw new Error('Object argument required.');
   }
 
-  hashes.push('passthrough');
   // if there is a case-insensitive match in the hashes list, accept it
   // (i.e. SHA256 for sha256)
   for (var i = 0; i < hashes.length; ++i) {
