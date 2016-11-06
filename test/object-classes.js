@@ -11,7 +11,7 @@ describe('hash() objects with custom class names', function() {
   beforeEach(function() {
     builtinToString = Object.prototype.toString;
     Object.prototype.toString = function() {
-      if (typeof this.__className !== 'undefined') {
+      if (this && typeof this.__className !== 'undefined') {
         return this.__className;
       }
       
