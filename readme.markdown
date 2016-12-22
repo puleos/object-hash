@@ -79,7 +79,7 @@ browser: */dist/object_hash.js*
 <script src="object_hash.js" type="text/javascript"></script>
 
 <script>
-  var hash = objectHash.sha({foo:'bar'}); 
+  var hash = objectHash.sha1({foo:'bar'}); 
   
   console.log(hash); // e003c89cdf35cdf46d8239b4692436364b7259f9
 </script>
