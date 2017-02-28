@@ -22,6 +22,7 @@
   },
   "author": "Scott Puleo <puleos@gmail.com>",
   "license": "MIT",
+  "main": "dist/object_hash.js",
   "devDependencies": {
     "browserify": "^13.0.0",
     "gulp": "^3.9.0",
