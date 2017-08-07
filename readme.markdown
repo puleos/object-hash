@@ -5,7 +5,6 @@ crypto module for hashing.  Supports SHA1 and many others (depending on the plat
 as well as custom streams (e.g. CRC32).
 
 [![NPM](https://nodei.co/npm/object-hash.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/object-hash)
-[![NPM](https://nodei.co/npm-dl/object-hash.png?months=6&height=3)](https://www.npmjs.com/package/object-hash)
 
 [![Travis CI](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
 [![Coverage Status](https://coveralls.io/repos/puleos/object-hash/badge.svg?branch=master&service=github)](https://coveralls.io/github/puleos/object-hash?branch=master)
@@ -22,7 +21,12 @@ hash([1, 2, 2.718, 3.14159]) // => '136b9b88375971dff9f1af09d7356e3e04281951'
 
 ## Versioning Disclaimer
 
-**IMPORTANT:** If you need lasting hash consistency, you should should lock `object-hash` at a specific version, because new versions (even patch versions) are likely to affect the result. For more info, see [this discussion](https://github.com/puleos/object-hash/issues/30).
+Starting with version `1.1.8` (released April 2017), new versions will consider
+the exact returned hash part of the API contract, i.e. changes that will affect
+hash values will be considered `semver-major`. Previous versions may violate
+that expectation.
+
+For more information, see [this discussion](https://github.com/puleos/object-hash/issues/30).
 
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
