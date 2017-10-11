@@ -218,17 +218,6 @@ function typeHasher(options, writeTo, context){
         }
       }else{
         var keys = Object.keys(object).sort();
-        // Exclude specified keys
-        if (options.excludeKeys) {
-          var numberOfExcludedKeys = options.excludeKeys.length;
-          for (var index = 0; index < numberOfExcludedKeys; ++index) {
-            var keyIndex = keys.indexOf(options.excludeKeys[index]);
-            if (keyIndex > -1) {
-              keys.splice(keyIndex, 1);
-            }
-          }
-        }
-        
         // Make sure to incorporate special properties, so
         // Types with different prototypes will produce
         // a different hash and objects derived from
@@ -243,6 +232,10 @@ function typeHasher(options, writeTo, context){
         write('object:' + keys.length + ':');
         var self = this;
         return keys.forEach(function(key){
+          if (options.excludeKeys) {
+            if ( !options.excludeKeys(key))
+              return;
+          }
           self.dispatch(key);
           write(':');
           if(!options.excludeValues) {
