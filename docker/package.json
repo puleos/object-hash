@@ -1,0 +1,12 @@
+{
+  "name": "object-hash-as-node",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "object-hash": "1.1.8",
+    "url": "^0.11.0"
+  },
+  "scripts": {
+    "start": "node node.js"
+  }
+}

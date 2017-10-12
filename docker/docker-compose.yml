@@ -1,0 +1,12 @@
+version: "3"
+services:
+  node:
+    image: "node:8.6-alpine"
+    user: "node"
+    working_dir: /home/node/app
+    restart: always
+    volumes:
+      - ./:/home/node/app:ro
+    ports:
+      - 8081:8081
+    command: "npm start"
