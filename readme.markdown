@@ -43,6 +43,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
    i.e. including typed arrays, Sets, Maps, etc. default: false
 *  `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
    `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
+*  `excludeKeys` optional function for exclude specific key(s) from hashing, if returns false then exclude from hash. default: include all keys   
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.
@@ -116,6 +117,18 @@ hash(michael, { excludeValues: true });
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
 hash.keys(bob);
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
+
+/***
+ * hash object, ignore specific keys
+ */
+hash(peter, { excludeKeys: function(key) {
+    if ( key === 'friends') {
+      return false;
+    }
+    return true;
+  }
+});
+// 66b7d7e64871aa9fda1bdc8e88a28df797648d80
 
 /***
  * md5 base64 encoding

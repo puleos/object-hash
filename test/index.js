@@ -121,14 +121,14 @@ describe('hash', function() {
 
   it("various hashes in crypto.getHashes() should be supported", function() {
     var hashes = ['sha1', 'md5'];
-    
+
     if (crypto.getHashes) {
       // take all hashes from crypto.getHashes() starting with MD or SHA
       hashes = crypto.getHashes().filter(RegExp.prototype.test.bind(/^(md|sha)/i));
     }
-    
+
     var obj = {randomText: 'bananas'};
-    
+
     for (var i = 0; i < hashes.length; i++) {
       assert.ok(hash(obj, {algorithm: hashes[i]}), 'Algorithm ' + hashes[i] + ' should be supported');
     }
@@ -234,23 +234,31 @@ describe('hash', function() {
 
   it('unorderedArrays = true', function() {
     var opt = { unorderedArrays: true };
-    
+
     var ha, hb;
     ha = hash([1, 2, 3], opt);
     hb = hash([3, 2, 1], opt);
 
     assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
-    
+
     ha = hash([{a: 1}, {a: 2}], opt);
     hb = hash([{a: 2}, {a: 1}], opt);
 
     assert.equal(ha, hb, 'Hashing should not respect the order of array entries');
   });
 
+  it('excludeKeys works', function() {
+    var ha, hb;
+    ha = hash({a: 1, b: 4}, { excludeKeys: function(key) { return key === 'b' } });
+    hb = hash({a: 1});
+
+    assert.equal(ha, hb, 'Hashing should ignore key `b`');
+  });
+
   if (typeof Set !== 'undefined') {
     it('unorderedSets = false', function() {
       var opt = { unorderedSets: false };
-      
+
       var ha, hb;
       ha = hash(new Set([1, 2, 3]), opt);
       hb = hash(new Set([3, 2, 1]), opt);

@@ -7,9 +7,9 @@ var crypto = require('crypto');
  *
  * Options:
  *
- *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5' 
- *  - `excludeValues` {true|*false} hash object keys, values ignored 
- *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64' 
+ *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5'
+ *  - `excludeValues` {true|*false} hash object keys, values ignored
+ *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64'
  *  - `ignoreUnknown` {true|*false} ignore unknown object types
  *  - `replacer` optional function that replaces values before hashing
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
@@ -72,6 +72,7 @@ function applyDefaults(object, options){
   options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
   options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
   options.replacer = options.replacer || undefined;
+  options.excludeKeys = options.excludeKeys || undefined;
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
@@ -84,7 +85,7 @@ function applyDefaults(object, options){
       options.algorithm = hashes[i];
     }
   }
-  
+
   if(hashes.indexOf(options.algorithm) === -1){
     throw new Error('Algorithm "' + options.algorithm + '"  not supported. ' +
       'supported values: ' + hashes.join(', '));
@@ -95,7 +96,7 @@ function applyDefaults(object, options){
     throw new Error('Encoding "' + options.encoding + '"  not supported. ' +
       'supported values: ' + encodings.join(', '));
   }
-  
+
   return options;
 }
 
@@ -110,23 +111,23 @@ function isNativeFunction(f) {
 
 function hash(object, options) {
   var hashingStream;
-  
+
   if (options.algorithm !== 'passthrough') {
     hashingStream = crypto.createHash(options.algorithm);
   } else {
     hashingStream = new PassThrough();
   }
-  
+
   if (typeof hashingStream.write === 'undefined') {
     hashingStream.write = hashingStream.update;
     hashingStream.end   = hashingStream.update;
   }
-  
+
   var hasher = typeHasher(options, hashingStream);
   hasher.dispatch(object);
   if (!hashingStream.update)
     hashingStream.end('')
-  
+
   if (hashingStream.digest) {
     return hashingStream.digest(options.encoding === 'buffer' ? undefined : options.encoding);
   }
@@ -135,7 +136,7 @@ function hash(object, options) {
   if (options.encoding === 'buffer') {
     return buf;
   }
-  
+
   return buf.toString(options.encoding);
 }
 
@@ -152,9 +153,9 @@ exports.writeToStream = function(object, options, stream) {
     stream = options;
     options = {};
   }
-  
+
   options = applyDefaults(object, options);
-  
+
   return typeHasher(options, stream).dispatch(object);
 };
 
@@ -172,14 +173,14 @@ function typeHasher(options, writeTo, context){
       if (options.replacer) {
         value = options.replacer(value);
       }
-      
+
       var type = typeof value;
       if (value === null) {
         type = 'null';
       }
 
       //console.log("[DEBUG] Dispatch: ", value, "->", type, " -> ", "_" + type);
-      
+
       return this['_' + type](value);
     },
     _object: function(object) {
@@ -191,9 +192,9 @@ function typeHasher(options, writeTo, context){
       } else {
         objType = objType[1]; // take only the class name
       }
-      
+
       objType = objType.toLowerCase();
-            
+
       var objectNumber = null;
 
       if ((objectNumber = context.indexOf(object)) >= 0) {
@@ -201,7 +202,7 @@ function typeHasher(options, writeTo, context){
       } else {
         context.push(object);
       }
-      
+
       if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
         write('buffer:');
         return write(object);
@@ -227,7 +228,11 @@ function typeHasher(options, writeTo, context){
         if (options.respectType !== false && !isNativeFunction(object)) {
           keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
         }
-        
+
+        if (options.excludeKeys) {
+          keys = keys.filter(function(key) { return !options.excludeKeys(key); });
+        }
+
         write('object:' + keys.length + ':');
         var self = this;
         return keys.forEach(function(key){
@@ -243,7 +248,7 @@ function typeHasher(options, writeTo, context){
     _array: function(arr, unordered){
       unordered = typeof unordered !== 'undefined' ? unordered :
         options.unorderedArrays !== false; // default to options.unorderedArrays
-      
+
       var self = this;
       write('array:' + arr.length + ':');
       if (!unordered || arr.length <= 1) {
@@ -251,7 +256,7 @@ function typeHasher(options, writeTo, context){
           return self.dispatch(entry);
         });
       }
-      
+
       // the unordered case is a little more complicated:
       // since there is no canonical ordering on objects,
       // i.e. {a:1} < {a:2} and {a:1} > {a:2} are both false,
@@ -305,7 +310,7 @@ function typeHasher(options, writeTo, context){
         // have the same hash
         this.dispatch("function-name:" + String(fn.name));
       }
-      
+
       if (options.respectFunctionProperties) {
         this._object(fn);
       }
@@ -382,7 +387,7 @@ function typeHasher(options, writeTo, context){
       if (options.ignoreUnknown) {
         return write('[blob]');
       }
-      
+
       throw Error('Hashing Blob objects is currently not supported\n' +
         '(see https://github.com/puleos/object-hash/issues/26)\n' +
         'Use "options.replacer" or "options.ignoreUnknown"\n');
