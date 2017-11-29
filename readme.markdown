@@ -119,7 +119,7 @@ hash.keys(bob);
 // 48f370a772c7496f6c9d2e6d92e920c87dd00a5c
 
 /***
- * hash object, ignore the 'friends' key
+ * hash object, ignore specific key(s)
  */
 hash(peter, { excludeKeys: function(key) {
     if ( key === 'friends') {
