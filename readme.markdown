@@ -152,6 +152,11 @@ of this module.
 git clone https://github.com/puleos/object-hash
 ```
 
+## Node Docker Wrapper
+
+If you want to stand this up in a docker container, you should take at look
+at the [![node-object-hash](https://github.com/bean5/node-object-hash)](https://github.com/bean5/node-object-hash) project.
+
 ### gulp tasks
 * `gulp watch` (default) watch files, test and lint on change/add
 * `gulp test` unit tests
