@@ -416,7 +416,7 @@ function typeHasher(options, writeTo, context){
 
 // Mini-implementation of stream.PassThrough
 // We are far from having need for the full implementation, and we can
-// make assumtions like "many writes, then only one final read"
+// make assumptions like "many writes, then only one final read"
 // and we can ignore encoding specifics
 function PassThrough() {
   return {
