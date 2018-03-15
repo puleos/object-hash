@@ -71,6 +71,7 @@ function applyDefaults(object, options){
   options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
   options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
   options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
+  options.unorderedObjects = options.unorderedObjects === false ? false : true; // default to true
   options.replacer = options.replacer || undefined;
   options.excludeKeys = options.excludeKeys || undefined;
 
@@ -217,7 +218,10 @@ function typeHasher(options, writeTo, context){
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
-        var keys = Object.keys(object).sort();
+        var keys = Object.keys(object);
+        if (options.unorderedObjects) {
+          keys = keys.sort();
+        }
         // Make sure to incorporate special properties, so
         // Types with different prototypes will produce
         // a different hash and objects derived from
