@@ -39,6 +39,12 @@ describe('hash', function() {
     assert.equal(hash1, hash2, 'hashes are equal');
     assert.notEqual(hash1, hash3, 'different objects not equal');
   });
+  
+  it('respects object key ordering when unorderedObjects = false', function() {
+    var hash1 = hash({foo: 'bar', bar: 'baz'}, { unorderedObjects: false });
+    var hash2 = hash({bar: 'baz', foo: 'bar'}, { unorderedObjects: false });
+    assert.notEqual(hash1, hash2, 'hashes are not equal');
+  });
 
   it('hashes only object keys when excludeValues option is set', function() {
     var hash1 = hash({foo: false, bar: 'OK'}, { excludeValues: true });
