@@ -43,6 +43,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
    i.e. including typed arrays, Sets, Maps, etc. default: false
 *  `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
    `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
+*  `unorderedObjects` {true|false} Sort objects before hashing, i.e. make `hash({ x: 1, y: 2 }) === hash({ y: 2, x: 1 })`. default: true
 *  `excludeKeys` optional function for exclude specific key(s) from hashing, if returns true then exclude from hash. default: include all keys   
 
 ## hash.sha1(value);
