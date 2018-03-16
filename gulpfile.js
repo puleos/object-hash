@@ -2,7 +2,6 @@
 
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
-var exec = require('gulp-exec');
 var stylish = require('jshint-stylish');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
@@ -47,7 +46,8 @@ gulp.task('dist', function(){
     .pipe(browserify({
       insertGlobals : true,
       debug: true,
-      standalone: 'objectHash'
+      standalone: 'objectHash',
+      ignore: [require.resolve('crypto')]
     }))
     .pipe(rename('object_hash.js'))
     .pipe(uglify({outSourceMap: true}))
