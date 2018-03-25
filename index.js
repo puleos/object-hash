@@ -103,7 +103,8 @@ function applyDefaults(object, options){
 
 /** Check if the given function is a native function */
 function isNativeFunction(f) {
-  if ((typeof f) !== 'function') {
+  var type = typeof f;
+  if (type !== 'function' && type !== 'asyncfunction') {
     return false;
   }
   var exp = /^function\s+\w*\s*\(\s*\)\s*{\s+\[native code\]\s+}$/i;
@@ -209,7 +210,7 @@ function typeHasher(options, writeTo, context){
         return write(object);
       }
 
-      if(objType !== 'object' && objType !== 'function') {
+      if(objType !== 'object' && objType !== 'function' && objType !== 'asyncfunction') {
         if(this['_' + objType]) {
           this['_' + objType](object);
         } else if (options.ignoreUnknown) {
