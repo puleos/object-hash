@@ -39,7 +39,7 @@ describe('hash', function() {
     assert.equal(hash1, hash2, 'hashes are equal');
     assert.notEqual(hash1, hash3, 'different objects not equal');
   });
-  
+
   it('respects object key ordering when unorderedObjects = false', function() {
     var hash1 = hash({foo: 'bar', bar: 'baz'}, { unorderedObjects: false });
     var hash2 = hash({bar: 'baz', foo: 'bar'}, { unorderedObjects: false });
@@ -123,6 +123,13 @@ describe('hash', function() {
     var hash1 = hash('\u03c3'); // cf 83 in utf8
     var hash2 = hash('\u01c3'); // c7 83 in utf8
     assert.notEqual(hash1, hash2, "different strings with similar utf8 encodings should produce different hashes");
+  });
+
+  it("strings passed as new String are hashed correctly", function() {
+    var hash1 = hash(new String('foo'));
+    assert.equal(hash1, '7cd3edacc4c9dd43908177508c112608a398bb9a');
+    var hash2 = hash({foo: new String('bar')});
+    assert.equal(hash2, 'a75c05bdca7d704bdfcd761913e5a4e4636e956b');
   });
 
   it("various hashes in crypto.getHashes() should be supported", function() {
@@ -281,4 +288,3 @@ describe('hash', function() {
     });
   }
 });
-

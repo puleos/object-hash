@@ -298,7 +298,7 @@ function typeHasher(options, writeTo, context){
     },
     _string: function(string){
       write('string:' + string.length + ':');
-      write(string);
+      write(string.toString());
     },
     _function: function(fn){
       write('fn:');
