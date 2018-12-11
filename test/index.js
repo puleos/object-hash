@@ -22,6 +22,20 @@ describe('hash', function() {
     }, 'bad encoding');
   });
 
+  it('copies options rather than mutating', function() {
+    var options = {
+      algorithm: 'MD5',
+      encoding: 'HEX'
+    }
+
+    hash({foo: 'bar'}, options)
+
+    assert.deepEqual(options, {
+      algorithm: 'MD5',
+      encoding: 'HEX'
+    }, 'source options have neither been modified nor added to')
+  });
+
   it('hashes a simple object', function() {
     assert.ok(validSha1.test(hash({foo: 'bar', bar: 'baz'})), 'hash object');
   });
