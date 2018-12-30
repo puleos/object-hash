@@ -31,6 +31,7 @@ For more information, see [this discussion](https://github.com/puleos/object-has
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `algorithm` hash algo to be used: 'sha1', 'md5'. default: sha1
+  *  This supports the algorithms returned by `crypto.getHashes()`. Note that the default of SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
 *  `excludeValues` {true|false} hash object keys, values ignored. default: false
 *  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
 *  `ignoreUnknown` {true|*false} ignore unknown object types. default: false
@@ -44,10 +45,12 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
 *  `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
    `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
 *  `unorderedObjects` {true|false} Sort objects before hashing, i.e. make `hash({ x: 1, y: 2 }) === hash({ y: 2, x: 1 })`. default: true
-*  `excludeKeys` optional function for exclude specific key(s) from hashing, if returns true then exclude from hash. default: include all keys   
+*  `excludeKeys` optional function for exclude specific key(s) from hashing, if returns true then exclude from hash. default: include all keys
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.
+
+Note that SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
 
 *Sugar method, equivalent to hash(value, {algorithm: 'sha1'})*
 
@@ -59,10 +62,14 @@ Hash object keys using the sha1 algorithm, values ignored.
 ## hash.MD5(value);
 Hash using the md5 algorithm.
 
+Note that the MD5 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
+
 *Sugar method, equivalent to hash(value, {algorithm: 'md5'})*
 
 ## hash.keysMD5(value);
 Hash object keys using the md5 algorithm, values ignored.
+
+Note that the MD5 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
 
 *Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})*
 
@@ -85,8 +92,8 @@ browser: */dist/object_hash.js*
 <script src="object_hash.js" type="text/javascript"></script>
 
 <script>
-  var hash = objectHash.sha1({foo:'bar'}); 
-  
+  var hash = objectHash.sha1({foo:'bar'});
+
   console.log(hash); // e003c89cdf35cdf46d8239b4692436364b7259f9
 </script>
 ```
@@ -143,7 +150,7 @@ hash(bob, { algorithm: 'md5', encoding: 'base64' });
 ```
 
 ## Legacy Browser Support
-IE <= 8 and Opera <= 11 support dropped in version 0.3.0.  If you require 
+IE <= 8 and Opera <= 11 support dropped in version 0.3.0.  If you require
 legacy browser support you must either use an ES5 shim or use version 0.2.5
 of this module.
 
