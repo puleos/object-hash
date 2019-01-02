@@ -18,6 +18,7 @@ var crypto = require('crypto');
  *    when hashing to distinguish between types
  *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
  *  - `unorderedSets` {*true|false} Sort `Set` and `Map` instances before hashing
+ *  - `hashingStream` optional stream that is used in place of the native hashing stream
  *  * = default
  *
  * @param {object} object value to hash

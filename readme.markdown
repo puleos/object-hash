@@ -46,6 +46,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
    `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
 *  `unorderedObjects` {true|false} Sort objects before hashing, i.e. make `hash({ x: 1, y: 2 }) === hash({ y: 2, x: 1 })`. default: true
 *  `excludeKeys` optional function for exclude specific key(s) from hashing, if returns true then exclude from hash. default: include all keys
+*  `hashingStream` optional stream that is used in place of the native hashing stream
 
 ## hash.sha1(value);
 Hash using the sha1 algorithm.
@@ -147,6 +148,14 @@ hash(michael, { algorithm: 'md5', encoding: 'base64' });
 // djXaWpuWVJeOF8Sb6SFFNg==
 hash(bob, { algorithm: 'md5', encoding: 'base64' });
 // lFzkw/IJ8/12jZI0rQeS3w==
+
+/***
+ * use custom hashStream
+ */
+const secret = 'abcdefg';
+const hashStream = crypto.createHmac('sha256', secret);
+hash(bob, { hashStream });
+// 
 ```
 
 ## Legacy Browser Support
