@@ -287,4 +287,11 @@ describe('hash', function() {
       assert.equal(ha, hb, 'Hashing should not respect the order of Set entries');
     });
   }
+
+  it('custom hashingStream works', function() {
+    var ha;
+    ha = hash({a: 1, b: 4}, { hashingStream: crypto.createHmac('sha256', '123456') });
+
+    assert.equal(ha, '550abb83536475fc08989a28b4a9b3be220048dd0610affadf4d8829360fbea1', 'Custom hashingSteam should be used');
+  });
 });

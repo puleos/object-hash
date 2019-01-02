@@ -18,6 +18,7 @@ var crypto = require('crypto');
  *    when hashing to distinguish between types
  *  - `unorderedArrays` {true|*false} Sort all arrays before hashing
  *  - `unorderedSets` {*true|false} Sort `Set` and `Map` instances before hashing
+ *  - `hashingStream` optional stream that is used in place of the native hashing stream
  *  * = default
  *
  * @param {object} object value to hash
@@ -74,6 +75,7 @@ function applyDefaults(object, options){
   options.unorderedObjects = options.unorderedObjects === false ? false : true; // default to true
   options.replacer = options.replacer || undefined;
   options.excludeKeys = options.excludeKeys || undefined;
+  options.hashingStream = options.hashingStream || undefined;
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
@@ -113,7 +115,9 @@ function isNativeFunction(f) {
 function hash(object, options) {
   var hashingStream;
 
-  if (options.algorithm !== 'passthrough') {
+  if (options.hashingStream) {
+    hashingStream = options.hashingStream;
+  } else if (options.algorithm !== 'passthrough') {
     hashingStream = crypto.createHash(options.algorithm);
   } else {
     hashingStream = new PassThrough();
