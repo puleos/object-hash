@@ -74,6 +74,7 @@ function applyDefaults(object, options){
   options.unorderedObjects = options.unorderedObjects === false ? false : true; // default to true
   options.replacer = options.replacer || undefined;
   options.excludeKeys = options.excludeKeys || undefined;
+  options.hashingStream = options.hashingStream || undefined;
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
@@ -113,7 +114,9 @@ function isNativeFunction(f) {
 function hash(object, options) {
   var hashingStream;
 
-  if (options.algorithm !== 'passthrough') {
+  if (options.hashingStream) {
+    hashingStream = options.hashingStream;
+  } else if (options.algorithm !== 'passthrough') {
     hashingStream = crypto.createHash(options.algorithm);
   } else {
     hashingStream = new PassThrough();
