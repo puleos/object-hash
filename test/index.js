@@ -268,6 +268,14 @@ describe('hash', function() {
     assert.equal(ha, hb, 'Hashing should ignore key `b`');
   });
 
+  it('excludeUndefinedValues works', function() {
+    var ha, hb;
+    ha = hash({a: 1, b: undefined}, { excludeUndefinedValues: true });
+    hb = hash({a: 1}, { excludeUndefinedValues: true });
+
+    assert.equal(ha, hb, 'Hashing should ignore key `b`');
+  });
+
   if (typeof Set !== 'undefined') {
     it('unorderedSets = false', function() {
       var opt = { unorderedSets: false };
