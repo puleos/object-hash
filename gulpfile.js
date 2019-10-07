@@ -7,7 +7,6 @@ var stylish = require('jshint-stylish');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
-var karma = require('karma');
 var coveralls = require('gulp-coveralls');
 var istanbul = require('gulp-istanbul');
 var mocha = require('gulp-mocha');
@@ -30,7 +29,11 @@ function test(src){
 }
 
 function testKarma(done){
-  new karma.Server({
+  if (+process.version.split('.')[0].slice(1) < 8) {
+    console.log('karma does not support Node.js < 8, skipping');
+    return done();
+  }
+  new (require('karma').Server)({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, done).start();
@@ -43,55 +46,40 @@ function lint(src){
 }
 
 gulp.task('dist', function(){
-  gulp.src([paths.index])
-    .pipe(browserify({
-      insertGlobals : true,
-      debug: true,
-      standalone: 'objectHash'
-    }))
-    .pipe(rename('object_hash.js'))
-    .pipe(uglify({outSourceMap: true}))
-    .pipe(gulp.dest('./dist'));
-    // tests
-  gulp.src([paths.tests])
-    .pipe(browserify())
-    .pipe(rename('object_hash_test.js'))
-    .pipe(gulp.dest('./dist'));
+  return Promise.all([
+    gulp.src([paths.index])
+      .pipe(browserify({
+        insertGlobals : true,
+        debug: true,
+        standalone: 'objectHash'
+      }))
+      .pipe(rename('object_hash.js'))
+      .pipe(uglify())
+      .pipe(gulp.dest('./dist')),
+    gulp.src([paths.tests])
+      .pipe(browserify())
+      .pipe(rename('object_hash_test.js'))
+      .pipe(gulp.dest('./dist'))
+  ]);
 });
 
 gulp.task('pre-test', function() {
-  preTest([paths.index]);
+  return preTest([paths.index]);
 });
 
-gulp.task('test', ['pre-test'], function() {
-  test([paths.tests]);
-});
+gulp.task('test', gulp.series('pre-test', function() {
+  return test([paths.tests]);
+}));
 
-gulp.task('karma', function() {
-  testKarma();
+gulp.task('karma', function(done) {
+  testKarma(done);
 });
 
 gulp.task('coveralls', function() {
-  gulp.src('coverage/**/lcov.info')
+  return gulp.src('coverage/**/lcov.info')
     .pipe(coveralls());
 });
 
 gulp.task('lint', function () {
   return lint([paths.index]);
 });
-
-gulp.task('watch', function () {
-
-  // watch and lint any files that are added or changed
-  gulp.watch([paths.index, paths.tests], function(event){
-    if(event.type !== 'deleted') {
-      lint([event.path]);
-    }
-  });
-
-  // run the tests when something changes
-  gulp.watch([paths.index, paths.tests], ['test', 'karma']);
-
-});
-
-gulp.task('default', ['watch']);

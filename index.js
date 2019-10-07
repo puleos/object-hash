@@ -129,8 +129,9 @@ function hash(object, options) {
 
   var hasher = typeHasher(options, hashingStream);
   hasher.dispatch(object);
-  if (!hashingStream.update)
-    hashingStream.end('')
+  if (!hashingStream.update) {
+    hashingStream.end('');
+  }
 
   if (hashingStream.digest) {
     return hashingStream.digest(options.encoding === 'buffer' ? undefined : options.encoding);
@@ -166,11 +167,12 @@ exports.writeToStream = function(object, options, stream) {
 function typeHasher(options, writeTo, context){
   context = context || [];
   var write = function(str) {
-    if (writeTo.update)
+    if (writeTo.update) {
       return writeTo.update(str, 'utf8');
-    else
+    } else {
       return writeTo.write(str, 'utf8');
-  }
+    }
+  };
 
   return {
     dispatch: function(value){
