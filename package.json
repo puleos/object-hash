@@ -41,7 +41,7 @@
     "mocha": "^6.2.0"
   },
   "engines": {
-    "node": ">= 4"
+    "node": ">= 6"
   },
   "main": "./index.js",
   "browser": "./dist/object_hash.js"

@@ -6,7 +6,6 @@ node_js:
   - 12
 sudo: false
 before_install:
-  - export CXX="g++-4.8" CC="gcc-4.8"
   - export "PATH=./node_modules/.bin:$PATH"
 install: npm install
 script:

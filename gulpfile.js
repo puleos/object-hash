@@ -7,7 +7,6 @@ var stylish = require('jshint-stylish');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
-var karma = require('karma');
 var coveralls = require('gulp-coveralls');
 var istanbul = require('gulp-istanbul');
 var mocha = require('gulp-mocha');
@@ -30,7 +29,11 @@ function test(src){
 }
 
 function testKarma(done){
-  new karma.Server({
+  if (+process.version.split('.')[0].slice(1) < 8) {
+    console.log('karma does not support Node.js < 8, skipping');
+    return done();
+  }
+  new (require('karma').Server)({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, done).start();
