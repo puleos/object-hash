@@ -51,7 +51,7 @@ gulp.task('dist', function(){
         standalone: 'objectHash'
       }))
       .pipe(rename('object_hash.js'))
-      .pipe(uglify({outSourceMap: true}))
+      .pipe(uglify())
       .pipe(gulp.dest('./dist')),
     gulp.src([paths.tests])
       .pipe(browserify())
