@@ -58,22 +58,25 @@ var hashes = crypto.getHashes ? crypto.getHashes().slice() : ['sha1', 'md5'];
 hashes.push('passthrough');
 var encodings = ['buffer', 'hex', 'binary', 'base64'];
 
-function applyDefaults(object, options){
-  options = options || {};
-  options.algorithm = options.algorithm || 'sha1';
-  options.encoding = options.encoding || 'hex';
-  options.excludeValues = options.excludeValues ? true : false;
+function applyDefaults(object, sourceOptions){
+  sourceOptions = sourceOptions || {};
+
+  // create a copy rather than mutating
+  var options = {};
+  options.algorithm = sourceOptions.algorithm || 'sha1';
+  options.encoding = sourceOptions.encoding || 'hex';
+  options.excludeValues = sourceOptions.excludeValues ? true : false;
   options.algorithm = options.algorithm.toLowerCase();
   options.encoding = options.encoding.toLowerCase();
-  options.ignoreUnknown = options.ignoreUnknown !== true ? false : true; // default to false
-  options.respectType = options.respectType === false ? false : true; // default to true
-  options.respectFunctionNames = options.respectFunctionNames === false ? false : true;
-  options.respectFunctionProperties = options.respectFunctionProperties === false ? false : true;
-  options.unorderedArrays = options.unorderedArrays !== true ? false : true; // default to false
-  options.unorderedSets = options.unorderedSets === false ? false : true; // default to false
-  options.unorderedObjects = options.unorderedObjects === false ? false : true; // default to true
-  options.replacer = options.replacer || undefined;
-  options.excludeKeys = options.excludeKeys || undefined;
+  options.ignoreUnknown = sourceOptions.ignoreUnknown !== true ? false : true; // default to false
+  options.respectType = sourceOptions.respectType === false ? false : true; // default to true
+  options.respectFunctionNames = sourceOptions.respectFunctionNames === false ? false : true;
+  options.respectFunctionProperties = sourceOptions.respectFunctionProperties === false ? false : true;
+  options.unorderedArrays = sourceOptions.unorderedArrays !== true ? false : true; // default to false
+  options.unorderedSets = sourceOptions.unorderedSets === false ? false : true; // default to false
+  options.unorderedObjects = sourceOptions.unorderedObjects === false ? false : true; // default to true
+  options.replacer = sourceOptions.replacer || undefined;
+  options.excludeKeys = sourceOptions.excludeKeys || undefined;
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
