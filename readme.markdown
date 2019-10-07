@@ -174,3 +174,10 @@ at the [![node-object-hash](https://github.com/bean5/node-object-hash)](https://
 
 ## License
 MIT
+
+## Changelog
+
+### v2.0.0
+
+Only Node.js versions `>= 6.0.0` are being tested in CI now.
+No other breaking changes were introduced.
