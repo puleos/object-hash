@@ -61,6 +61,9 @@ gulp.task('dist', function(){
       .pipe(uglify())
       .pipe(gulp.dest('./dist')),
     gulp.src([paths.tests])
+      // Hack: browserify seems to not support async-await.
+      // It's probably better to replace gulp-browserify altogether instead.
+      .pipe(replace(/async function/g, 'function'))
       .pipe(browserify())
       .pipe(rename('object_hash_test.js'))
       .pipe(gulp.dest('./dist'))
