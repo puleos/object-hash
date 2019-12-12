@@ -219,6 +219,18 @@ describe('hash', function() {
     assert.notEqual(c,d, 'changing a property in the prototype changes the hash');
   });
 
+  it('distinguishes async functions based on their properties', function() {
+    var a, b;
+    
+    async function Foo() {}
+    a = hash(Foo);
+
+    Foo.foo = 22;
+    b = hash(Foo);
+
+    assert.notEqual(a,b, 'adding a property changes the hash');
+  });
+
   it('Distinguish objects based on their type', function() {
 
     function Foo() {}

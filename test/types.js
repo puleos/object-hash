@@ -8,11 +8,13 @@ var validSha1 = /^[0-9a-f]{40}$/i;
 describe('hash()ing different types', function() {
   it('hashes non-object types', function() {
     var func = function(a){ return a + 1; };
+    var asyncFunc = async function(a){ return a + 1; };
     assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
     assert.ok(validSha1.test(hash(42)), 'hash number');
     assert.ok(validSha1.test(hash(NaN)), 'hash bool');
     assert.ok(validSha1.test(hash(true)), 'hash bool');
     assert.ok(validSha1.test(hash(func)), 'hash function');
+    assert.ok(validSha1.test(hash(asyncFunc)), 'hash async function');
   });
 
   it('hashes special object types', function() {
