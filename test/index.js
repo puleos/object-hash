@@ -219,6 +219,28 @@ describe('hash', function() {
     assert.notEqual(c,d, 'changing a property in the prototype changes the hash');
   });
 
+  it('distinguishes async functions based on their properties', function() {
+    var a, b;
+
+    var Foo;
+
+    try {
+      Foo = eval('async function Foo() {}; Foo');
+    } catch (err) {
+      if (err.name === 'SyntaxError')
+        return this.skip('Not available on Node 6');
+      else
+        throw err;
+    }
+
+    a = hash(Foo);
+
+    Foo.foo = 22;
+    b = hash(Foo);
+
+    assert.notEqual(a,b, 'adding a property changes the hash');
+  });
+
   it('Distinguish objects based on their type', function() {
 
     function Foo() {}

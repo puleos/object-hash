@@ -214,7 +214,7 @@ function typeHasher(options, writeTo, context){
         return write(object);
       }
 
-      if(objType !== 'object' && objType !== 'function') {
+      if(objType !== 'object' && objType !== 'function' && objType !== 'asyncfunction') {
         if(this['_' + objType]) {
           this['_' + objType](object);
         } else if (options.ignoreUnknown) {

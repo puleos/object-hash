@@ -8,11 +8,19 @@ var validSha1 = /^[0-9a-f]{40}$/i;
 describe('hash()ing different types', function() {
   it('hashes non-object types', function() {
     var func = function(a){ return a + 1; };
+    var asyncFunc;
+    try {
+      asyncFunc = eval('async function(a) { return a + 1; }');
+    } catch (err) {
+      if (err.name === 'SyntaxError') asyncFunc = func;
+      else throw err;
+    }
     assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
     assert.ok(validSha1.test(hash(42)), 'hash number');
     assert.ok(validSha1.test(hash(NaN)), 'hash bool');
     assert.ok(validSha1.test(hash(true)), 'hash bool');
     assert.ok(validSha1.test(hash(func)), 'hash function');
+    assert.ok(validSha1.test(hash(asyncFunc)), 'hash async function');
   });
 
   it('hashes special object types', function() {
@@ -34,7 +42,7 @@ describe('hash()ing different types', function() {
     if (typeof process !== 'undefined') {
       assert.ok(validSha1.test(hash(process)), 'hash process');
     }
-    
+
     var timer = setTimeout(function() {}, 0);
     assert.ok(validSha1.test(hash(timer)), 'hash timer');
   });
@@ -53,7 +61,7 @@ describe('hash()ing different types', function() {
 
   if (typeof Uint8Array !== 'undefined') {
     it("Typed arrays can be hashed", function() {
-      
+
       assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]))), 'hashes Uint8Array');
       assert.ok(validSha1.test(hash(new  Int8Array([1,2,3,4]))), 'hashes  Int8Array');
       assert.ok(validSha1.test(hash(new Uint16Array([1,2,3,4]))), 'hashes Uint16Array');
@@ -130,7 +138,7 @@ describe('hash()ing different types', function() {
     // Self check; did we really hash all the types?
     assert.equal(no, types.length);
   });
-  
+
   it("Builtin types might result in identical hashes with respectFunctionNames = false", function() {
     var hashcount = {};
     var types = [Object, Date, Number, String, Function, RegExp,
@@ -159,14 +167,14 @@ describe('hash()ing different types', function() {
     // Self check; did we really hash all the types?
     assert.equal(no, types.length);
   });
-  
+
   it("Functions with identical bodies and different names result in identical hashes with respectFunctionNames = false", function() {
     var fn1 = function a() {};
     var fn2 = function b() {};
     var toStringDummy = function() { return '...'; };
     fn1.toString = toStringDummy;
     fn2.toString = toStringDummy;
-    
+
     var h1 = hash(fn1, { respectFunctionNames: false });
     var h2 = hash(fn2, { respectFunctionNames: false });
     assert.strictEqual(h1, h2);
