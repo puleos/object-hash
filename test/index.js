@@ -221,8 +221,18 @@ describe('hash', function() {
 
   it('distinguishes async functions based on their properties', function() {
     var a, b;
-    
-    async function Foo() {}
+
+    var Foo;
+
+    try {
+      Foo = eval('async function Foo() {}; Foo');
+    } catch (err) {
+      if (err.name === 'SyntaxError')
+        return this.skip('Not available on Node 6');
+      else
+        throw err;
+    }
+
     a = hash(Foo);
 
     Foo.foo = 22;
