@@ -21,6 +21,10 @@
     "prepublish": "gulp dist"
   },
   "author": "Scott Puleo <puleos@gmail.com>",
+  "files": [
+    "index.js",
+    "dist/object_hash.js"
+  ],
   "license": "MIT",
   "devDependencies": {
     "browserify": "^16.2.3",
