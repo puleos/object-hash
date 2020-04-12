@@ -2,12 +2,7 @@
 
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
-var exec = require('gulp-exec');
 var stylish = require('jshint-stylish');
-var browserify = require('gulp-browserify');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
-var replace = require('gulp-replace');
 var coveralls = require('gulp-coveralls');
 var istanbul = require('gulp-istanbul');
 var mocha = require('gulp-mocha');
@@ -45,30 +40,6 @@ function lint(src){
     .pipe(jshint('.jshintrc'))
     .pipe(jshint.reporter(stylish));
 }
-
-gulp.task('dist', function(){
-  return Promise.all([
-    gulp.src([paths.index])
-      .pipe(browserify({
-        insertGlobals : true,
-        debug: true,
-        standalone: 'objectHash'
-      }))
-      // Hack: See https://github.com/puleos/object-hash/issues/71.
-      // It's probably better to replace gulp-browserify altogether instead.
-      .pipe(replace(/_global.crypto/g, 'false'))
-      .pipe(rename('object_hash.js'))
-      .pipe(uglify())
-      .pipe(gulp.dest('./dist')),
-    gulp.src([paths.tests])
-      // Hack: browserify seems to not support async-await.
-      // It's probably better to replace gulp-browserify altogether instead.
-      .pipe(replace(/async function/g, 'function'))
-      .pipe(browserify())
-      .pipe(rename('object_hash_test.js'))
-      .pipe(gulp.dest('./dist'))
-  ]);
-});
 
 gulp.task('pre-test', function() {
   return preTest([paths.index]);

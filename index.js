@@ -1,6 +1,7 @@
 'use strict';
 
-var crypto = require('crypto');
+var getHashes = require('crypto').getHashes;
+var createHash = require('crypto').createHash;
 
 /**
  * Exported function
@@ -54,7 +55,7 @@ exports.keysMD5 = function(object){
 };
 
 // Internals
-var hashes = crypto.getHashes ? crypto.getHashes().slice() : ['sha1', 'md5'];
+var hashes = getHashes ? getHashes().slice() : ['sha1', 'md5'];
 hashes.push('passthrough');
 var encodings = ['buffer', 'hex', 'binary', 'base64'];
 
@@ -117,7 +118,7 @@ function hash(object, options) {
   var hashingStream;
 
   if (options.algorithm !== 'passthrough') {
-    hashingStream = crypto.createHash(options.algorithm);
+    hashingStream = createHash(options.algorithm);
   } else {
     hashingStream = new PassThrough();
   }
