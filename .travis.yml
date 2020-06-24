@@ -9,9 +9,9 @@ before_install:
   - export "PATH=./node_modules/.bin:$PATH"
 install: npm install
 script:
-  - gulp lint
-  - gulp dist
-  - gulp test karma
+  - npm run lint
+  - npm run test
+  - npm run prepublish
 after_success:
   - gulp coveralls
 
