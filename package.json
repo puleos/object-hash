@@ -17,6 +17,7 @@
     "url": "https://github.com/puleos/object-hash/issues"
   },
   "scripts": {
+    "lint": "gulp lint",
     "test": "gulp test",
     "prepublish": "rollup -c"
   },
