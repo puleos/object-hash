@@ -214,7 +214,7 @@ function typeHasher(options, writeTo, context){
         return write(object);
       }
 
-      if(objType !== 'object' && objType !== 'function' && objType !== 'asyncfunction') {
+      if(objType !== 'object' && objType !== 'function' && objType !== 'asyncfunction' && objType !== 'file') {
         if(this['_' + objType]) {
           this['_' + objType](object);
         } else if (options.ignoreUnknown) {
@@ -223,35 +223,39 @@ function typeHasher(options, writeTo, context){
           throw new Error('Unknown object type "' + objType + '"');
         }
       }else{
-        var keys = Object.keys(object);
-        if (options.unorderedObjects) {
-          keys = keys.sort();
-        }
-        // Make sure to incorporate special properties, so
-        // Types with different prototypes will produce
-        // a different hash and objects derived from
-        // different functions (`new Foo`, `new Bar`) will
-        // produce different hashes.
-        // We never do this for native functions since some
-        // seem to break because of that.
-        if (options.respectType !== false && !isNativeFunction(object)) {
-          keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
-        }
-
-        if (options.excludeKeys) {
-          keys = keys.filter(function(key) { return !options.excludeKeys(key); });
-        }
-
-        write('object:' + keys.length + ':');
-        var self = this;
-        return keys.forEach(function(key){
-          self.dispatch(key);
-          write(':');
-          if(!options.excludeValues) {
-            self.dispatch(object[key]);
+        if (objType === 'file') {
+          write('file:' + object.name + "," + object.size + "," + object.type + "," + object.lastModfied);
+        } else {
+          var keys = Object.keys(object);
+          if (options.unorderedObjects) {
+            keys = keys.sort();
           }
-          write(',');
-        });
+          // Make sure to incorporate special properties, so
+          // Types with different prototypes will produce
+          // a different hash and objects derived from
+          // different functions (`new Foo`, `new Bar`) will
+          // produce different hashes.
+          // We never do this for native functions since some
+          // seem to break because of that.
+          if (options.respectType !== false && !isNativeFunction(object)) {
+            keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
+          }
+
+          if (options.excludeKeys) {
+            keys = keys.filter(function(key) { return !options.excludeKeys(key); });
+          }
+
+          write('object:' + keys.length + ':');
+          var self = this;
+          return keys.forEach(function(key){
+            self.dispatch(key);
+            write(':');
+            if(!options.excludeValues) {
+              self.dispatch(object[key]);
+            }
+            write(',');
+          });
+        }
       }
     },
     _array: function(arr, unordered){
