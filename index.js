@@ -392,7 +392,10 @@ function typeHasher(options, writeTo, context){
       var arr = Array.from(set);
       return this._array(arr, options.unorderedSets !== false);
     },
-    _file: function(file) { return write('file:' + file.name + "," + file.size + "," + file.type + "," + file.lastModfied); },
+    _file: function(file) {
+      write('file:');
+      return this.dispatch([file.name, file.size, file.type, file.lastModfied]);
+    },
     _blob: function() {
       if (options.ignoreUnknown) {
         return write('[blob]');
