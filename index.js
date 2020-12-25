@@ -392,6 +392,10 @@ function typeHasher(options, writeTo, context){
       var arr = Array.from(set);
       return this._array(arr, options.unorderedSets !== false);
     },
+    _file: function(file) {
+      write('file:');
+      return this.dispatch([file.name, file.size, file.type, file.lastModfied]);
+    },
     _blob: function() {
       if (options.ignoreUnknown) {
         return write('[blob]');
@@ -419,7 +423,7 @@ function typeHasher(options, writeTo, context){
     _dataview: function() { return write('dataview'); },
     _signal: function() { return write('signal'); },
     _fsevent: function() { return write('fsevent'); },
-    _tlswrap: function() { return write('tlswrap'); }
+    _tlswrap: function() { return write('tlswrap'); },
   };
 }
 
