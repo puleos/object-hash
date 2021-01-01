@@ -30,8 +30,9 @@ For more information, see [this discussion](https://github.com/puleos/object-has
 
 ## hash(value, options);
 Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
-*  `algorithm` hash algo to be used: 'sha1', 'md5'. default: sha1
+*  `algorithm` hash algo to be used: 'sha1', 'md5', 'passthrough'. default: sha1
   *  This supports the algorithms returned by `crypto.getHashes()`. Note that the default of SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
+  * This also supports the `passthrough` algorith, which will return the information that would otherwise have been hashed.
 *  `excludeValues` {true|false} hash object keys, values ignored. default: false
 *  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
 *  `ignoreUnknown` {true|*false} ignore unknown object types. default: false
