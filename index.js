@@ -406,6 +406,9 @@ function typeHasher(options, writeTo, context){
         'Use "options.replacer" or "options.ignoreUnknown"\n');
     },
     _domwindow: function() { return write('domwindow'); },
+    _bigint: function(number){
+      return write('bigint:' + number.toString());
+    },
     /* Node.js standard native objects */
     _process: function() { return write('process'); },
     _timer: function() { return write('timer'); },

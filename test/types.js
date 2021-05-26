@@ -110,6 +110,14 @@ describe('hash()ing different types', function() {
     });
   }
 
+  if (typeof BigInt !== 'undefined') {
+    it("BigInts can be hashed", function() {
+      assert.ok(function() {
+        validSha1.test(hash(BigInt(42)))
+      }, 'hashes BigInts');
+    });
+  }
+
   it("Builtin types themselves can be hashed", function() {
     var hashcount = {};
     var types = [Object, Date, Number, String, Function, RegExp,
@@ -120,6 +128,7 @@ describe('hash()ing different types', function() {
     if (typeof Map !== 'undefined') types.push(Map);
     if (typeof Symbol !== 'undefined') types.push(Symbol);
     if (typeof Uint8Array !== 'undefined') types.push(Uint8Array);
+    if (typeof BigInt !== 'undefined') types.push(BigInt);
 
     // Hash each type
     for (var idx in types) {
@@ -149,6 +158,7 @@ describe('hash()ing different types', function() {
     if (typeof Map !== 'undefined') types.push(Map);
     if (typeof Symbol !== 'undefined') types.push(Symbol);
     if (typeof Uint8Array !== 'undefined') types.push(Uint8Array);
+    if (typeof BigInt !== 'undefined') types.push(BigInt);
 
     // Hash each type
     for (var idx in types) {
