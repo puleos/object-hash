@@ -28,54 +28,62 @@ that expectation.
 
 For more information, see [this discussion](https://github.com/puleos/object-hash/issues/30).
 
-## hash(value, options);
-Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
-*  `algorithm` hash algo to be used: 'sha1', 'md5', 'passthrough'. default: sha1
-  *  This supports the algorithms returned by `crypto.getHashes()`. Note that the default of SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
-  * This also supports the `passthrough` algorith, which will return the information that would otherwise have been hashed.
-*  `excludeValues` {true|false} hash object keys, values ignored. default: false
-*  `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
-*  `ignoreUnknown` {true|*false} ignore unknown object types. default: false
-*  `replacer` optional function that replaces values before hashing. default: accept all values
-*  `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
-*  `respectFunctionNames` {true|false} consider `name` property of functions for hashing. default: true
-*  `respectType` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
-   are hashed. default: true
-*  `unorderedArrays` {true|false} Sort all arrays using before hashing. Note that this affects *all* collections,
-   i.e. including typed arrays, Sets, Maps, etc. default: false
-*  `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
-   `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
-*  `unorderedObjects` {true|false} Sort objects before hashing, i.e. make `hash({ x: 1, y: 2 }) === hash({ y: 2, x: 1 })`. default: true
-*  `excludeKeys` optional function for exclude specific key(s) from hashing, if returns true then exclude from hash. default: include all keys
+## hash(value, options)
 
-## hash.sha1(value);
+Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
+
+* `algorithm` hash algo to be used: 'sha1', 'md5', 'passthrough'. default: sha1
+  * This supports the algorithms returned by `crypto.getHashes()`. Note that the default of SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
+  * This also supports the `passthrough` algorith, which will return the information that would otherwise have been hashed.
+* `excludeValues` {true|false} hash object keys, values ignored. default: false
+* `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
+* `ignoreUnknown` {true|*false} ignore unknown object types. default: false
+* `replacer` optional function that replaces values before hashing. default: accept all values
+* `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
+* `respectFunctionNames` {true|false} consider `name` property of functions for hashing. default: true
+* `respectType` {true|false} Whether special type attributes (`.prototype`, `.__proto__`, `.constructor`)
+   are hashed. default: true
+* `unorderedArrays` {true|false} Sort all arrays before hashing. Note that this affects *all* collections,
+   i.e. including typed arrays, Sets, Maps, etc. default: false
+* `unorderedSets` {true|false} Sort `Set` and `Map` instances before hashing, i.e. make
+  `hash(new Set([1, 2])) == hash(new Set([2, 1]))` return `true`. default: true
+* `unorderedObjects` {true|false} Sort objects before hashing, i.e. make `hash({ x: 1, y: 2 }) === hash({ y: 2, x: 1 })`. default: true
+* `excludeKeys` optional function for excluding specific key(s) from hashing, if true is returned then exclude from hash. default: include all keys
+
+## hash.sha1(value)
+
 Hash using the sha1 algorithm.
 
 Note that SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
 
-*Sugar method, equivalent to hash(value, {algorithm: 'sha1'})*
+*Sugar method, equivalent to* `hash(value, {algorithm: 'sha1'})`
 
-## hash.keys(value);
+## hash.keys(value)
+
 Hash object keys using the sha1 algorithm, values ignored.
 
-*Sugar method, equivalent to hash(value, {excludeValues: true})*
+*Sugar method, equivalent to* `hash(value, {excludeValues: true})`
 
-## hash.MD5(value);
+## hash.MD5(value)
+
 Hash using the md5 algorithm.
 
-Note that the MD5 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
+Note that the MD5 algorithm is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
 
-*Sugar method, equivalent to hash(value, {algorithm: 'md5'})*
+*Sugar method, equivalent to* `hash(value, {algorithm: 'md5'})`
 
-## hash.keysMD5(value);
+## hash.keysMD5(value)
+
 Hash object keys using the md5 algorithm, values ignored.
 
-Note that the MD5 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
+Note that the MD5 algorithm is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
 
-*Sugar method, equivalent to hash(value, {algorithm: 'md5', excludeValues: true})*
+*Sugar method, equivalent to* `hash(value, {algorithm: 'md5', excludeValues: true})`
 
-## hash.writeToStream(value, [options,] stream):
+## hash.writeToStream(value, [options,] stream)
+
 Write the information that would otherwise have been hashed to a stream, e.g.:
+
 ```js
 hash.writeToStream({foo: 'bar', a: 42}, {respectType: false}, process.stdout)
 // => e.g. 'object:a:number:42foo:string:bar'
@@ -84,12 +92,14 @@ hash.writeToStream({foo: 'bar', a: 42}, {respectType: false}, process.stdout)
 ## Installation
 
 node:
+
 ```js
 npm install object-hash
 ```
 
 browser: */dist/object_hash.js*
-```
+
+```html
 <script src="object_hash.js" type="text/javascript"></script>
 
 <script>
@@ -100,12 +110,13 @@ browser: */dist/object_hash.js*
 ```
 
 ## Example usage
+
 ```js
 var hash = require('object-hash');
 
-var peter = {name: 'Peter', stapler: false, friends: ['Joanna', 'Michael', 'Samir'] };
-var michael = {name: 'Michael', stapler: false, friends: ['Peter', 'Samir'] };
-var bob = {name: 'Bob', stapler: true, friends: [] };
+var peter = { name: 'Peter', stapler: false, friends: ['Joanna', 'Michael', 'Samir'] };
+var michael = { name: 'Michael', stapler: false, friends: ['Peter', 'Samir'] };
+var bob = { name: 'Bob', stapler: true, friends: [] };
 
 /***
  * sha1 hex encoding (default)
@@ -151,13 +162,14 @@ hash(bob, { algorithm: 'md5', encoding: 'base64' });
 ```
 
 ## Legacy Browser Support
+
 IE <= 8 and Opera <= 11 support dropped in version 0.3.0.  If you require
 legacy browser support you must either use an ES5 shim or use version 0.2.5
 of this module.
 
 ## Development
 
-```
+```sh-session
 git clone https://github.com/puleos/object-hash
 ```
 
@@ -167,6 +179,7 @@ If you want to stand this up in a docker container, you should take at look
 at the [![node-object-hash](https://github.com/bean5/node-object-hash)](https://github.com/bean5/node-object-hash) project.
 
 ### gulp tasks
+
 * `gulp watch` (default) watch files, test and lint on change/add
 * `gulp test` unit tests
 * `gulp karma` browser unit tests
@@ -174,6 +187,7 @@ at the [![node-object-hash](https://github.com/bean5/node-object-hash)](https://
 * `gulp dist` create browser version in /dist
 
 ## License
+
 MIT
 
 ## Changelog
