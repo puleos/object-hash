@@ -348,7 +348,7 @@ function typeHasher(options, writeTo, context){
       return this.dispatch(Array.prototype.slice.call(arr));
     },
     _int8array: function(arr){
-      write('uint8array:');
+      write('int8array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
     _uint16array: function(arr){
@@ -356,7 +356,7 @@ function typeHasher(options, writeTo, context){
       return this.dispatch(Array.prototype.slice.call(arr));
     },
     _int16array: function(arr){
-      write('uint16array:');
+      write('int16array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
     _uint32array: function(arr){
@@ -364,7 +364,7 @@ function typeHasher(options, writeTo, context){
       return this.dispatch(Array.prototype.slice.call(arr));
     },
     _int32array: function(arr){
-      write('uint32array:');
+      write('int32array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
     _float32array: function(arr){

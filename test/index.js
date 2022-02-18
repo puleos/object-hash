@@ -323,4 +323,12 @@ describe('hash', function() {
       assert.equal(ha, hb, 'Hashing should not respect the order of Set entries');
     });
   }
+
+  if (typeof Uint8Array !== 'undefined') {
+    it('respects typed array\'s types', function () {
+      assert.notEqual(hash(new Int8Array([1,2,3,4])), hash(new Uint8Array([1,2,3,4])), 'Hashing should respect signed / unsigned Int8Array type');
+      assert.notEqual(hash(new Int16Array([1,2,3,4])), hash(new Uint16Array([1,2,3,4])), 'Hashing should respect signed / unsigned Int16Array type');
+      assert.notEqual(hash(new Int32Array([1,2,3,4])), hash(new Uint32Array([1,2,3,4])), 'Hashing should respect signed / unsigned Int32Array type');
+    });
+  }
 });
