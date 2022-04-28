@@ -193,6 +193,14 @@ function typeHasher(options, writeTo, context){
     }
   }
 
+  function hashSet(name) {
+    return function(value) {
+      write(name + ':');
+      var arr = Array.from(value);
+      return this._array(arr, options.unorderedSets !== false);
+    };
+  }
+
   var hasher = {
     dispatch: function(value){
       if (options.replacer) {
@@ -342,16 +350,6 @@ function typeHasher(options, writeTo, context){
       write('arraybuffer:');
       return this.dispatch(new Uint8Array(arr));
     },
-    _map: function(map) {
-      write('map:');
-      var arr = Array.from(map);
-      return this._array(arr, options.unorderedSets !== false);
-    },
-    _set: function(set) {
-      write('set:');
-      var arr = Array.from(set);
-      return this._array(arr, options.unorderedSets !== false);
-    },
     _file: function(file) {
       write('file:');
       return this.dispatch([file.name, file.size, file.type, file.lastModfied]);
@@ -395,10 +393,9 @@ function typeHasher(options, writeTo, context){
     /* Other literal objects */
     'domwindow'
   ];
-
   applyHashes(literals, hashLiteral);
 
-  var stringifiableObjects = [
+  var stringifiableObjectTypes = [
     'symbol',
     'error',
     'number',
@@ -406,8 +403,7 @@ function typeHasher(options, writeTo, context){
     'bigint',
     'url'
   ];
-
-  applyHashes(stringifiableObjects, hashStringifiableObject);
+  applyHashes(stringifiableObjectTypes, hashStringifiableObject);
 
   var typedArrays = [
     'uint8array',
@@ -420,8 +416,13 @@ function typeHasher(options, writeTo, context){
     'float32array',
     'float64array'
   ];
-
   applyHashes(typedArrays, hashTypedArray);
+
+  var setTypes = [
+    'set',
+    'map'
+  ];
+  applyHashes(setTypes, hashSet);
 
   return hasher;
 }
