@@ -180,6 +180,12 @@ function typeHasher(options, writeTo, context){
     }
   }
 
+  function tagAndStringifyHash(tag) {
+    return function(value) {
+      return write(tag + ':' + value.toString());
+    }
+  }
+
   var hasher = {
     dispatch: function(value){
       if (options.replacer) {
@@ -298,15 +304,7 @@ function typeHasher(options, writeTo, context){
     _date: function(date){
       return write('date:' + date.toJSON());
     },
-    _symbol: function(sym){
-      return write('symbol:' + sym.toString());
-    },
-    _error: function(err){
-      return write('error:' + err.toString());
-    },
-    _boolean: function(bool){
-      return write('bool:' + bool.toString());
-    },
+    _boolean: tagAndStringifyHash('bool'),
     _string: function(string){
       write('string:' + string.length + ':');
       write(string.toString());
@@ -330,17 +328,9 @@ function typeHasher(options, writeTo, context){
         this._object(fn);
       }
     },
-    _number: function(number){
-      return write('number:' + number.toString());
-    },
-    _xml: function(xml){
-      return write('xml:' + xml.toString());
-    },
     _null: tagHash('Null'),
     _undefined: tagHash('Undefined'),
-    _regexp: function(regex){
-      return write('regex:' + regex.toString());
-    },
+    _regexp: tagAndStringifyHash('regex'),
     _uint8array: function(arr){
       write('uint8array:');
       return this.dispatch(Array.prototype.slice.call(arr));
@@ -407,14 +397,19 @@ function typeHasher(options, writeTo, context){
         '(see https://github.com/puleos/object-hash/issues/26)\n' +
         'Use "options.replacer" or "options.ignoreUnknown"\n');
     },
-    _domwindow: function() { return write('domwindow'); },
     _bigint: function(number){
       return write('bigint:' + number.toString());
     },
   };
 
-  /* Node.js standard native objects */
-  var nodeStandardNativeObjects = [
+  function applyHashes(names, createHash) {
+    for(var i = 0; i < names.length; ++i) {
+      hasher['_' + names[i]] = createHash(names[i]);
+    }
+  }
+
+  var literals = [
+    /* Node.js standard native objects */
     'process',
     'timer',
     'pipe',
@@ -431,12 +426,22 @@ function typeHasher(options, writeTo, context){
     'dataview',
     'signal',
     'fsevent',
-    'tlswrap'
+    'tlswrap',
+    /* Other literal objects */
+    'domwindow'
   ];
 
-  for(var i = 0; i < nodeStandardNativeObjects.length; ++i) {
-    hasher['_' + nodeStandardNativeObjects[i]] = tagHash(nodeStandardNativeObjects[i]);
-  }
+  applyHashes(literals, tagHash);
+
+  var stringifyObjects = [
+    'symbol',
+    'error',
+    'number',
+    'xml',
+    'bigint'
+  ];
+
+  applyHashes(stringifyObjects, tagAndStringifyHash);
 
   return hasher;
 }
