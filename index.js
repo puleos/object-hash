@@ -174,7 +174,13 @@ function typeHasher(options, writeTo, context){
     }
   };
 
-  return {
+  function tagHash(tag) {
+    return function() {
+      return write(tag);
+    }
+  }
+
+  var hasher = {
     dispatch: function(value){
       if (options.replacer) {
         value = options.replacer(value);
@@ -330,12 +336,8 @@ function typeHasher(options, writeTo, context){
     _xml: function(xml){
       return write('xml:' + xml.toString());
     },
-    _null: function() {
-      return write('Null');
-    },
-    _undefined: function() {
-      return write('Undefined');
-    },
+    _null: tagHash('Null'),
+    _undefined: tagHash('Undefined'),
     _regexp: function(regex){
       return write('regex:' + regex.toString());
     },
@@ -409,25 +411,34 @@ function typeHasher(options, writeTo, context){
     _bigint: function(number){
       return write('bigint:' + number.toString());
     },
-    /* Node.js standard native objects */
-    _process: function() { return write('process'); },
-    _timer: function() { return write('timer'); },
-    _pipe: function() { return write('pipe'); },
-    _tcp: function() { return write('tcp'); },
-    _udp: function() { return write('udp'); },
-    _tty: function() { return write('tty'); },
-    _statwatcher: function() { return write('statwatcher'); },
-    _securecontext: function() { return write('securecontext'); },
-    _connection: function() { return write('connection'); },
-    _zlib: function() { return write('zlib'); },
-    _context: function() { return write('context'); },
-    _nodescript: function() { return write('nodescript'); },
-    _httpparser: function() { return write('httpparser'); },
-    _dataview: function() { return write('dataview'); },
-    _signal: function() { return write('signal'); },
-    _fsevent: function() { return write('fsevent'); },
-    _tlswrap: function() { return write('tlswrap'); },
   };
+
+  /* Node.js standard native objects */
+  var nodeStandardNativeObjects = [
+    'process',
+    'timer',
+    'pipe',
+    'tcp',
+    'udp',
+    'tty',
+    'statwatcher',
+    'securecontext',
+    'connection',
+    'zlib',
+    'context',
+    'nodescript',
+    'httpparser',
+    'dataview',
+    'signal',
+    'fsevent',
+    'tlswrap'
+  ];
+
+  for(var i = 0; i < nodeStandardNativeObjects.length; ++i) {
+    hasher['_' + nodeStandardNativeObjects[i]] = tagHash(nodeStandardNativeObjects[i]);
+  }
+
+  return hasher;
 }
 
 // Mini-implementation of stream.PassThrough
