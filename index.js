@@ -174,13 +174,13 @@ function typeHasher(options, writeTo, context){
     }
   };
 
-  function tagHash(tag) {
+  function hashLiteral(tag) {
     return function() {
       return write(tag);
     }
   }
 
-  function tagAndStringifyHash(tag) {
+  function hashStringifiableObject(tag) {
     return function(value) {
       return write(tag + ':' + value.toString());
     }
@@ -304,7 +304,7 @@ function typeHasher(options, writeTo, context){
     _date: function(date){
       return write('date:' + date.toJSON());
     },
-    _boolean: tagAndStringifyHash('bool'),
+    _boolean: hashStringifiableObject('bool'),
     _string: function(string){
       write('string:' + string.length + ':');
       write(string.toString());
@@ -328,9 +328,9 @@ function typeHasher(options, writeTo, context){
         this._object(fn);
       }
     },
-    _null: tagHash('Null'),
-    _undefined: tagHash('Undefined'),
-    _regexp: tagAndStringifyHash('regex'),
+    _null: hashLiteral('Null'),
+    _undefined: hashLiteral('Undefined'),
+    _regexp: hashStringifiableObject('regex'),
     _uint8array: function(arr){
       write('uint8array:');
       return this.dispatch(Array.prototype.slice.call(arr));
@@ -371,9 +371,6 @@ function typeHasher(options, writeTo, context){
       write('arraybuffer:');
       return this.dispatch(new Uint8Array(arr));
     },
-    _url: function(url) {
-      return write('url:' + url.toString(), 'utf8');
-    },
     _map: function(map) {
       write('map:');
       var arr = Array.from(map);
@@ -396,9 +393,6 @@ function typeHasher(options, writeTo, context){
       throw Error('Hashing Blob objects is currently not supported\n' +
         '(see https://github.com/puleos/object-hash/issues/26)\n' +
         'Use "options.replacer" or "options.ignoreUnknown"\n');
-    },
-    _bigint: function(number){
-      return write('bigint:' + number.toString());
     },
   };
 
@@ -431,17 +425,20 @@ function typeHasher(options, writeTo, context){
     'domwindow'
   ];
 
-  applyHashes(literals, tagHash);
+  applyHashes(literals, hashLiteral);
 
-  var stringifyObjects = [
+  var stringifiableObjects = [
     'symbol',
     'error',
     'number',
     'xml',
-    'bigint'
+    'bigint',
+    'url'
   ];
 
-  applyHashes(stringifyObjects, tagAndStringifyHash);
+  applyHashes(stringifiableObjects, hashStringifiableObject);
+
+
 
   return hasher;
 }
