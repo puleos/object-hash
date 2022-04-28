@@ -186,6 +186,13 @@ function typeHasher(options, writeTo, context){
     }
   }
 
+  function hashTypedArray(name) {
+    return function(value) {
+      write(name + ':');
+      return this.dispatch(Array.prototype.slice.call(value));
+    }
+  }
+
   var hasher = {
     dispatch: function(value){
       if (options.replacer) {
@@ -331,42 +338,6 @@ function typeHasher(options, writeTo, context){
     _null: hashLiteral('Null'),
     _undefined: hashLiteral('Undefined'),
     _regexp: hashStringifiableObject('regex'),
-    _uint8array: function(arr){
-      write('uint8array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _uint8clampedarray: function(arr){
-      write('uint8clampedarray:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _int8array: function(arr){
-      write('int8array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _uint16array: function(arr){
-      write('uint16array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _int16array: function(arr){
-      write('int16array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _uint32array: function(arr){
-      write('uint32array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _int32array: function(arr){
-      write('int32array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _float32array: function(arr){
-      write('float32array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
-    _float64array: function(arr){
-      write('float64array:');
-      return this.dispatch(Array.prototype.slice.call(arr));
-    },
     _arraybuffer: function(arr){
       write('arraybuffer:');
       return this.dispatch(new Uint8Array(arr));
@@ -438,7 +409,19 @@ function typeHasher(options, writeTo, context){
 
   applyHashes(stringifiableObjects, hashStringifiableObject);
 
+  var typedArrays = [
+    'uint8array',
+    'uint8clampedarray',
+    'int8array',
+    'uint16array',
+    'int16array',
+    'uint32array',
+    'int32array',
+    'float32array',
+    'float64array'
+  ];
 
+  applyHashes(typedArrays, hashTypedArray);
 
   return hasher;
 }
