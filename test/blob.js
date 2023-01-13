@@ -2,6 +2,7 @@
 
 var assert = require('assert');
 var hash = require('../index');
+var validSha1 = /^[0-9a-f]{40}$/i;
 
 if (typeof Blob !== 'undefined') {
 describe('hash()ing Blob objects', function() {
