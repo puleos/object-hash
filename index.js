@@ -248,7 +248,11 @@ function typeHasher(options, writeTo, context){
           self.dispatch(key);
           write(':');
           if(!options.excludeValues) {
-            self.dispatch(object[key]);
+            const descriptor = Object.getOwnPropertyDescriptor(object, key);
+            if(descriptor && (descriptor.get || descriptor.set))
+              self.dispatch(descriptor);
+            else
+              self.dispatch(object[key]);
           }
           write(',');
         });

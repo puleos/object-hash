@@ -143,7 +143,7 @@ describe('hash', function() {
     var hash1 = hash(new String('foo'));
     assert.equal(hash1, '7cd3edacc4c9dd43908177508c112608a398bb9a');
     var hash2 = hash({foo: new String('bar')});
-    assert.equal(hash2, 'a75c05bdca7d704bdfcd761913e5a4e4636e956b');
+    assert.equal(hash2, 'e9b056ee29939241daed144791df1cc7ccb1ea7b');
   });
 
   it("various hashes in crypto.getHashes() should be supported", function() {
