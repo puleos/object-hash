@@ -28,9 +28,7 @@ var crypto = require('crypto');
 exports = module.exports = objectHash;
 
 function objectHash(object, options){
-  options = applyDefaults(object, options);
-
-  return hash(object, options);
+  return hash(object, applyDefaults(object, options));
 }
 
 /**
@@ -60,27 +58,43 @@ var hashesMap = new Map(hashes.map(hash => [hash, true]));
 var encodings = ['buffer', 'hex', 'binary', 'base64'];
 var encodingsMap = new Map(encodings.map(encoding => [encoding, true]));
 
+var defaultOptions = {
+  algorithm: 'sha1',
+  encoding: 'hex',
+  excludeValues: false,
+  ignoreUnknown: false,
+  respectType: true,
+  respectFunctionNames: true,
+  respectFunctionProperties: true,
+  unorderedArrays: false,
+  unorderedSets: true,
+  unorderedObjects: true,
+  replacer: undefined,
+  excludeKeys: undefined,
+};
+
 function applyDefaults(object, sourceOptions){
-  var userOptions = sourceOptions || {};
-
-  var options = {
-    algorithm: userOptions.algorithm ? userOptions.algorithm.toLowerCase() : 'sha1',
-    encoding: userOptions.encoding ? userOptions.encoding.toLowerCase() : 'hex',
-    excludeValues: userOptions.excludeValues ? true : false,
-    ignoreUnknown: userOptions.ignoreUnknown !== true ? false : true, // default to false
-    respectType: userOptions.respectType === false ? false : true, // default to true
-    respectFunctionNames: userOptions.respectFunctionNames === false ? false : true,
-    respectFunctionProperties: userOptions.respectFunctionProperties === false ? false : true,
-    unorderedArrays: userOptions.unorderedArrays !== true ? false : true, // default to false
-    unorderedSets: userOptions.unorderedSets === false ? false : true, // default to false
-    unorderedObjects: userOptions.unorderedObjects === false ? false : true, // default to true
-    replacer: userOptions.replacer || undefined,
-    excludeKeys: userOptions.excludeKeys || undefined,
-  };
-
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
   }
+
+  if (!sourceOptions)
+    return defaultOptions;
+
+  var options = {
+    algorithm: sourceOptions.algorithm ? sourceOptions.algorithm.toLowerCase() : 'sha1',
+    encoding: sourceOptions.encoding ? sourceOptions.encoding.toLowerCase() : 'hex',
+    excludeValues: sourceOptions.excludeValues ? true : false,
+    ignoreUnknown: sourceOptions.ignoreUnknown !== true ? false : true, // default to false
+    respectType: sourceOptions.respectType === false ? false : true, // default to true
+    respectFunctionNames: sourceOptions.respectFunctionNames === false ? false : true,
+    respectFunctionProperties: sourceOptions.respectFunctionProperties === false ? false : true,
+    unorderedArrays: sourceOptions.unorderedArrays !== true ? false : true, // default to false
+    unorderedSets: sourceOptions.unorderedSets === false ? false : true, // default to true
+    unorderedObjects: sourceOptions.unorderedObjects === false ? false : true, // default to true
+    replacer: sourceOptions.replacer || undefined,
+    excludeKeys: sourceOptions.excludeKeys || undefined,
+  };
 
   // if there is a case-insensitive match in the hashes list, accept it
   // (i.e. SHA256 for sha256)
