@@ -168,7 +168,7 @@ exports.writeToStream = function(object, options, stream) {
 };
 
 function typeHasher(options, writeTo, context){
-  context = context || [];
+  context = context || new Map();
   var write = function(str) {
     if (writeTo.update) {
       return writeTo.update(str, 'utf8');
@@ -209,10 +209,10 @@ function typeHasher(options, writeTo, context){
 
       var objectNumber = null;
 
-      if ((objectNumber = context.indexOf(object)) >= 0) {
+      if ((objectNumber = context.get(object)) !== undefined) {
         return this.dispatch('[CIRCULAR:' + objectNumber + ']');
       } else {
-        context.push(object);
+        context.set(object, context.size);
       }
 
       if (typeof Buffer !== 'undefined' && Buffer.isBuffer && Buffer.isBuffer(object)) {
@@ -277,21 +277,21 @@ function typeHasher(options, writeTo, context){
       // i.e. {a:1} < {a:2} and {a:1} > {a:2} are both false,
       // we first serialize each entry using a PassThrough stream
       // before sorting.
-      // also: we can’t use the same context array for all entries
+      // also: we can’t use the same context for all entries
       // since the order of hashing should *not* matter. instead,
-      // we keep track of the additions to a copy of the context array
-      // and add all of them to the global context array when we’re done
+      // we keep track of the additions to a copy of the context
+      // and add all of them to the global context when we’re done
       var contextAdditions = [];
       var entries = arr.map(function(entry) {
         var strm = new PassThrough();
-        var localContext = context.slice(); // make copy
+        var localContext = new Map(context); // make copy
         var hasher = typeHasher(options, strm, localContext);
         hasher.dispatch(entry);
         // take only what was added to localContext and append it to contextAdditions
-        contextAdditions = contextAdditions.concat(localContext.slice(context.length));
+        contextAdditions = contextAdditions.concat(localContext.values());
         return strm.read();
       });
-      context = context.concat(contextAdditions);
+      context = new Map(contextAdditions);
       entries.sort();
       return this.array(entries, false);
     },
