@@ -167,6 +167,8 @@ exports.writeToStream = function(object, options, stream) {
   return typeHasher(options, stream).dispatch(object);
 };
 
+var defaultPrototypesKeys = ['prototype', '__proto__', 'constructor'];
+
 function typeHasher(options, writeTo, context){
   context = context || new Map();
   var write = function(str) {
@@ -233,6 +235,7 @@ function typeHasher(options, writeTo, context){
         if (options.unorderedObjects) {
           keys = keys.sort();
         }
+        let extraKeys = [];
         // Make sure to incorporate special properties, so
         // Types with different prototypes will produce
         // a different hash and objects derived from
@@ -241,23 +244,27 @@ function typeHasher(options, writeTo, context){
         // We never do this for native functions since some
         // seem to break because of that.
         if (options.respectType !== false && !isNativeFunction(object)) {
-          keys.splice(0, 0, 'prototype', '__proto__', 'constructor');
+          extraKeys = defaultPrototypesKeys;
         }
 
         if (options.excludeKeys) {
           keys = keys.filter(function(key) { return !options.excludeKeys(key); });
+          extraKeys = extraKeys.filter(function(key) { return !options.excludeKeys(key); });
         }
 
-        write('object:' + keys.length + ':');
+        write('object:' + (keys.length + extraKeys.length) + ':');
         var self = this;
-        return keys.forEach(function(key){
+        var callbackDispatch = function(key){
           self.dispatch(key);
           write(':');
           if(!options.excludeValues) {
             self.dispatch(object[key]);
           }
           write(',');
-        });
+        };
+
+        extraKeys.forEach(callbackDispatch);
+        return keys.forEach(callbackDispatch);
       }
     },
     array: function(arr, unordered){
