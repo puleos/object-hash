@@ -54,9 +54,11 @@ exports.keysMD5 = function(object){
 };
 
 // Internals
-var hashes = crypto.getHashes ? crypto.getHashes().slice() : ['sha1', 'md5'];
+var hashes = crypto.getHashes ? crypto.getHashes().slice().map(hash => hash.toLowerCase()) : ['sha1', 'md5'];
 hashes.push('passthrough');
+var hashesMap = new Map(hashes.map(hash => [hash, true]));
 var encodings = ['buffer', 'hex', 'binary', 'base64'];
+var encodingsMap = new Map(encodings.map(encoding => [encoding, true]));
 
 function applyDefaults(object, sourceOptions){
   sourceOptions = sourceOptions || {};
@@ -84,18 +86,13 @@ function applyDefaults(object, sourceOptions){
 
   // if there is a case-insensitive match in the hashes list, accept it
   // (i.e. SHA256 for sha256)
-  for (var i = 0; i < hashes.length; ++i) {
-    if (hashes[i].toLowerCase() === options.algorithm.toLowerCase()) {
-      options.algorithm = hashes[i];
-    }
-  }
-
-  if(hashes.indexOf(options.algorithm) === -1){
+  if (hashesMap.has(options.algorithm.toLowerCase()))
+    options.algorithm = options.algorithm.toLowerCase();
+  else
     throw new Error('Algorithm "' + options.algorithm + '"  not supported. ' +
       'supported values: ' + hashes.join(', '));
-  }
 
-  if(encodings.indexOf(options.encoding) === -1 &&
+  if(!encodingsMap.has(options.encoding) &&
      options.algorithm !== 'passthrough'){
     throw new Error('Encoding "' + options.encoding + '"  not supported. ' +
       'supported values: ' + encodings.join(', '));
