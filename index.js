@@ -289,7 +289,7 @@ function typeHasher(options, writeTo, context){
         hasher.dispatch(entry);
         // take only what was added to localContext and append it to contextAdditions
         contextAdditions = contextAdditions.concat(localContext.slice(context.length));
-        return strm.read().toString();
+        return strm.read();
       });
       context = context.concat(contextAdditions);
       entries.sort();
@@ -305,11 +305,10 @@ function typeHasher(options, writeTo, context){
       return write('error:' + err.toString());
     },
     boolean: function(bool){
-      return write('bool:' + bool.toString());
+      return write('bool:' + bool);
     },
     string: function(string){
-      write('string:' + string.length + ':');
-      write(string.toString());
+      write('string:' + string.length + ':' + string);
     },
     function: function(fn){
       write('fn:');
@@ -331,7 +330,7 @@ function typeHasher(options, writeTo, context){
       }
     },
     number: function(number){
-      return write('number:' + number.toString());
+      return write('number:' + number);
     },
     xml: function(xml){
       return write('xml:' + xml.toString());
