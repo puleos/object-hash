@@ -193,14 +193,17 @@ function typeHasher(options, writeTo, context){
       return this['_' + type](value);
     },
     _object: function(object) {
-      var pattern = (/\[object (.*)\]/i);
       var objString = Object.prototype.toString.call(object);
-      var objType = pattern.exec(objString);
-      if (!objType) { // object type did not match [object ...]
+
+      var objType = '';
+      var objectLength = objString.length;
+
+      // '[object a]'.length === 10, the minimum
+      if (objectLength < 10)
         objType = 'unknown:[' + objString + ']';
-      } else {
-        objType = objType[1]; // take only the class name
-      }
+      else
+        // '[object '.length === 8
+        objType = objString.slice(8, objectLength - 1)
 
       objType = objType.toLowerCase();
 
