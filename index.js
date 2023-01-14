@@ -190,9 +190,9 @@ function typeHasher(options, writeTo, context){
 
       //console.log("[DEBUG] Dispatch: ", value, "->", type, " -> ", "_" + type);
 
-      return this['_' + type](value);
+      return this[type](value);
     },
-    _object: function(object) {
+    object: function(object) {
       var objString = Object.prototype.toString.call(object);
 
       var objType = '';
@@ -221,8 +221,8 @@ function typeHasher(options, writeTo, context){
       }
 
       if(objType !== 'object' && objType !== 'function' && objType !== 'asyncfunction') {
-        if(this['_' + objType]) {
-          this['_' + objType](object);
+        if(this[objType]) {
+          this[objType](object);
         } else if (options.ignoreUnknown) {
           return write('[' + objType + ']');
         } else {
@@ -260,7 +260,7 @@ function typeHasher(options, writeTo, context){
         });
       }
     },
-    _array: function(arr, unordered){
+    array: function(arr, unordered){
       unordered = typeof unordered !== 'undefined' ? unordered :
         options.unorderedArrays !== false; // default to options.unorderedArrays
 
@@ -293,25 +293,25 @@ function typeHasher(options, writeTo, context){
       });
       context = context.concat(contextAdditions);
       entries.sort();
-      return this._array(entries, false);
+      return this.array(entries, false);
     },
-    _date: function(date){
+    date: function(date){
       return write('date:' + date.toJSON());
     },
-    _symbol: function(sym){
+    symbol: function(sym){
       return write('symbol:' + sym.toString());
     },
-    _error: function(err){
+    error: function(err){
       return write('error:' + err.toString());
     },
-    _boolean: function(bool){
+    boolean: function(bool){
       return write('bool:' + bool.toString());
     },
-    _string: function(string){
+    string: function(string){
       write('string:' + string.length + ':');
       write(string.toString());
     },
-    _function: function(fn){
+    function: function(fn){
       write('fn:');
       if (isNativeFunction(fn)) {
         this.dispatch('[native]');
@@ -327,82 +327,82 @@ function typeHasher(options, writeTo, context){
       }
 
       if (options.respectFunctionProperties) {
-        this._object(fn);
+        this.object(fn);
       }
     },
-    _number: function(number){
+    number: function(number){
       return write('number:' + number.toString());
     },
-    _xml: function(xml){
+    xml: function(xml){
       return write('xml:' + xml.toString());
     },
-    _null: function() {
+    null: function() {
       return write('Null');
     },
-    _undefined: function() {
+    undefined: function() {
       return write('Undefined');
     },
-    _regexp: function(regex){
+    regexp: function(regex){
       return write('regex:' + regex.toString());
     },
-    _uint8array: function(arr){
+    uint8array: function(arr){
       write('uint8array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _uint8clampedarray: function(arr){
+    uint8clampedarray: function(arr){
       write('uint8clampedarray:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _int8array: function(arr){
+    int8array: function(arr){
       write('int8array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _uint16array: function(arr){
+    uint16array: function(arr){
       write('uint16array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _int16array: function(arr){
+    int16array: function(arr){
       write('int16array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _uint32array: function(arr){
+    uint32array: function(arr){
       write('uint32array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _int32array: function(arr){
+    int32array: function(arr){
       write('int32array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _float32array: function(arr){
+    float32array: function(arr){
       write('float32array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _float64array: function(arr){
+    float64array: function(arr){
       write('float64array:');
       return this.dispatch(Array.prototype.slice.call(arr));
     },
-    _arraybuffer: function(arr){
+    arraybuffer: function(arr){
       write('arraybuffer:');
       return this.dispatch(new Uint8Array(arr));
     },
-    _url: function(url) {
+    url: function(url) {
       return write('url:' + url.toString(), 'utf8');
     },
-    _map: function(map) {
+    map: function(map) {
       write('map:');
       var arr = Array.from(map);
-      return this._array(arr, options.unorderedSets !== false);
+      return this.array(arr, options.unorderedSets !== false);
     },
-    _set: function(set) {
+    set: function(set) {
       write('set:');
       var arr = Array.from(set);
-      return this._array(arr, options.unorderedSets !== false);
+      return this.array(arr, options.unorderedSets !== false);
     },
-    _file: function(file) {
+    file: function(file) {
       write('file:');
       return this.dispatch([file.name, file.size, file.type, file.lastModfied]);
     },
-    _blob: function() {
+    blob: function() {
       if (options.ignoreUnknown) {
         return write('[blob]');
       }
@@ -411,28 +411,28 @@ function typeHasher(options, writeTo, context){
         '(see https://github.com/puleos/object-hash/issues/26)\n' +
         'Use "options.replacer" or "options.ignoreUnknown"\n');
     },
-    _domwindow: function() { return write('domwindow'); },
-    _bigint: function(number){
+    domwindow: function() { return write('domwindow'); },
+    bigint: function(number){
       return write('bigint:' + number.toString());
     },
     /* Node.js standard native objects */
-    _process: function() { return write('process'); },
-    _timer: function() { return write('timer'); },
-    _pipe: function() { return write('pipe'); },
-    _tcp: function() { return write('tcp'); },
-    _udp: function() { return write('udp'); },
-    _tty: function() { return write('tty'); },
-    _statwatcher: function() { return write('statwatcher'); },
-    _securecontext: function() { return write('securecontext'); },
-    _connection: function() { return write('connection'); },
-    _zlib: function() { return write('zlib'); },
-    _context: function() { return write('context'); },
-    _nodescript: function() { return write('nodescript'); },
-    _httpparser: function() { return write('httpparser'); },
-    _dataview: function() { return write('dataview'); },
-    _signal: function() { return write('signal'); },
-    _fsevent: function() { return write('fsevent'); },
-    _tlswrap: function() { return write('tlswrap'); },
+    process: function() { return write('process'); },
+    timer: function() { return write('timer'); },
+    pipe: function() { return write('pipe'); },
+    tcp: function() { return write('tcp'); },
+    udp: function() { return write('udp'); },
+    tty: function() { return write('tty'); },
+    statwatcher: function() { return write('statwatcher'); },
+    securecontext: function() { return write('securecontext'); },
+    connection: function() { return write('connection'); },
+    zlib: function() { return write('zlib'); },
+    context: function() { return write('context'); },
+    nodescript: function() { return write('nodescript'); },
+    httpparser: function() { return write('httpparser'); },
+    dataview: function() { return write('dataview'); },
+    signal: function() { return write('signal'); },
+    fsevent: function() { return write('fsevent'); },
+    tlswrap: function() { return write('tlswrap'); },
   };
 }
 
