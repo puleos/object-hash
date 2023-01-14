@@ -61,24 +61,22 @@ var encodings = ['buffer', 'hex', 'binary', 'base64'];
 var encodingsMap = new Map(encodings.map(encoding => [encoding, true]));
 
 function applyDefaults(object, sourceOptions){
-  sourceOptions = sourceOptions || {};
+  var userOptions = sourceOptions || {};
 
-  // create a copy rather than mutating
-  var options = {};
-  options.algorithm = sourceOptions.algorithm || 'sha1';
-  options.encoding = sourceOptions.encoding || 'hex';
-  options.excludeValues = sourceOptions.excludeValues ? true : false;
-  options.algorithm = options.algorithm.toLowerCase();
-  options.encoding = options.encoding.toLowerCase();
-  options.ignoreUnknown = sourceOptions.ignoreUnknown !== true ? false : true; // default to false
-  options.respectType = sourceOptions.respectType === false ? false : true; // default to true
-  options.respectFunctionNames = sourceOptions.respectFunctionNames === false ? false : true;
-  options.respectFunctionProperties = sourceOptions.respectFunctionProperties === false ? false : true;
-  options.unorderedArrays = sourceOptions.unorderedArrays !== true ? false : true; // default to false
-  options.unorderedSets = sourceOptions.unorderedSets === false ? false : true; // default to false
-  options.unorderedObjects = sourceOptions.unorderedObjects === false ? false : true; // default to true
-  options.replacer = sourceOptions.replacer || undefined;
-  options.excludeKeys = sourceOptions.excludeKeys || undefined;
+  var options = {
+    algorithm: userOptions.algorithm ? userOptions.algorithm.toLowerCase() : 'sha1',
+    encoding: userOptions.encoding ? userOptions.encoding.toLowerCase() : 'hex',
+    excludeValues: userOptions.excludeValues ? true : false,
+    ignoreUnknown: userOptions.ignoreUnknown !== true ? false : true, // default to false
+    respectType: userOptions.respectType === false ? false : true, // default to true
+    respectFunctionNames: userOptions.respectFunctionNames === false ? false : true,
+    respectFunctionProperties: userOptions.respectFunctionProperties === false ? false : true,
+    unorderedArrays: userOptions.unorderedArrays !== true ? false : true, // default to false
+    unorderedSets: userOptions.unorderedSets === false ? false : true, // default to false
+    unorderedObjects: userOptions.unorderedObjects === false ? false : true, // default to true
+    replacer: userOptions.replacer || undefined,
+    excludeKeys: userOptions.excludeKeys || undefined,
+  };
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
