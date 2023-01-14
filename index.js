@@ -303,7 +303,7 @@ function typeHasher(options, writeTo, context){
       return this.array(entries, false);
     },
     date: function(date){
-      return write('date:' + date.toJSON());
+      return write('date:' + date.valueOf());
     },
     symbol: function(sym){
       return write('symbol:' + sym.toString());
