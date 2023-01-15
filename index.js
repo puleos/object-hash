@@ -78,7 +78,7 @@ function applyDefaults(object, sourceOptions){
     throw new Error('Object argument required.');
   }
 
-  if (!sourceOptions)
+  if (typeof sourceOptions === 'undefined')
     return defaultOptions;
 
   var options = {
@@ -126,35 +126,38 @@ function isNativeFunction(f) {
 }
 
 function hash(object, options) {
-  var hashingStream;
-
-  if (options.algorithm !== 'passthrough') {
-    hashingStream = crypto.createHash(options.algorithm);
-  } else {
-    hashingStream = new PassThrough();
-  }
-
-  if (typeof hashingStream.write === 'undefined') {
-    hashingStream.write = hashingStream.update;
-    hashingStream.end   = hashingStream.update;
-  }
+  var hashingStream = new PassThrough();
 
   var hasher = typeHasher(options, hashingStream);
   hasher.dispatch(object);
-  if (!hashingStream.update) {
-    hashingStream.end('');
-  }
 
-  if (hashingStream.digest) {
-    return hashingStream.digest(options.encoding === 'buffer' ? undefined : options.encoding);
-  }
+  var finalValue = hashingStream.read();
 
-  var buf = hashingStream.read();
-  if (options.encoding === 'buffer') {
-    return buf;
-  }
+  if (options.algorithm !== 'passthrough') {
+    const hashStream = crypto.createHash(options.algorithm);
 
-  return buf.toString(options.encoding);
+    if (typeof hashStream.write === 'undefined') {
+      hashStream.write = hashStream.update;
+      hashStream.end   = hashStream.update;
+    }
+
+    hashStream.update(finalValue);
+
+    if (hashStream.digest)
+      return hashStream.digest(options.encoding === 'buffer' ? undefined : options.encoding);
+
+    if (options.encoding === 'buffer') {
+      return buf;
+    }
+
+    return buf.toString(options.encoding);
+  } else {
+    if (options.encoding === 'buffer') {
+      return finalValue;
+    }
+
+    return finalValue.toString(options.encoding);
+  }
 }
 
 /**
@@ -265,11 +268,12 @@ function typeHasher(options, writeTo, context){
         var self = this;
         var callbackDispatch = function(key){
           self.dispatch(key);
-          write(':');
-          if(!options.excludeValues) {
+          if(options.excludeValues === false) {
+            write(':');
             self.dispatch(object[key]);
-          }
-          write(',');
+            write(',');
+          } else 
+            write(':,');
         };
 
         extraKeys.forEach(callbackDispatch);
