@@ -9,7 +9,7 @@ var crypto = require('crypto');
  *
  *  - `algorithm` hash algo to be used by this instance: *'sha1', 'md5'
  *  - `excludeValues` {true|*false} hash object keys, values ignored
- *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64'
+ *  - `encoding` hash encoding, supports 'buffer', '*hex', 'binary', 'base64', 'base64url'
  *  - `ignoreUnknown` {true|*false} ignore unknown object types
  *  - `replacer` optional function that replaces values before hashing
  *  - `respectFunctionProperties` {*true|false} consider function properties when hashing
@@ -56,7 +56,7 @@ exports.keysMD5 = function(object){
 // Internals
 var hashes = crypto.getHashes ? crypto.getHashes().slice() : ['sha1', 'md5'];
 hashes.push('passthrough');
-var encodings = ['buffer', 'hex', 'binary', 'base64'];
+var encodings = ['buffer', 'hex', 'binary', 'base64', 'base64url'];
 
 function applyDefaults(object, sourceOptions){
   sourceOptions = sourceOptions || {};
