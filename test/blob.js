@@ -2,6 +2,7 @@
 
 var assert = require('assert');
 var hash = require('../index');
+var validSha1 = /^[0-9a-f]{40}$/i;
 
 if (typeof Blob !== 'undefined') {
 describe('hash()ing Blob objects', function() {
@@ -71,7 +72,7 @@ describe('hashing Blob() objects', function() {
       type: 'application/octet-stream',
       lastModified: 100000
     }));
-    var hash2 = hash(new File(new Uint8Array([1,2,3]), 'bar', {
+    var hash2 = hash(new File(new Uint8Array([1,2,3]), 'foo', {
       type: 'application/octet-stream',
       lastModified: 100000
     }));
