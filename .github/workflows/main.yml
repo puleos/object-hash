@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+          cache: npm
+
+      - name: Install dependencies
+        # Note: `npm ci` is faster and more reliable than `npm install` for CI,
+        # but it is not compatible with older versions of Node.js that we still support.
+        run: npm install
+
+      - name: Run linter
+        run: npx gulp lint
+
+      - name: Run build
+        run: npx gulp dist
+
+      - name: Run tests
+        run: npx gulp test karma
