@@ -6,7 +6,7 @@ as well as custom streams (e.g. CRC32).
 
 [![NPM](https://nodei.co/npm/object-hash.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/object-hash)
 
-[![Travis CI](https://secure.travis-ci.org/puleos/object-hash.png?branch=master)](https://secure.travis-ci.org/puleos/object-hash?branch=master)
+[![GitHub CI](https://github.com/github/puleos/object-hash/workflows/main.yml/badge.svg)](https://github.com/jpuleos/object-hash/actions/workflows/main.yml)
 [![Coverage Status](https://coveralls.io/repos/puleos/object-hash/badge.svg?branch=master&service=github)](https://coveralls.io/github/puleos/object-hash?branch=master)
 
 * Hash values of any type.
