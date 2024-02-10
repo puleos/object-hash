@@ -2,7 +2,6 @@
 
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
-var exec = require('gulp-exec');
 var stylish = require('jshint-stylish');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
