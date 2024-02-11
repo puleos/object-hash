@@ -192,6 +192,11 @@ MIT
 
 ## Changelog
 
+### v3.0.0
+
+A change was introduced to the hash in order to differentiate signed and unsigned typed arrays.
+As per our semantic versioning guarantee, this was considered a breaking change.
+
 ### v2.0.0
 
 Only Node.js versions `>= 6.0.0` are being tested in CI now.
