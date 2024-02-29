@@ -2,7 +2,8 @@
 module.exports = {
   extends: "eslint:recommended",
   ignorePatterns: [
-    "dist"
+    "dist",
+    "coverage"
   ],
   env: {
     node: true,
