@@ -31,6 +31,6 @@ describe('replacer option', function() {
       return k;
     };
     
-    hash.writeToStream({foo: 'bar'}, {excludeValues: true}, strm);
+    hash.writeToStream({foo: 'bar', replacer: replacer}, {excludeValues: true}, strm);
   });
 });

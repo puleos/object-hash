@@ -110,7 +110,7 @@ function isNativeFunction(f) {
     return false;
   }
   var exp = /^function\s+\w*\s*\(\s*\)\s*{\s+\[native code\]\s+}$/i;
-  return exp.exec(Function.prototype.toString.call(f)) != null;
+  return exp.exec(Function.prototype.toString.call(f)) !== null;
 }
 
 function hash(object, options) {

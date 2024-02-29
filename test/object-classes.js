@@ -1,8 +1,6 @@
 'use strict';
 
 var assert = require('assert');
-var crypto = require('crypto');
-var stream = require('stream');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 

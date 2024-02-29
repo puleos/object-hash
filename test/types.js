@@ -1,7 +1,6 @@
 'use strict';
 
 var assert = require('assert');
-var crypto = require('crypto');
 var hash = require('../index');
 var validSha1 = /^[0-9a-f]{40}$/i;
 
@@ -12,8 +11,11 @@ describe('hash()ing different types', function() {
     try {
       asyncFunc = eval('async function(a) { return a + 1; }');
     } catch (err) {
-      if (err.name === 'SyntaxError') asyncFunc = func;
-      else throw err;
+      if (err.name === 'SyntaxError') {
+        asyncFunc = func;
+      } else {
+        throw err;
+      }
     }
     assert.ok(validSha1.test(hash('Shazbot!')), 'hash string');
     assert.ok(validSha1.test(hash(42)), 'hash number');
@@ -69,10 +71,12 @@ describe('hash()ing different types', function() {
       assert.ok(validSha1.test(hash(new Uint32Array([1,2,3,4]))), 'hashes Uint32Array');
       assert.ok(validSha1.test(hash(new  Int32Array([1,2,3,4]))), 'hashes  Int32Array');
       assert.ok(validSha1.test(hash(new Float32Array([1,2,3,4]))), 'hashes Float32Array');
-      if (typeof Float64Array !== 'undefined')
-      assert.ok(validSha1.test(hash(new Float64Array([1,2,3,4]))), 'hashes Float64Array');
-      if (typeof Uint8ClampedArray !== 'undefined')
-      assert.ok(validSha1.test(hash(new Uint8ClampedArray([1,2,3,4]))), 'hashes Uint8ClampedArray');
+      if (typeof Float64Array !== 'undefined') {
+        assert.ok(validSha1.test(hash(new Float64Array([1,2,3,4]))), 'hashes Float64Array');
+      }
+      if (typeof Uint8ClampedArray !== 'undefined') {
+        assert.ok(validSha1.test(hash(new Uint8ClampedArray([1,2,3,4]))), 'hashes Uint8ClampedArray');
+      }
       assert.ok(validSha1.test(hash(new Uint8Array([1,2,3,4]).buffer)), 'hashes ArrayBuffer');
     });
   }
@@ -122,13 +126,13 @@ describe('hash()ing different types', function() {
     var hashcount = {};
     var types = [Object, Date, Number, String, Function, RegExp,
       Error, 0, null, NaN];
-    if (typeof WeakSet !== 'undefined') types.push(WeakSet);
-    if (typeof Set !== 'undefined') types.push(Set);
-    if (typeof WeakMap !== 'undefined') types.push(WeakMap);
-    if (typeof Map !== 'undefined') types.push(Map);
-    if (typeof Symbol !== 'undefined') types.push(Symbol);
-    if (typeof Uint8Array !== 'undefined') types.push(Uint8Array);
-    if (typeof BigInt !== 'undefined') types.push(BigInt);
+    if (typeof WeakSet !== 'undefined') {types.push(WeakSet);}
+    if (typeof Set !== 'undefined') {types.push(Set);}
+    if (typeof WeakMap !== 'undefined') {types.push(WeakMap);}
+    if (typeof Map !== 'undefined') {types.push(Map);}
+    if (typeof Symbol !== 'undefined') {types.push(Symbol);}
+    if (typeof Uint8Array !== 'undefined') {types.push(Uint8Array);}
+    if (typeof BigInt !== 'undefined') {types.push(BigInt);}
 
     // Hash each type
     for (var idx in types) {
@@ -139,7 +143,7 @@ describe('hash()ing different types', function() {
 
     // Check for collisions
     var no = 0;
-    for (var h in hashcount) {
+    for (h in hashcount) {
       assert.equal(hashcount[h], 1);
       no++;
     }
@@ -152,13 +156,13 @@ describe('hash()ing different types', function() {
     var hashcount = {};
     var types = [Object, Date, Number, String, Function, RegExp,
       Error, 0, null, NaN];
-    if (typeof WeakSet !== 'undefined') types.push(WeakSet);
-    if (typeof Set !== 'undefined') types.push(Set);
-    if (typeof WeakMap !== 'undefined') types.push(WeakMap);
-    if (typeof Map !== 'undefined') types.push(Map);
-    if (typeof Symbol !== 'undefined') types.push(Symbol);
-    if (typeof Uint8Array !== 'undefined') types.push(Uint8Array);
-    if (typeof BigInt !== 'undefined') types.push(BigInt);
+    if (typeof WeakSet !== 'undefined') {types.push(WeakSet);}
+    if (typeof Set !== 'undefined') {types.push(Set);}
+    if (typeof WeakMap !== 'undefined') {types.push(WeakMap);}
+    if (typeof Map !== 'undefined') {types.push(Map);}
+    if (typeof Symbol !== 'undefined') {types.push(Symbol);}
+    if (typeof Uint8Array !== 'undefined') {types.push(Uint8Array);}
+    if (typeof BigInt !== 'undefined') {types.push(BigInt);}
 
     // Hash each type
     for (var idx in types) {
@@ -169,7 +173,7 @@ describe('hash()ing different types', function() {
 
     // Check for collisions
     var no = 0;
-    for (var h in hashcount) {
+    for (h in hashcount) {
       assert.ok(hashcount[h] >= 1);
       no += hashcount[h];
     }
