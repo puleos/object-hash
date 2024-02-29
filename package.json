@@ -31,7 +31,6 @@
     "gulp": "^4.0.0",
     "gulp-browserify": "^0.5.1",
     "gulp-coveralls": "^0.1.4",
-    "gulp-exec": "^3.0.1",
     "gulp-istanbul": "^1.1.3",
     "gulp-jshint": "^2.0.0",
     "gulp-mocha": "^5.0.0",
