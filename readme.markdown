@@ -178,12 +178,12 @@ git clone https://github.com/puleos/object-hash
 If you want to stand this up in a docker container, you should take at look
 at the [![node-object-hash](https://github.com/bean5/node-object-hash)](https://github.com/bean5/node-object-hash) project.
 
-### gulp tasks
+### Package scripts
 
 * `gulp watch` (default) watch files, test and lint on change/add
 * `gulp test` unit tests
 * `gulp karma` browser unit tests
-* `gulp lint` jshint
+* `npm run lint` linter
 * `gulp dist` create browser version in /dist
 
 ## License

@@ -1,8 +1,6 @@
 'use strict';
 
 var gulp = require('gulp');
-var jshint = require('gulp-jshint');
-var stylish = require('jshint-stylish');
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
@@ -37,12 +35,6 @@ function testKarma(done){
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, done).start();
-}
-
-function lint(src){
-  return gulp.src(src)
-    .pipe(jshint('.jshintrc'))
-    .pipe(jshint.reporter(stylish));
 }
 
 gulp.task('dist', function(){
@@ -84,8 +76,4 @@ gulp.task('karma', function(done) {
 gulp.task('coveralls', function() {
   return gulp.src('coverage/**/lcov.info')
     .pipe(coveralls());
-});
-
-gulp.task('lint', function () {
-  return lint([paths.index]);
 });

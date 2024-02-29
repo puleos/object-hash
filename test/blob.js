@@ -15,7 +15,7 @@ describe('hash()ing Blob objects', function() {
       if (!e.message.match(/'\[object BlobConstructor\]' is not a constructor/)) {
         throw e;
       }
-
+      /* global WebKitBlobBuilder */
       var builder = new WebKitBlobBuilder();
       builder.append('ABC');
       blob = builder.getBlob();
@@ -42,7 +42,6 @@ describe('hash()ing Blob objects', function() {
 
 if (typeof File !== 'undefined') {
 describe('hashing Blob() objects', function() {
-  var file;
   it('should hash the same file the same way', function() {
     var hash1 = hash(new File(new Uint8Array([1,2,3]), 'foo', {
       type: 'application/octet-stream',

@@ -227,10 +227,11 @@ describe('hash', function() {
     try {
       Foo = eval('async function Foo() {}; Foo');
     } catch (err) {
-      if (err.name === 'SyntaxError')
+      if (err.name === 'SyntaxError') {
         return this.skip('Not available on Node 6');
-      else
+      } else {
         throw err;
+      }
     }
 
     a = hash(Foo);
