@@ -36,7 +36,7 @@ Generate a hash from any object or type.  Defaults to sha1 with hex encoding.
   * This supports the algorithms returned by `crypto.getHashes()`. Note that the default of SHA-1 is not considered secure, and a stronger algorithm should be used if a cryptographical hash is desired.
   * This also supports the `passthrough` algorith, which will return the information that would otherwise have been hashed.
 * `excludeValues` {true|false} hash object keys, values ignored. default: false
-* `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64'. default: hex
+* `encoding` hash encoding, supports 'buffer', 'hex', 'binary', 'base64', 'base64url'. default: hex
 * `ignoreUnknown` {true|*false} ignore unknown object types. default: false
 * `replacer` optional function that replaces values before hashing. default: accept all values
 * `respectFunctionProperties` {true|false} Whether properties on functions are considered when hashing. default: true
