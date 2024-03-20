@@ -305,6 +305,36 @@ describe('hash', function() {
     assert.equal(ha, hb, 'Hashing should ignore key `b`');
   });
 
+  it('excludeKeys path works', function() {
+    var ha, hb, hc;
+    ha = hash({a: 1, b: 4, c:{a:5, b:6}}, { excludeKeys: function(key, keyPath) { return keyPath.join(".") == "c.b" } });
+    hb = hash({a: 1, b: 4, c:{a:5}});
+    hc = hash({a: 1, b: 4, c:{}});
+
+    assert.equal(ha, hb, 'Hashing should ignore key `c.b`');
+    assert.notEqual(hb, hc, 'Hash get sub difference');
+  });
+
+  it('excludeKeys path collection works', function() {
+    var ha, hb, hc;
+    ha = hash({a: 1, b: 4, c:[{a:2, b:3},{a:5, b:6}]}, { excludeKeys: function(key, keyPath) { return keyPath.join(".") == "c.1.b" } });
+    hb = hash({a: 1, b: 4, c:[{a:2, b:3},{a:5}]});
+    hc = hash({a: 1, b: 4, c:[{}]});
+
+    assert.equal(ha, hb, 'Hashing should ignore key `c.1.b`');
+    assert.notEqual(hb, hc, 'Hash get sub difference');
+  });
+
+  it('excludeKeys path array works', function() {
+    var ha, hb, hc;
+    ha = hash({a: 1, b: 4, c:[{a:2, b:3},{a:5, b:6}]}, { excludeKeys: function(key, keyPath) { return keyPath.join(".") == "c.1" } });
+    hb = hash({a: 1, b: 4, c:[{a:2, b:3}]});
+    hc = hash({a: 1, b: 4, c:[{}]});
+
+    assert.equal(ha, hb, 'Hashing should ignore key `c.1.b`');
+    assert.notEqual(hb, hc, 'Hash get sub difference');
+  });
+
   if (typeof Set !== 'undefined') {
     it('unorderedSets = false', function() {
       var opt = { unorderedSets: false };

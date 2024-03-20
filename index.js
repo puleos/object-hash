@@ -174,6 +174,8 @@ function typeHasher(options, writeTo, context){
     }
   };
 
+  var keysPath = [];
+
   return {
     dispatch: function(value){
       if (options.replacer) {
@@ -193,6 +195,7 @@ function typeHasher(options, writeTo, context){
       var pattern = (/\[object (.*)\]/i);
       var objString = Object.prototype.toString.call(object);
       var objType = pattern.exec(objString);
+      var baseKeysPath = keysPath.slice(); // clone
       if (!objType) { // object type did not match [object ...]
         objType = 'unknown:[' + objString + ']';
       } else {
@@ -239,12 +242,14 @@ function typeHasher(options, writeTo, context){
         }
 
         if (options.excludeKeys) {
-          keys = keys.filter(function(key) { return !options.excludeKeys(key); });
+          keys = keys.filter(function(key) { return !options.excludeKeys(key, baseKeysPath.concat([key])); });
         }
 
         write('object:' + keys.length + ':');
         var self = this;
         return keys.forEach(function(key){
+          keysPath = baseKeysPath.concat([key]);
+
           self.dispatch(key);
           write(':');
           if(!options.excludeValues) {
@@ -257,11 +262,17 @@ function typeHasher(options, writeTo, context){
     _array: function(arr, unordered){
       unordered = typeof unordered !== 'undefined' ? unordered :
         options.unorderedArrays !== false; // default to options.unorderedArrays
-
+      var baseKeysPath = keysPath.slice(); // clone
+      
+      if (options.excludeKeys) {
+        arr = arr.filter(function (entry, index) { return !options.excludeKeys(null, baseKeysPath.concat([index])); });
+      }
+      
       var self = this;
       write('array:' + arr.length + ':');
       if (!unordered || arr.length <= 1) {
-        return arr.forEach(function(entry) {
+        return arr.forEach(function(entry, index) {
+          keysPath = baseKeysPath.concat([index]);
           return self.dispatch(entry);
         });
       }
