@@ -77,6 +77,7 @@ function applyDefaults(object, sourceOptions){
   options.unorderedObjects = sourceOptions.unorderedObjects === false ? false : true; // default to true
   options.replacer = sourceOptions.replacer || undefined;
   options.excludeKeys = sourceOptions.excludeKeys || undefined;
+  options.exclude = sourceOptions.exclude || undefined;
 
   if(typeof object === 'undefined') {
     throw new Error('Object argument required.');
@@ -175,6 +176,7 @@ function typeHasher(options, writeTo, context){
   };
 
   return {
+    level: -1,
     dispatch: function(value){
       if (options.replacer) {
         value = options.replacer(value);
@@ -187,7 +189,10 @@ function typeHasher(options, writeTo, context){
 
       //console.log("[DEBUG] Dispatch: ", value, "->", type, " -> ", "_" + type);
 
-      return this['_' + type](value);
+      ++this.level;
+      var result = this['_' + type](value);
+      --this.level;
+      return result;
     },
     _object: function(object) {
       var pattern = (/\[object (.*)\]/i);
@@ -240,6 +245,11 @@ function typeHasher(options, writeTo, context){
 
         if (options.excludeKeys) {
           keys = keys.filter(function(key) { return !options.excludeKeys(key); });
+        }
+
+        if (options.exclude) {
+          var level = this.level;
+          keys = keys.filter(function(key) { return !options.exclude(key, object[key], level); });
         }
 
         write('object:' + keys.length + ':');

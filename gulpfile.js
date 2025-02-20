@@ -1,18 +1,24 @@
 'use strict';
 
-var gulp = require('gulp');
-var browserify = require('gulp-browserify');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
-var replace = require('gulp-replace');
-var coveralls = require('gulp-coveralls');
-var istanbul = require('gulp-istanbul');
-var mocha = require('gulp-mocha');
+import browserify from 'browserify';
+import gulp from 'gulp';
+import source from 'vinyl-source-stream';
+import buffer from 'vinyl-buffer';
+import uglify from 'gulp-uglify';
+import rename from 'gulp-rename';
+import replace from 'gulp-replace';
+import coveralls from 'gulp-coveralls';
+import istanbul from 'gulp-istanbul';
+import mocha from 'gulp-mocha';
+import sourcemaps from 'gulp-sourcemaps';
+import log from 'gulplog';
 
 var paths = {
   index: './index.js',
   tests: './test/**/*.js'
 };
+
+console.info(mocha);
 
 function preTest(src) {
   return gulp.src(src)
@@ -37,29 +43,62 @@ function testKarma(done){
   }, done).start();
 }
 
-gulp.task('dist', function(){
-  return Promise.all([
-    gulp.src([paths.index])
-      .pipe(browserify({
-        insertGlobals : true,
-        debug: true,
-        standalone: 'objectHash'
-      }))
-      // Hack: See https://github.com/puleos/object-hash/issues/71.
-      // It's probably better to replace gulp-browserify altogether instead.
-      .pipe(replace(/_global.crypto/g, 'false'))
-      .pipe(rename('object_hash.js'))
-      .pipe(uglify())
-      .pipe(gulp.dest('./dist')),
-    gulp.src([paths.tests])
-      // Hack: browserify seems to not support async-await.
-      // It's probably better to replace gulp-browserify altogether instead.
-      .pipe(replace(/async function/g, 'function'))
-      .pipe(browserify())
-      .pipe(rename('object_hash_test.js'))
-      .pipe(gulp.dest('./dist'))
-  ]);
+gulp.task('dist', function() {
+  var b = browserify({
+    entries: paths.index,
+    basedir: './',
+    debug: false,
+    standalone: 'objectHash',
+    insertGlobals : false,
+    bundleExternal: false,
+    bare: true,
+  });
+  b.external('crypto');
+  b.require('crypto');
+  // b.external('buffer');
+  // b.exclude('buffer');
+  // b.ignore('buffer');
+
+  return b.bundle()
+    .pipe(source('object_hash.js'))
+    .pipe(buffer())
+    // .pipe(sourcemaps.init({loadMaps: true}))
+    .on('error', log.error)
+    // .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist'))
+    .pipe(uglify())
+    .pipe(rename({ extname: '.min.js' }))
+    .pipe(gulp.dest('./dist'))
 });
+
+
+//     function() {
+//       // gulp expects tasks to return a stream, so we create one here.
+//       var bundledStream = through();
+
+//       bundledStream
+//         .pipe(source('object_hash_test.js'))
+//         .pipe(buffer())
+//         // .pipe(sourcemaps.init({loadMaps: true}))
+//         // .pipe(uglify())
+//         .on('error', log.error)
+//         // .pipe(sourcemaps.write('./'))
+//         .pipe(gulp.dest('./dist'));
+
+//       globby([paths.tests]).then(function(entries) {
+//         var b = browserify({
+//           entries: entries,
+//           basedir: './tests',
+//           debug: false,
+//         });
+
+//         b.bundle().pipe(bundledStream);
+//       });
+
+//       return bundledStream;
+//     },
+//   ], cb);
+// });
 
 gulp.task('pre-test', function() {
   return preTest([paths.index]);

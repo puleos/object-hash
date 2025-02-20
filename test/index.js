@@ -305,6 +305,30 @@ describe('hash', function() {
     assert.equal(ha, hb, 'Hashing should ignore key `b`');
   });
 
+  it('exclude works', function() {
+    var ha, hb;
+    ha = hash({a: 1, b: undefined, c: undefined}, { exclude: function(key, value) { return key === 'b' && value === undefined } });
+    hb = hash({a: 1, c: undefined});
+
+    assert.equal(ha, hb, 'Hashing should ignore key/value `b: undefined`');
+  });
+
+  it('exclude by level works', function() {
+    var ha, hb;
+    ha = hash({a: 1, b: { c: 1, d: { c: 2 }}}, { algorithm: 'passthrough', exclude: function(key, value, level) { return key === 'c' && level === 1 } });
+    hb = hash({a: 1, b: { d: { c: 2 }}}, { algorithm: 'passthrough' });
+
+    assert.equal(ha, hb, 'Hashing should ignore properties of nested object `b: { c: 1 }');
+  });
+
+  it('check sha256', function() {
+    var ha, hb;
+    ha = hash({}, { algorithm: 'sha256' });
+    hb = '89f54475c1b4341195658d61b2b1baa04b2230b6bba73b44c5e6ec5c9f91c7e0';
+
+    assert.equal(ha, hb, 'Hashing empty object with sha256 should yield ' + hb);
+  });
+
   if (typeof Set !== 'undefined') {
     it('unorderedSets = false', function() {
       var opt = { unorderedSets: false };
