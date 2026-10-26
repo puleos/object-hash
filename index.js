@@ -423,7 +423,10 @@ function typeHasher(options, writeTo, context){
     _context: function() { return write('context'); },
     _nodescript: function() { return write('nodescript'); },
     _httpparser: function() { return write('httpparser'); },
-    _dataview: function() { return write('dataview'); },
+    _dataview: function(view) {
+      write('dataview:');
+      return this.dispatch(new Uint8Array(view.buffer, view.byteOffset, view.byteLength));
+    },
     _signal: function() { return write('signal'); },
     _fsevent: function() { return write('fsevent'); },
     _tlswrap: function() { return write('tlswrap'); },

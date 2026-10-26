@@ -48,7 +48,7 @@ describe('hash() objects with custom class names', function() {
       'domwindow',
       'process', 'timer', 'pipe', 'tcp', 'udp', 'tty', 'statwatcher',
       'securecontext', 'connection', 'zlib', 'context', 'nodescript',
-      'httpparser', 'dataview', 'signal', 'fsevent', 'tlswrap'
+      'httpparser', 'signal', 'fsevent', 'tlswrap'
     ];
     
     for (var i = 0; i < nativeTypes.length; i++) {

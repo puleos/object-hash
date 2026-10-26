@@ -61,6 +61,41 @@ describe('hash()ing different types', function() {
     });
   }
 
+  if (typeof DataView !== 'undefined') {
+    describe('DataView', function() {
+      function view(bytes, offset, length) {
+        return new DataView(new Uint8Array(bytes).buffer, offset || 0, length);
+      }
+
+      it('includes the viewed bytes in the hash', function() {
+        assert.notEqual(hash(view([1])), hash(view([2])));
+        assert.notEqual(hash(view([1, 2])), hash(view([2, 1])));
+      });
+
+      it('ignores bytes outside the view', function() {
+        assert.equal(hash(view([9, 1, 2, 8], 1, 2)), hash(view([1, 2])));
+      });
+
+      it('includes the view length', function() {
+        assert.notEqual(hash(view([1, 2], 0, 1)), hash(view([1, 2])));
+        assert.notEqual(hash(view([], 0, 0)), hash(view([0])));
+      });
+
+      it('keeps DataViews distinct from other byte containers', function() {
+        var data = view([1, 2]);
+        assert.notEqual(hash(data), hash(new Uint8Array([1, 2])));
+        assert.notEqual(hash(data), hash(data.buffer));
+      });
+
+      it('detects a change made through the view', function() {
+        var data = view([1, 2]);
+        var before = hash({ data: data });
+        data.setUint8(1, 3);
+        assert.notEqual(hash({ data: data }), before);
+      });
+    });
+  }
+
   if (typeof Uint8Array !== 'undefined') {
     it("Typed arrays can be hashed", function() {
 
